@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify
 from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
