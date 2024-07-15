@@ -72,10 +72,11 @@ def upload_video():
     
     return jsonify({"message": "Video uploaded successfully!", "video_url": video_url})
 
-@app.route('/get-video-url/')
+@app.route('/get-video-url/', methods=['POST'])
 def get_video_url():
-    video_url = manager.get_signed_url(session.get('file_folder'), session.get('file_name'))
-    return jsonify({"video_url": video_url})
+    file_name = request.form.get('file_name')
+    file_folder = request.form.get('file_folder')
+    return jsonify({"video_url": manager.get_signed_url(file_folder, file_name)})
 
 @app.route('/<path:path>')
 def catch_all(path):
