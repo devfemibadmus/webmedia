@@ -15,7 +15,7 @@ class Scraper:
         self.edge_options.headless = False
         self.browser = webdriver.Edge(options=self.edge_options)
         self.browser.delete_all_cookies()
-        self.browser.set_script_timeout(120)
+        self.browser.set_script_timeout(320)
 
     def get_video(self, file_folder, video_url):
         source = Validator.validate(video_url)
@@ -39,18 +39,18 @@ class Scraper:
         video_id_match = re.search(r'video/(\d+)', tiktok_url)
         video_attribute = 'src'
         video_id = video_id_match.group(1) if video_id_match else None
-        response = {"error":False, "message":"response_data.message"}
+        response = {"error":False, "message":"response_data['message']"}
         for xpath in video_element_xpaths:
             session.clear()
             try:
                 response_data = self.post_video(file_folder=file_folder, video_url=tiktok_url, video_element_xpath=xpath, video_attribute=video_attribute, video_id=video_id)
-                if response_data.message == "Video uploaded successfully!":
-                    response = {"video_url":response_data.video_url, "success":True, "message":response_data.message}
+                if response_data['message'] == "Video uploaded successfully!":
+                    response = {"video_url":response_data['video_url'], "success":True, "message": f"{response_data['message']}"}
                 else:
-                    response = {"error":False, "message":response_data.message}
+                    response = {"error":True, "message": f"{response_data['message']}"}
             except Exception as e:
-                response = f"Failed to scrape using XPath: {xpath}. Error: {e}"
-                print(f"Failed to scrape using XPath: {xpath}. Error: {e}")
+                response = {"error":True, "message": f"{e}"}
+                print(f"XPath: {xpath}. Error: {e}")
                 continue
         return response
 
@@ -103,7 +103,9 @@ class Scraper:
 
         self.browser.switch_to.window(self.browser.window_handles[-1])
         response_data = self.browser.execute_script(js_code)
-        # print("response_data: ", response_data)
+        print("response_data: ", response_data)
+
+        # response_data:  {'message': 'Video uploaded successfully!', 'success': True, 'video_url': 'https://storage.googleapis.com/mediasaver/07-15-2024/18%3A36%3A47/7390912680883899654.mp4?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=931067452340-compute%40developer.gserviceaccount.com%2F20240715%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240715T173742Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=547128b07497f11121d73096a31623b07604aa6cf03d7a43c64fbbfd60535201fc2ca177a59880969163a4ed12f4c167d00f19c591a218400d5ff268978a77019763b13fcbd3450e7f245d5a3a8da4f476c6cfba2beba2182d854f01457ff79ae5de7d1d02ee123d2f33db02ac1a355e9e059001f1a6a9ad8a5163c274fe9d6b3da02fe3182d6991ae7fa8d4655b7b5253b9d4bf4706996cafc2748bc1cbc2aaef65dd604d3994d01f8cffc0145226e350fbf715021720cbd47baa1a3eb1da7f0bc7607139ca3d87a78a23a10dbd99351d59d74d9f7791b7c28921d32a6033ebe00df602cf0a3571f0db80df1cb34f0cf677c5c1d25a03a94ce40fb7ee250c67'} 
 
         self.browser.quit()
         return response_data
