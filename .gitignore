@@ -1,1 +1,5 @@
 venv
+mediasaver.json
+*__pycache__
+run.py
+zzz.txt
