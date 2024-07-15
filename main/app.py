@@ -20,14 +20,14 @@ class CloudStorageManager:
         if file_upload:
             blob = self.bucket.blob(file_folder + "/" + file_upload.filename)
             blob.upload_from_file(file_upload)
-            signed_url = blob.generate_signed_url(expiration=1200, version='v4')
+            signed_url = blob.generate_signed_url(expiration=3600, version='v4')
             return signed_url
         return False
 
-    def get_signed_url(self, file_folder, file_name, expiration=1200):
+    def get_signed_url(self, file_folder, file_name):
         if file_name:
             blob = self.bucket.blob(file_folder + "/" + file_name)
-            signed_url = blob.generate_signed_url(expiration=expiration, version='v4')
+            signed_url = blob.generate_signed_url(expiration=3600, version='v4')
             print("signed_url: ", signed_url)
             return signed_url
         return False
@@ -52,6 +52,7 @@ def home():
         video_url = request.form.get('video_url')
         scraper = Scraper()
         response = scraper.get_video(file_folder, video_url)
+        print(response)
         return jsonify(response)
     return render_template("home.html")
 
