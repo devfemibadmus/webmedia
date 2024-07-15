@@ -59,18 +59,18 @@ def home():
 @cross_origin()
 def upload_video():
     if 'file' not in request.files:
-        session['error'] = "No file part"
+        return jsonify({"message": "No file part", "error": True})
 
     file = request.files['file']
     
     if file.filename == '':
-        session['error'] = "No selected file"
+        return jsonify({"message": "No selected file", "error": True})
 
     file_folder = request.form.get('file_folder')
     
     video_url = manager.upload_file(file_folder, file)
     
-    return jsonify({"message": "Video uploaded successfully!", "video_url": video_url})
+    return jsonify({"message": "Video uploaded successfully!", "success": True, "video_url": video_url})
 
 @app.route('/get-video-url/', methods=['POST'])
 def get_video_url():
