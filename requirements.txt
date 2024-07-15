@@ -1,1 +1,3 @@
 flask
+selenium
+google-cloud-storage
