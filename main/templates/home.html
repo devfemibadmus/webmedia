@@ -136,7 +136,6 @@
          margin-bottom: 10px;
          }
          .section .productimg {
-         border: 1px solid whitesmoke;
          width: 250px;
          height: 250px;
          object-fit: cover;
@@ -379,8 +378,8 @@
                     } else {
                      loadingMessage.style.display = 'block';
                      loadingMessage.style.color = 'red';
-                        loadingMessage.textContent = 'Failed to load media. Please try again.';
-                        console.log(data.message)
+                     loadingMessage.textContent = data.message;
+                     console.log(data.message)
                     }
                 })
                 .catch(error => {
