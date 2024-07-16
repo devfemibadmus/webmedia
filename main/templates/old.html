@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fetch Video URL</h1>
+        <form id="videoUrlForm">
+            <label for="videoUrl">Enter Video URL:</label>
+            <input type="text" id="videoUrl" name="video_url" required>
+            <button type="submit">Fetch Video URL</button>
+        </form>
+        
+
+        <div id="video-container" style="display:none;">
+            <h2>Uploaded Video</h2>
+            <video id="video" width="320" height="240" controls></video>
+            <br>
+            <a id="download-link" download="uploaded_video.mp4">Download Video</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('videoUrlForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+        
+                var formData = new FormData();
+                formData.append('video_url', document.getElementById('videoUrl').value);
+        
+                fetch('/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('video-container').style.display = 'block';
+                        document.getElementById('video').setAttribute('src', data.video_url);
+                        document.getElementById('download-link').setAttribute('href', data.video_url);
+                        document.getElementById('download-link').style.display = 'block';
+                    } else {
+                        console.error('Video upload failed:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching video URL:', error);
+                    document.getElementById('videoUrlDisplay').innerHTML = '<p>Error fetching video URL.</p>';
+                });
+            });
+        });        
+    </script>
+</body>
+</html>

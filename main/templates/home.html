@@ -1,61 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <style>
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Fetch Video URL</h1>
-        <form id="videoUrlForm">
-            <label for="videoUrl">Enter Video URL:</label>
-            <input type="text" id="videoUrl" name="video_url" required>
-            <button type="submit">Fetch Video URL</button>
-        </form>
-        
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>TikTok Video Player</title>
+      <style>
+         body {
+         margin: 0;
+         font-family: 'Helvetica', sans-serif;
+         background-color: black;
+         color: white;
+         overflow: hidden;
+         font-family: 'Roboto', sans-serif;
+         }
+         header {
+         background-color: black;
+         position: absolute;
+         top: 0px;
+         right: 10px;
+         width: 100%;
+         padding: 2em 0;
+         z-index: 2;
+         }
+         .nav-list {
+         display: flex;
+         justify-content: space-between;
+         list-style: none;
+         margin: 0;
+         right: 0px;
+         }
+         .nav-list li {
+         flex-grow: 1;
+         text-align: center;
+         }
+         .nav-list a {
+         color: white;
+         text-decoration: none;
+         font-weight: bold;
+         display: block;
+         }
+         .nav-list li:first-child a {
+         color: black;
+         visibility: hidden;
+         }
+         .logo {
+         position: absolute;
+         top: 0px;
+         left: 20px;
+         width: 50px;
+         height: 50px;
+         padding-top: 1em;
+         border-radius: 50%;
+         overflow: hidden;
+         }
+         .logo img {
+         width: 100%;
+         height: 100%;
+         object-fit: cover;
+         border-radius: 50%;
+         }
+         #background {
+         position: absolute;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         z-index: -1;
+         background-color: #000;
+         }
+         .main.container {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: center;
+         text-align: center;
+         height: 100vh;
+         width: 100vw;
+         margin-top: 10vh;
+         position: relative;
+         z-index: 1;
+         }
+         .section {
+         display: none;
+         margin-top: -10vh;
+         }
+         .section .text-sized{
+         padding: 10px;
+         width:80vw;
+         max-width: 600px;
+         }
+         .section.active {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: center;
+         text-align: center;
+         animation: slide-up 0.5s ease forwards;
+         }
+         @keyframes slide-up {
+         from {
+         transform: translateY(100%);
+         opacity: 0;
+         }
+         to {
+         transform: translateY(0);
+         opacity: 1;
+         }
+         }
+         .section .scrollable-container{
+         display: flex;
+         flex-wrap: wrap;
+         justify-content: center;
+         align-items: flex-center;
+         gap: 20px;
+         width: 80vw;
+         height: 70vh;
+         overflow: auto;
+         padding-top: 30vh;
+         padding-bottom: 30vh;
+         }
+         .section .title {
+         width: 100%;
+         }
+         .section .container {
+         border-radius: 8px;
+         padding: 20px;
+         height: auto;
+         max-height: 80vh;
+         }
+         .section .fanimg {
+         width: 100px;
+         height: 100px;
+         border-radius: 50%;
+         object-fit: cover;
+         margin-bottom: 10px;
+         }
+         .section .productimg {
+         border: 1px solid whitesmoke;
+         width: 250px;
+         height: 250px;
+         object-fit: cover;
+         margin-bottom: 10px;
+         }
+         .section h2 {
+         font-size: 1.2em;
+         margin-bottom: 10px;
+         }
+         @media screen and (min-width: 480px) {
+         .section .container.post {
+         max-width: 250px;
+         }
+         }
+         .section * {
+         color: #777;
+         text-decoration: none;
+         word-wrap: break-word;
+         overflow-wrap: break-word;
+         }
+         .section a {
+         color: #00faff;
+         text-decoration:underline;
+         }
+         .nav-link {
+         cursor: pointer;
+         transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+         }
+         .nav-link.hidden {
+         transform: translateY(100%);
+         opacity: 0;
+         }
+         .nav-link.visible {
+         transform: translateY(0);
+         opacity: 1;
+         }
+         .search-container {
+         display: flex;
+         flex-wrap: wrap;
+         justify-content: center;
+         align-items: flex-center;
+         width:100%;
+         }
+         #search-input {
+         width:60%;
+         padding: 5px;
+         border: 1px solid #777;
+         border-radius: 4px 0 0 4px;
+         outline: none;
+         background-color:black;
+         color:white;
+         }
+         #search-button {
+         border: 0px;
+         background-color: black;
+         color: white;
+         cursor: pointer;
+         font-weight: bold;
+         font-size: large;
+         }
+      </style>
+   </head>
+   <body>
+      <header>
+         <a class="logo" href="">
+         <img src="static/icon-512.png" alt="Logo">
+         </a>
+         <ul class="nav-list">
+            <li><a href="#home" class="nav-link">Mediasaver</a></li>
+            <li><a href="#save" class="nav-link">Saver</a></li>
+            <li><a href="#app" class="nav-link" >App</a></li>
+            <li><a href="#privacy" class="nav-link" id="nav-privacy">Privacy</a></li>
+         </ul>
+      </header>
+      <div class="main container">
+         <div class="section" id="home">
+            <div class="scrollable-container">
+               <div class="container post">
+                <video class="video" controls autoplay loop class="productimg" width="100%" height"auto">
+                   <source id="video-source" src="" type="video/mp4" class="productimg">
+                   Your browser does not support the video tag.
+                </video>
+               </div>
+               <p id="loading-message" style="display: none;">Loading...</p>
+            </div>
+         </div>
+         <div class="section" id="app">
+            <h2 style="color:whitesmoke;">Download App</h2>
+            <div class="text-sized">
+               <p>Coming soon, Check out it's <a href="https://github.com/devfemibadmus/mediasaver">GtiHub repo</a></p>
+            </div>
+         </div>
+         <div class="section" id="privacy">
+            <div class="scrollable-container">
+               <div class="text-sized">
+                  <h1 style="color:whitesmoke;">Media Saver Privacy Policy</h1>
+                  <p>Welcome to Media Saver! Our privacy policy outlines how we collect, use, and safeguard your personal information when you use our application.</p>
+                  <h2>Information We Collect</h2>
+                  <h3>Personal Information</h3>
+                  <p>We do not collect any personally identifiable information from our users. We respect your privacy and do not require you to provide any personal details to use our app.</p>
+                  <h3>Device Information</h3>
+                  <p>We do not collect any device information. Our app operates entirely offline and does not gather any data about your device.</p>
+                  <h3>Media Files</h3>
+                  <p>Media Saver allows you to download media from social platforms such as Instagram, TikTok, etc., and manage media files from WhatsApp and WhatsApp Business. The app will access and store media files on your device to perform these actions. We do not access or store these files on our servers.</p>
+                  <h2>Storage Permission</h2>
+                  <p>To ensure our app operates smoothly, we require full access to your device's storage. This permission is necessary for:</p>
+                  <ul>
+                     <li>Managing WhatsApp statuses and WhatsApp Business statuses on your device.</li>
+                     <li>Downloading media from the internet to your device.</li>
+                     <li>Deleting saved statuses or media downloaded from the internet on your device.</li>
+                  </ul>
+                  <h2>Google Ads</h2>
+                  <p>Our app includes Google Ads, which may collect and use certain information from your device to provide personalized advertising. Google Ads may collect:</p>
+                  <ul>
+                     <li>Device information (e.g., device model, operating system version)</li>
+                     <li>Advertising ID</li>
+                     <li>Location information (if location services are enabled)</li>
+                  </ul>
+                  <p>For more details on how Google Ads collects and uses data, please refer to <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</p>
+                  <h2>How We Use Your Information</h2>
+                  <p>We do not collect or use any information from our users. Our app functions by allowing you to save and manage status updates from WhatsApp and WhatsApp Business seamlessly and download public media from social platforms such as Instagram, TikTok, etc., without collecting any data.</p>
+                  <h2>Information Sharing and Disclosure</h2>
+                  <p>We do not share your personal information with third-party services or companies because we do not collect any information. Our app may contain links to external websites or services that have their own privacy policies. We are not responsible for the privacy practices of these third-party services.</p>
+                  <h2>Your Choices and Rights</h2>
+                  <p>Since we do not collect any information, there are no choices or rights related to information collection, access, update, or deletion.</p>
+                  <h2>Changes to This Privacy Policy</h2>
+                  <p>We may update our privacy policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We encourage you to review this policy periodically for any updates.</p>
+                  <h2>Contact Us</h2>
+                  <p>If you have any questions or concerns about our privacy policy or our app's practices, please contact us at <a href="mailto:devfemibadmus@gmail.com">devfemibadmus@gmail.com</a>.</p>
+                  <p>Last Updated: 5/7/2024</p>
+               </div>
+            </div>
+         </div>
+         <div class="section active" id="save">
+            <div class="scrollable-container">
+               <div class="text-sized">
+                  <h1 style="color:whitesmoke;">Media Saver</h1>
+                  <br/> <br/>
+                  <div class="search-container">
+                     <input type="text" id="search-input" placeholder="https://www...">
+                     <button id="search-button">Download</button>
+                  </div>
+                  <br/> <br/>
+                  <p>Examples:</p>
+                  <p style="overflow-wrap: break-word;word-wrap: break-word;">https://www.facebook.com/share/reel/BLaPVaFoEguzQBio/ https://www.facebook.com/share/r/BLaPVaFoEguzQBio/ https://www.instagram.com/p/C3mr9v5IEr9/ https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/ https://www.tiktok.com/@devfemibadmus/video/7390912680883899654 </p>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script>
+         document.addEventListener('DOMContentLoaded', function () {
+             const links = document.querySelectorAll('.nav-link');
+             const sections = document.querySelectorAll('.section');
+             const searchButton = document.getElementById('search-button');
+             const searchInput = document.getElementById('search-input');
+             const homeSection = document.getElementById('home');
+             const postContainer = document.querySelector('.container.post');
+             const loadingMessage = document.getElementById('loading-message');
+             const videoSource = document.getElementById('video-source');
+         
+             links.forEach(link => {
+                 link.addEventListener('click', function (event) {
+                     event.preventDefault();
+                     const targetId = this.getAttribute('href').substring(1);
+                     const targetElement = document.getElementById(targetId);
+         
+                     if (targetElement) {
+                         sections.forEach(container => {
+                             container.classList.remove('active');
+                         });
+         
+                         targetElement.classList.add('active');
+                     }
+                 });
+             });
+         
+             searchButton.addEventListener('click', function (event) {
+                 event.preventDefault();
+                 const url = searchInput.value;
 
-        <div id="video-container" style="display:none;">
-            <h2>Uploaded Video</h2>
-            <video id="video" width="320" height="240" controls></video>
-            <br>
-            <a id="download-link" download="uploaded_video.mp4">Download Video</a>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#videoUrlForm').submit(function(event) {
-                event.preventDefault();
-
-                var formData = {
-                    'video_url': $('#videoUrl').val()
-                };
-
-                $.ajax({
-                    url: '/',
-                    type: 'POST',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            $('#video-container').show();
-                            $('#video').attr('src', response.video_url);
-                            $('#download-link').attr('href', response.video_url);
-                            $('#download-link').show();
-                        } else {
-                            console.error('Video upload failed:', response.message);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching video URL:', error);
-                        $('#videoUrlDisplay').html('<p>Error fetching video URL.</p>');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
+                 var formData = new FormData();
+                 formData.append('video_url', url);
+         
+                 // Show loading message and hide the post container
+                 postContainer.style.display = 'none';
+                 loadingMessage.style.display = 'block';
+         
+                 // Navigate to the home section
+                 sections.forEach(section => {
+                     section.classList.remove('active');
+                 });
+                 homeSection.classList.add('active');
+         
+                 // Post the URL to the server
+                 fetch('/', {
+                     method: 'POST',
+                     body: formData
+                 })
+                 .then(response => response.json())
+                 .then(data => {
+                     if (data.success) {
+                         // Update the video source and link
+                         videoSource.src = data.video_url;
+                         videoSource.parentElement.load();
+         
+                         // Show the post container and hide the loading message
+                         postContainer.style.display = 'block';
+                         loadingMessage.style.display = 'none';
+                     } else {
+                         loadingMessage.textContent = 'Failed to load video. Please try again.';
+                     }
+                 })
+                 .catch(error => {
+                     console.error('Error:', error);
+                     loadingMessage.textContent = 'An error occurred. Please try again.';
+                 });
+             });
+         });
+         
+         window.onresize = function () {
+             window.location.reload();
+         };
+         let navLink = document.getElementById('nav-privacy');
+         let isAbout = true;
+         
+         setInterval(() => {
+         navLink.classList.remove('visible');
+         navLink.classList.add('hidden');
+         
+         setTimeout(() => {
+         navLink.textContent = isAbout ? 'About' : 'Privacy';
+         navLink.classList.remove('hidden');
+         navLink.classList.add('visible');
+         isAbout = !isAbout;
+         }, 500);
+         }, 8000);
+      </script>
+   </body>
 </html>
