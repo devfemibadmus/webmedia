@@ -38,6 +38,7 @@ class Scraper:
         media_element_xpaths = [
             '//div[@class="css-8lv75m-DivBasicPlayerWrapper e1yey0rl2"]/div/video'
         ]
+        # media_element_xpaths images/
         username_element_xpath = '//span[@data-e2e="browse-username" and contains(@class, "css-1c7urt-SpanUniqueId")]'
         media_id_match = re.search(r'video/(\d+)', tiktok_url)
         media_id = media_id_match.group(1) if media_id_match else None
