@@ -8,7 +8,6 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
-app.config['SECRET_KEY'] = 'a5f4b6e9c7d1a8b2e0f3c9d2a8b1f4e5'
 application = app
 
 class CloudStorageManager:
@@ -48,10 +47,10 @@ def home():
     date = now.strftime("%m-%d-%Y")
     time = now.strftime("%H:%M:%S")
     file_folder = f"{date}/{time}"
-    if request.method == 'POST' and request.form.get('video_url'):
-        video_url = request.form.get('video_url')
+    if request.method == 'POST' and request.form.get('src'):
+        src = request.form.get('src')
         scraper = Scraper()
-        response = scraper.get_video(file_folder, video_url)
+        response = scraper.get_video(file_folder, src)
         print(response)
         return jsonify(response)
     return render_template("home.html")
@@ -69,15 +68,14 @@ def upload_video():
 
     file_folder = request.form.get('file_folder')
     
-    video_url = manager.upload_file(file_folder, file)
+    data = [{"src": manager.upload_file(file_folder, file)}]
     
-    return jsonify({"message": "Video uploaded successfully!", "success": True, "video_url": video_url})
+    return jsonify({"message": "Video uploaded successfully!", "success": True, "data": data})
 
-@app.route('/get-video-url/', methods=['POST'])
-def get_video_url():
-    file_name = request.form.get('file_name')
-    file_folder = request.form.get('file_folder')
-    return jsonify({"video_url": manager.get_signed_url(file_folder, file_name)})
+@app.route('/test-mode/', methods=['POST'])
+def get_test_url():
+    src = [{"src": "static/0713.mp4"}, {"src": "static/0713.mp4"}, {"src": "static/icon-512.png"}]
+    return jsonify({"data": src})
 
 @app.route('/<path:path>')
 def catch_all(path):
