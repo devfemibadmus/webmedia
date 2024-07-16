@@ -1,15 +1,13 @@
 from flask import Flask, render_template, request, jsonify
-from flask_cors import cross_origin, CORS
+from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
-from datetime import datetime
 from pathlib import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
 application = app
-CORS(app)
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "mediasaver.json"))
@@ -43,10 +41,6 @@ manager = CloudStorageManager()
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
 def home():
-    now = datetime.now()
-    date = now.strftime("%m-%d-%Y")
-    time = now.strftime("%H:%M:%S")
-    file_folder = f"{date}/{time}"
     if request.method == 'POST' and request.form.get('src'):
         src = request.form.get('src')
         scraper = Scraper()
@@ -56,7 +50,7 @@ def home():
     return render_template("home.html")
 
 @app.route('/upload-video', methods=['POST'])
-# @cross_origin()
+@cross_origin()
 def upload_video():
     print("request.files: ", request.files)
     if 'file_0' not in request.files:
