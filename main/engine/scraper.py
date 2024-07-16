@@ -12,7 +12,10 @@ class Scraper:
     def __init__(self):
         self.edge_options = Options()
         self.edge_options.use_chromium = True
-        self.edge_options.headless = False
+        self.edge_options.add_argument("--headless")
+        self.edge_options.add_argument("--disable-gpu")
+        self.edge_options.add_argument("--mute-audio")
+        self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(options=self.edge_options)
         self.browser.delete_all_cookies()
         self.browser.set_script_timeout(320)
@@ -74,29 +77,29 @@ class Scraper:
         
 
         js_code = f"""
-        return new Promise((resolve, reject) => {{
-        var videoElement = document.querySelector('video');
-        var videoUrl = videoElement.querySelector('source').src;
-        fetch(videoUrl)
-            .then(response => response.blob())
-            .then(blob => {{
-                var formData = new FormData();
-                formData.append('file', blob, '{video_id}.mp4');
-                formData.append('file_folder', '{file_folder}');
-                return fetch('http://localhost:5000/upload-video', {{
-                    method: 'POST',
-                    body: formData
+            return new Promise((resolve, reject) => {{
+                var videoElement = document.querySelector('video');
+                var videoUrl = videoElement.querySelector('source').src;
+                fetch(videoUrl)
+                .then(response => response.blob())
+                .then(blob => {{
+                    var formData = new FormData();
+                    formData.append('file', blob, '{video_id}.mp4');
+                    formData.append('file_folder', '{file_folder}');
+                    return fetch('http://localhost:5000/upload-video', {{
+                        method: 'POST',
+                        body: formData
+                    }});
+                }})
+                .then(response => response.json())
+                .then(data => {{
+                    resolve(data);
+                }})
+                .catch(error => {{
+                    reject(error);
                 }});
-            }})
-            .then(response => response.json())
-            .then(data => {{
-                resolve(data);
-            }})
-            .catch(error => {{
-                reject(error);
             }});
-    }});
-    """
+            """
 
         self.browser.execute_script(f"window.open('{video_url}', '_blank');")
         time.sleep(5)
