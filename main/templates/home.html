@@ -3,7 +3,7 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>TikTok Video Player</title>
+      <title>Media Saver</title>
       <style>
          body {
          margin: 0;
@@ -214,13 +214,22 @@
       <div class="main container">
          <div class="section" id="home">
             <div class="scrollable-container">
-               <div class="container post">
-                <video class="video" controls autoplay loop class="productimg" width="100%" height"auto">
-                   <source id="video-source" src="" type="video/mp4" class="productimg">
-                   Your browser does not support the video tag.
-                </video>
-               </div>
                <p id="loading-message" style="display: none;">Loading...</p>
+            </div>
+         </div>
+         <div class="section active" id="save">
+            <div class="scrollable-container">
+               <div class="text-sized">
+                  <h1 style="color:whitesmoke;">Media Saver</h1>
+                  <br/> <br/>
+                  <div class="search-container">
+                     <input type="text" id="search-input" placeholder="https://www...">
+                     <button id="search-button">Download</button>
+                  </div>
+                  <br/> <br/>
+                  <p>Examples:</p>
+                  <p style="overflow-wrap: break-word;word-wrap: break-word;">https://www.facebook.com/share/reel/BLaPVaFoEguzQBio/ https://www.facebook.com/share/r/BLaPVaFoEguzQBio/ https://www.instagram.com/p/C3mr9v5IEr9/ https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/ https://www.tiktok.com/@devfemibadmus/video/7390912680883899654 </p>
+               </div>
             </div>
          </div>
          <div class="section" id="app">
@@ -270,91 +279,116 @@
                </div>
             </div>
          </div>
-         <div class="section active" id="save">
-            <div class="scrollable-container">
-               <div class="text-sized">
-                  <h1 style="color:whitesmoke;">Media Saver</h1>
-                  <br/> <br/>
-                  <div class="search-container">
-                     <input type="text" id="search-input" placeholder="https://www...">
-                     <button id="search-button">Download</button>
-                  </div>
-                  <br/> <br/>
-                  <p>Examples:</p>
-                  <p style="overflow-wrap: break-word;word-wrap: break-word;">https://www.facebook.com/share/reel/BLaPVaFoEguzQBio/ https://www.facebook.com/share/r/BLaPVaFoEguzQBio/ https://www.instagram.com/p/C3mr9v5IEr9/ https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/ https://www.tiktok.com/@devfemibadmus/video/7390912680883899654 </p>
-               </div>
-            </div>
-         </div>
       </div>
       <script>
          document.addEventListener('DOMContentLoaded', function () {
-             const links = document.querySelectorAll('.nav-link');
-             const sections = document.querySelectorAll('.section');
-             const searchButton = document.getElementById('search-button');
-             const searchInput = document.getElementById('search-input');
-             const homeSection = document.getElementById('home');
-             const postContainer = document.querySelector('.container.post');
-             const loadingMessage = document.getElementById('loading-message');
-             const videoSource = document.getElementById('video-source');
-         
-             links.forEach(link => {
-                 link.addEventListener('click', function (event) {
-                     event.preventDefault();
-                     const targetId = this.getAttribute('href').substring(1);
-                     const targetElement = document.getElementById(targetId);
-         
-                     if (targetElement) {
-                         sections.forEach(container => {
-                             container.classList.remove('active');
-                         });
-         
-                         targetElement.classList.add('active');
-                     }
-                 });
-             });
-         
-             searchButton.addEventListener('click', function (event) {
-                 event.preventDefault();
-                 const url = searchInput.value;
-
-                 var formData = new FormData();
-                 formData.append('video_url', url);
-         
-                 // Show loading message and hide the post container
-                 postContainer.style.display = 'none';
-                 loadingMessage.style.display = 'block';
-         
-                 // Navigate to the home section
-                 sections.forEach(section => {
-                     section.classList.remove('active');
-                 });
-                 homeSection.classList.add('active');
-         
-                 // Post the URL to the server
-                 fetch('/', {
-                     method: 'POST',
-                     body: formData
-                 })
-                 .then(response => response.json())
-                 .then(data => {
-                     if (data.success) {
-                         // Update the video source and link
-                         videoSource.src = data.video_url;
-                         videoSource.parentElement.load();
-         
-                         // Show the post container and hide the loading message
-                         postContainer.style.display = 'block';
-                         loadingMessage.style.display = 'none';
-                     } else {
-                         loadingMessage.textContent = 'Failed to load video. Please try again.';
-                     }
-                 })
-                 .catch(error => {
-                     console.error('Error:', error);
-                     loadingMessage.textContent = 'An error occurred. Please try again.';
-                 });
-             });
-         });
+            const links = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+            const homeSection = document.getElementById('home');
+            const scrollableContainer = document.querySelector('.scrollable-container');
+            const loadingMessage = document.getElementById('loading-message');
+        
+            links.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+        
+                    if (targetElement) {
+                        sections.forEach(container => {
+                            container.classList.remove('active');
+                        });
+        
+                        targetElement.classList.add('active');
+                    }
+                });
+            });
+        
+            searchButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                const url = searchInput.value;
+        
+                var formData = new FormData();
+                formData.append('src', url);
+                
+                // scrollableContainer.style.display = 'none';
+                loadingMessage.style.display = 'block';
+                
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                homeSection.classList.add('active');
+                
+                fetch('/', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        scrollableContainer.innerHTML = '';
+                        
+                        data.data.forEach(item => {
+                            const containerDiv = document.createElement('div');
+                            containerDiv.className = 'container post';
+                            console.log(item.src)
+        
+                            if (item.src.includes('.mp4?X-Goog-Algorithm')) {
+                                const video = document.createElement('video');
+                                video.className = 'productimg';
+                                video.controls = true;
+                                // video.autoplay = true;
+                                video.loop = true;
+                                video.style.width = '100%';
+                                video.style.height = 'auto';
+        
+                                const source = document.createElement('source');
+                                source.src = item.src;
+                                source.type = 'video/mp4';
+                                source.className = 'productimg';
+        
+                                video.appendChild(source);
+                                containerDiv.appendChild(video);
+                              } else if (item.src.includes('.png?X-Goog-Algorithm') || item.src.includes('.jpg?X-Goog-Algorithm') || item.src.includes('.jpeg?X-Goog-Algorithm')) {
+                                const a = document.createElement('a');
+                                a.href = item.src;
+                                a.download = item.src.split('/').pop();
+                                const img = document.createElement('img');
+                                img.src = item.src;
+                                img.alt = '';
+                                img.className = 'productimg';
+                                img.style.width = '100%';
+                                img.style.height = 'auto';
+                                a.appendChild(img);
+                                containerDiv.appendChild(a);
+                             } else {
+                                const a = document.createElement('a');
+                                a.href = item.src;
+                                a.download = item.src.split('/').pop();
+                                a.innerHTML = "Click Here to Download";
+                                containerDiv.appendChild(a);
+                             }
+        
+                            scrollableContainer.appendChild(containerDiv);
+                        });
+                        
+                        scrollableContainer.style.display = 'flex';
+                        loadingMessage.style.display = 'none';
+                    } else {
+                     loadingMessage.style.display = 'block';
+                     loadingMessage.style.color = 'red';
+                        loadingMessage.textContent = 'Failed to load media. Please try again.';
+                        console.log(data.message)
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingMessage.textContent = 'An error occurred. Please try again.';
+                });
+            });
+         });                
          
          window.onresize = function () {
              window.location.reload();

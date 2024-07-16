@@ -12,7 +12,7 @@
         <h1>Fetch Video URL</h1>
         <form id="videoUrlForm">
             <label for="videoUrl">Enter Video URL:</label>
-            <input type="text" id="videoUrl" name="video_url" required>
+            <input type="text" id="videoUrl" name="src" required>
             <button type="submit">Fetch Video URL</button>
         </form>
         
@@ -31,7 +31,7 @@
                 event.preventDefault();
         
                 var formData = new FormData();
-                formData.append('video_url', document.getElementById('videoUrl').value);
+                formData.append('src', document.getElementById('videoUrl').value);
         
                 fetch('/', {
                     method: 'POST',
@@ -41,8 +41,8 @@
                 .then(data => {
                     if (data.success) {
                         document.getElementById('video-container').style.display = 'block';
-                        document.getElementById('video').setAttribute('src', data.video_url);
-                        document.getElementById('download-link').setAttribute('href', data.video_url);
+                        document.getElementById('video').setAttribute('src', data.src);
+                        document.getElementById('download-link').setAttribute('href', data.src);
                         document.getElementById('download-link').style.display = 'block';
                     } else {
                         console.error('Video upload failed:', data.message);
