@@ -19,90 +19,115 @@ class Scraper:
         self.browser.delete_all_cookies()
         self.browser.set_script_timeout(320)
 
-    def get_video(self, file_folder, src):
+    def get_video(self, src):
         source = Validator.validate(src)
         print("source: ", source)
         if source == "TikTok":
-            return self.scrape_tiktok_video(file_folder, src)
+            return self.scrape_tiktok_video(src)
         elif source == "Instagram Post":
-            return self.scrape_instagram_post(file_folder, src)
+            return self.scrape_instagram_post(src)
         elif source == "Facebook Reel":
-            return self.scrape_facebook_reel(file_folder, src)
+            return self.scrape_facebook_reel(src)
         elif source == "Facebook Video":
-            return self.scrape_facebook_video(file_folder, src)
+            return self.scrape_facebook_video(src)
         else:
             print(f"Unsupported video source: {source}")
             return False
 
-    def scrape_tiktok_video(self, file_folder, tiktok_url):
-        video_element_xpaths = [
+    def scrape_tiktok_video(self, tiktok_url):
+        media_element_xpaths = [
             '//div[@class="css-8lv75m-DivBasicPlayerWrapper e1yey0rl2"]/div/video'
         ]
-        video_id_match = re.search(r'video/(\d+)', tiktok_url)
-        video_attribute = 'src'
-        video_id = video_id_match.group(1) if video_id_match else None
-        response = {"error":False, "message":"response_data['message']"}
-        for xpath in video_element_xpaths:
+        username_element_xpath = '//span[@data-e2e="browse-username" and contains(@class, "css-1c7urt-SpanUniqueId")]'
+        media_id_match = re.search(r'video/(\d+)', tiktok_url)
+        media_id = media_id_match.group(1) if media_id_match else None
+        response = {"error":False, "message":"default"}
+        for xpath in media_element_xpaths:
             try:
-                response = self.post_video(file_folder=file_folder, src=tiktok_url, video_element_xpath=xpath, video_attribute=video_attribute, video_id=video_id)
+                response = self.upload_media("TikTok", tiktok_url, username_element_xpath, xpath, media_id)
             except Exception as e:
                 response = {"message": f"{e}", "error": True}
                 print(f"XPath: {xpath}. Error: {e}")
                 continue
         return response
 
-    def scrape_instagram_post(self, file_folder, instagram_url):
+    def scrape_instagram_post(self, instagram_url):
         pass
 
-    def scrape_facebook_reel(self, file_folder, facebook_reel_url):
+    def scrape_facebook_reel(self, facebook_reel_url):
         pass
 
-    def scrape_facebook_video(self, file_folder, facebook_src):
+    def scrape_facebook_video(self, facebook_src):
         pass
 
-    def post_video(self, file_folder, src, video_element_xpath, video_attribute, video_id):
-        self.browser.get(src)
+    def upload_media(self, platform, media_url, username_element_xpath, media_element_xpath, media_id):
+        self.browser.get(media_url)
 
         video_element = WebDriverWait(self.browser, 10).until(
-            EC.presence_of_element_located((By.XPATH, video_element_xpath))
+            EC.presence_of_element_located((By.XPATH, media_element_xpath))
         )
 
-        src = video_element.get_attribute(video_attribute)
+        username = self.browser.find_element(By.XPATH, username_element_xpath).text
+        media_src = video_element.get_attribute('src')
+        file_folder = platform+"/"+username
         
-
         js_code = f"""
             return new Promise((resolve, reject) => {{
-                var videoElement = document.querySelector('video');
-                var videoUrl = videoElement.querySelector('source').src;
-                fetch(videoUrl)
-                .then(response => response.blob())
-                .then(blob => {{
-                    var formData = new FormData();
-                    formData.append('file', blob, '{video_id}.mp4');
-                    formData.append('file_folder', '{file_folder}');
+                var formData = new FormData();
+
+                // Function to fetch and append videos to formData
+                var fetchVideos = () => {{
+                    var videoElements = document.querySelectorAll('video');
+                    return Promise.all(Array.from(videoElements).map((videoElement, index) => {{
+                        var videoUrl = videoElement.querySelector('source').src;
+                        return fetch(videoUrl)
+                        .then(response => response.blob())
+                        .then(blob => {{
+                            formData.append(`file_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
+                        }});
+                    }}));
+                }};
+
+                // Function to fetch and append images to formData
+                var fetchImages = () => {{
+                    var imgElements = document.querySelectorAll('img');
+                    return Promise.all(Array.from(imgElements).map((imgElement, index) => {{
+                        var imageUrl = imgElement.src;
+                        return fetch(imageUrl)
+                        .then(response => response.blob())
+                        .then(blob => {{
+                            formData.append(`file_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
+                        }});
+                    }}));
+                }};
+
+                // Fetch videos and images, then post formData and log response
+                formData.append('file_folder', '{file_folder}');
+                Promise.all([fetchVideos(), fetchImages()])
+                .then(() => {{
                     return fetch('http://localhost:5000/upload-video', {{
                         method: 'POST',
                         body: formData
                     }});
                 }})
-                .then(response => response.json())
+                .then(response => response.json()) // assuming the response is JSON
                 .then(data => {{
-                    resolve(data);
+                    console.log('Response from server:', data);
+                    resolve(data); // resolve the promise with the response data
                 }})
                 .catch(error => {{
-                    reject(error);
+                    console.error('Error fetching media or posting data:', error);
+                    reject(error); // reject the promise with the error
                 }});
             }});
-            """
+        """
 
-        self.browser.execute_script(f"window.open('{src}', '_blank');")
+        self.browser.execute_script(f"window.open('{media_src}', '_blank');")
         time.sleep(5)
 
         self.browser.switch_to.window(self.browser.window_handles[-1])
         response_data = self.browser.execute_script(js_code)
         print("response_data: ", response_data)
-
-        # response_data:  we are turning response to list, yes list yeah iknow we still working on tiktok oly and a tiktok video post only have one bu tthink of tiktok image post? it has mutiple images so we iterate through also in instagram photo and story post, also facebook story and photo post i dont know of youtube yet thou............wait do you think we should work on the list now or first do video test for all platform? i.e completing the scrap_{platform} function. Damn still have a long way to go............I didn't see this coming
 
         self.browser.quit()
         return response_data
