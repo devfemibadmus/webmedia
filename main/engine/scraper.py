@@ -108,7 +108,7 @@ class Scraper:
         response_data = self.browser.execute_script(js_code)
         print("response_data: ", response_data)
 
-        # response_data:  {'message': 'Video uploaded successfully!', 'success': True, 'video_url': 'https://storage.googleapis.com/mediasaver/07-15-2024/18%3A36%3A47/7390912680883899654.mp4?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=931067452340-compute%40developer.gserviceaccount.com%2F20240715%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20240715T173742Z&X-Goog-Expires=3600&X-Goog-SignedHeaders=host&X-Goog-Signature=547128b07497f11121d73096a31623b07604aa6cf03d7a43c64fbbfd60535201fc2ca177a59880969163a4ed12f4c167d00f19c591a218400d5ff268978a77019763b13fcbd3450e7f245d5a3a8da4f476c6cfba2beba2182d854f01457ff79ae5de7d1d02ee123d2f33db02ac1a355e9e059001f1a6a9ad8a5163c274fe9d6b3da02fe3182d6991ae7fa8d4655b7b5253b9d4bf4706996cafc2748bc1cbc2aaef65dd604d3994d01f8cffc0145226e350fbf715021720cbd47baa1a3eb1da7f0bc7607139ca3d87a78a23a10dbd99351d59d74d9f7791b7c28921d32a6033ebe00df602cf0a3571f0db80df1cb34f0cf677c5c1d25a03a94ce40fb7ee250c67'} 
+        # response_data:  we are turning response to list, yes list yeah iknow we still working on tiktok oly and a tiktok video post only have one bu tthink of tiktok image post? it has mutiple images so we iterate through also in instagram photo and story post, also facebook story and photo post i dont know of youtube yet thou............wait do you think we should work on the list now or first do video test for all platform? i.e completing the scrap_{platform} function. Damn still have a long way to go............I didn't see this coming
 
         self.browser.quit()
         return response_data
