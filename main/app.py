@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from flask_cors import cross_origin
+from flask_cors import cross_origin, CORS
 from engine.scraper import Scraper
 from google.cloud import storage
 from datetime import datetime
@@ -9,7 +9,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
 application = app
-
+CORS(app)
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "mediasaver.json"))
@@ -50,27 +50,31 @@ def home():
     if request.method == 'POST' and request.form.get('src'):
         src = request.form.get('src')
         scraper = Scraper()
-        response = scraper.get_video(file_folder, src)
+        response = scraper.get_video(src)
         print(response)
         return jsonify(response)
     return render_template("home.html")
 
 @app.route('/upload-video', methods=['POST'])
-@cross_origin()
+# @cross_origin()
 def upload_video():
-    if 'file' not in request.files:
-        return jsonify({"message": "No file part", "error": True})
-
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({"message": "No selected file", "error": True})
+    print("request.files: ", request.files)
+    if 'file_0' not in request.files:
+        return jsonify({"message": "No media found!", "error": True})
 
     file_folder = request.form.get('file_folder')
-    
-    data = [{"src": manager.upload_file(file_folder, file)}]
-    
-    return jsonify({"message": "Video uploaded successfully!", "success": True, "data": data})
+    print("file_folder: ", file_folder)
+    data = []
+
+    for key in request.files:
+        file = request.files[key]
+        if file.filename == "":
+            return jsonify({"message": "No media found!", "error": True})
+        print("file: ", file.filename)      
+        uploaded_file = manager.upload_file(file_folder, file)
+        data.append({"src": uploaded_file})
+
+    return jsonify({"message": "Files uploaded successfully!", "success": True, "data": data})
 
 @app.route('/test-mode/', methods=['POST'])
 def get_test_url():
