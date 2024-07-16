@@ -1,5 +1,4 @@
 import time, re
-from flask import session
 from selenium import webdriver
 from engine.validator import Validator
 from selenium.webdriver.common.by import By
@@ -20,17 +19,17 @@ class Scraper:
         self.browser.delete_all_cookies()
         self.browser.set_script_timeout(320)
 
-    def get_video(self, file_folder, video_url):
-        source = Validator.validate(video_url)
+    def get_video(self, file_folder, src):
+        source = Validator.validate(src)
         print("source: ", source)
         if source == "TikTok":
-            return self.scrape_tiktok_video(file_folder, video_url)
+            return self.scrape_tiktok_video(file_folder, src)
         elif source == "Instagram Post":
-            return self.scrape_instagram_post(file_folder, video_url)
+            return self.scrape_instagram_post(file_folder, src)
         elif source == "Facebook Reel":
-            return self.scrape_facebook_reel(file_folder, video_url)
+            return self.scrape_facebook_reel(file_folder, src)
         elif source == "Facebook Video":
-            return self.scrape_facebook_video(file_folder, video_url)
+            return self.scrape_facebook_video(file_folder, src)
         else:
             print(f"Unsupported video source: {source}")
             return False
@@ -44,15 +43,10 @@ class Scraper:
         video_id = video_id_match.group(1) if video_id_match else None
         response = {"error":False, "message":"response_data['message']"}
         for xpath in video_element_xpaths:
-            session.clear()
             try:
-                response_data = self.post_video(file_folder=file_folder, video_url=tiktok_url, video_element_xpath=xpath, video_attribute=video_attribute, video_id=video_id)
-                if response_data['message'] == "Video uploaded successfully!":
-                    response = {"video_url":response_data['video_url'], "success":True, "message": f"{response_data['message']}"}
-                else:
-                    response = {"error":True, "message": f"{response_data['message']}"}
+                response = self.post_video(file_folder=file_folder, src=tiktok_url, video_element_xpath=xpath, video_attribute=video_attribute, video_id=video_id)
             except Exception as e:
-                response = {"error":True, "message": f"{e}"}
+                response = {"message": f"{e}", "error": True}
                 print(f"XPath: {xpath}. Error: {e}")
                 continue
         return response
@@ -63,17 +57,17 @@ class Scraper:
     def scrape_facebook_reel(self, file_folder, facebook_reel_url):
         pass
 
-    def scrape_facebook_video(self, file_folder, facebook_video_url):
+    def scrape_facebook_video(self, file_folder, facebook_src):
         pass
 
-    def post_video(self, file_folder, video_url, video_element_xpath, video_attribute, video_id):
-        self.browser.get(video_url)
+    def post_video(self, file_folder, src, video_element_xpath, video_attribute, video_id):
+        self.browser.get(src)
 
         video_element = WebDriverWait(self.browser, 10).until(
             EC.presence_of_element_located((By.XPATH, video_element_xpath))
         )
 
-        video_url = video_element.get_attribute(video_attribute)
+        src = video_element.get_attribute(video_attribute)
         
 
         js_code = f"""
@@ -101,7 +95,7 @@ class Scraper:
             }});
             """
 
-        self.browser.execute_script(f"window.open('{video_url}', '_blank');")
+        self.browser.execute_script(f"window.open('{src}', '_blank');")
         time.sleep(5)
 
         self.browser.switch_to.window(self.browser.window_handles[-1])
