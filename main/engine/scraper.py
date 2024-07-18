@@ -81,7 +81,7 @@ class Scraper:
                         return fetch(videoUrl)
                         .then(response => response.blob())
                         .then(blob => {{
-                            formData.append(`file_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
+                            formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
                         }});
                     }}));
                 }};
@@ -93,7 +93,7 @@ class Scraper:
                         return fetch(imageUrl)
                         .then(response => response.blob())
                         .then(blob => {{
-                            formData.append(`file_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
+                            formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
                         }});
                     }}));
                 }};
