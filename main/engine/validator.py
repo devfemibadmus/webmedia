@@ -1,11 +1,10 @@
 import re
 
 class Validator:
-    TIKTOK_REGEX = re.compile(r'^https?://(?:www\.)?tiktok\.com/@[\w.-]+/(video|photo)/\d+.*$')
     INSTAGRAM_REGEX = re.compile(r'^https?://(?:www\.)?instagram\.com/p/[\w-]+/?.*$')
-    FACEBOOK_REEL_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/r/[\w-]+/?.*$')
-    FACEBOOK_REEL_REGEX_2 = re.compile(r'^https?://(?:www\.)?facebook\.com/share/reel/[\w-]+/?.*$')
-    FACEBOOK_VIDEO_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/v/[\w-]+/?.*$')
+    TIKTOK_REGEX = re.compile(r'^https?://(?:www\.)?tiktok\.com/@[\w.-]+/(video|photo)/\d+.*$')
+    FACEBOOK_REEL_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/(r|reel)/[\w-]+/?.*$')
+    FACEBOOK_VIDEO_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/(v|video)/[\w-]+/?.*$')
 
     @staticmethod
     def is_tiktok(url):
@@ -14,10 +13,6 @@ class Validator:
     @staticmethod
     def is_instagram_post(url):
         return bool(Validator.INSTAGRAM_REGEX.match(url))
-    
-    @staticmethod
-    def is_facebook_reel(url):
-        return bool(Validator.FACEBOOK_REEL_REGEX.match(url)) or bool(Validator.FACEBOOK_REEL_REGEX_2.match(url))
     
     @staticmethod
     def is_facebook_video(url):
@@ -29,8 +24,6 @@ class Validator:
             return "TikTok"
         elif Validator.is_instagram_post(url):
             return "Instagram Post"
-        elif Validator.is_facebook_reel(url):
-            return "Facebook Reel"
         elif Validator.is_facebook_video(url):
             return "Facebook Video"
         else:
