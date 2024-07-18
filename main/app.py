@@ -49,11 +49,11 @@ def home():
         return jsonify(response)
     return render_template("home.html")
 
-@app.route('/upload-video', methods=['POST'])
+@app.route('/uploadMedia', methods=['POST'])
 @cross_origin()
 def upload_video():
     print("request.files: ", request.files)
-    if 'video_0' not in request.files or 'image_0' not in request.files:
+    if 'video_0' not in request.files and 'image_0' not in request.files:
         return jsonify({"message": "No media found!", "error": True})
 
     file_folder = request.form.get('file_folder')
