@@ -33,6 +33,7 @@ class Scraper:
             return False
 
     def scrape_tiktok(self, tiktok_url):
+        # Done
         mediaElement_classNames = ['css-1sb4dwc-DivPlayerContainer']
         usernameElement_xpath = '//span[@data-e2e="browse-username"]'
         media_id = re.search(r'(video|photo)/(\d+)', tiktok_url)
