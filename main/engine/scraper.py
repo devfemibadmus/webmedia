@@ -64,7 +64,8 @@ class Scraper:
     def scrap_mediaUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
         self.browser.get(media_url)
 
-        username = self.browser.find_element(By.XPATH, usernameElement_xpath).text
+        username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath)))
+        username = username.find_element(By.XPATH, usernameElement_xpath).text
 
         file_folder = platform+"/"+username
         
