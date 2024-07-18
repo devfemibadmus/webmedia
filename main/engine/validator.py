@@ -1,7 +1,7 @@
 import re
 
 class Validator:
-    TIKTOK_REGEX = re.compile(r'^https?://(?:www\.)?tiktok\.com/@[\w.-]+/video/\d+.*$')
+    TIKTOK_REGEX = re.compile(r'^https?://(?:www\.)?tiktok\.com/@[\w.-]+/(video|photo)/\d+.*$')
     INSTAGRAM_REGEX = re.compile(r'^https?://(?:www\.)?instagram\.com/p/[\w-]+/?.*$')
     FACEBOOK_REEL_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/r/[\w-]+/?.*$')
     FACEBOOK_REEL_REGEX_2 = re.compile(r'^https?://(?:www\.)?facebook\.com/share/reel/[\w-]+/?.*$')
