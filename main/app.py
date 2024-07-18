@@ -44,7 +44,7 @@ def home():
     if request.method == 'POST' and request.form.get('src'):
         src = request.form.get('src')
         scraper = Scraper()
-        response = scraper.get_video(src)
+        response = scraper.get_media(src)
         print(response)
         return jsonify(response)
     return render_template("home.html")
