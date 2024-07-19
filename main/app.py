@@ -1,12 +1,13 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
 from pathlib import Path
-import os
+import os, uuid
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
+app.secret_key = 'aaaaaaaaaaa2222222222!!!!!!!!!##'
 application = app
 class CloudStorageManager:
     def __init__(self):
@@ -37,15 +38,19 @@ class CloudStorageManager:
         return False
 
 manager = CloudStorageManager()
-scraper = Scraper()
+user_instances = {}
 
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
 def home():
+    userId = session['userId']
+    if userId not in user_instances:
+        user_instances[userId] = Scraper(userId)
+    scraper = user_instances[userId]
     if request.method == 'POST' and request.form.get('src'):
         src = request.form.get('src')
         response = scraper.getMedia(src)
-        print(response)
+        print("response: ", response)
         return jsonify(response)
     return render_template("home.html")
 
@@ -70,10 +75,21 @@ def upload_video():
 
     return jsonify({"message": "Files uploaded successfully!", "success": True, "data": data})
 
+@app.before_request
+def ensure_userId():
+    if 'userId' not in session:
+        session['userId'] = str(uuid.uuid4())
+    # print("userId: ", session['userId'])
+
 @app.route('/close/', methods=['POST'])
 def close():
-    close = scraper.close()
-    return close
+    userId = session.get('userId')
+    if userId:
+        user_instances[userId] = Scraper(userId)
+        scraper = user_instances[userId].close()
+        # print(scraper)
+        return jsonify({'scraper': scraper})
+    return jsonify({'success': False, 'message': 'No user ID found'})
 
 @app.route('/test-mode/', methods=['POST'])
 def get_test_url():

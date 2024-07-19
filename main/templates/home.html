@@ -430,14 +430,21 @@
          }, 500);
          }, 8000);
 
-         window.onbeforeunload = function() {
+         if (window.performance) {
+            console.info("window.performance works fine on this browser");
+          }
+          console.info(performance.navigation.type);
+          if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
+            console.info( "This page is reloaded" );
             fetch('/close/', {
                 method: 'POST'
             })
             .then(response => response.json())
             .then(data => data)
             .catch(error => console.error('Error:', error));
-          };
+          } else {
+            console.info( "This page is not reloaded");
+          }
       </script>
    </body>
 </html>

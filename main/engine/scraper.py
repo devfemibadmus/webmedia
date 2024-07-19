@@ -1,4 +1,5 @@
-import time, re, random
+import time, re
+from datetime import datetime
 from selenium import webdriver
 from engine.validator import Validator
 from selenium.webdriver.common.by import By
@@ -8,8 +9,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class Scraper:
-    def __init__(self):
-        self.id = random.randint(1, 100)
+    def __init__(self, userId):
+        self.userId = userId
         self.edge_options = Options()
         self.edge_options.use_chromium = True
         self.edge_options.add_argument("--headless")
@@ -19,14 +20,16 @@ class Scraper:
         self.browser = webdriver.Edge(options=self.edge_options)
         self.browser.delete_all_cookies()
         self.browser.set_script_timeout(320)
+        print("Scraper userId: ", self.userId, " start", datetime.now().strftime("%H:%M:%S"))
 
     def close(self):
         try:
-            print("Scraper id: ", self.id, " stop")
+            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+            self.browser.delete_all_cookies()
             self.browser.quit()
             return True
         except Exception as e:
-            print("Scraper id: ", self.id, " unable to stop")
+            print("Scraper userId: ", self.userId, " unable to stop: ", datetime.now().strftime("%H:%M:%S"))
             return False
 
     def getMedia(self, src):
@@ -71,20 +74,22 @@ class Scraper:
         pass
 
     def cloudUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
-        print("Scraper id: ", self.id, " start")
         try:
             self.browser.get(media_url)
         except Exception as e:
+            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             return f"Error loading page. Try Again!"
             # return f"Error loading page: {e}"
         # finally:
+            # print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
             # self.browser.quit()
             # return f"Error loading page. Test"
 
         try:
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
         except Exception as e:
+            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             return f"Error getting username. Try Again!"
             # return f"Error getting username: {e}"
@@ -114,6 +119,7 @@ class Scraper:
                     except Exception as e:
                         continue
         except Exception as e:
+            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             return f"Error finding media elements. Try Again!"
             # return f"Error finding media elements: {e}"
@@ -170,6 +176,7 @@ class Scraper:
         try:
             print(mediaSrc)
             if len(mediaSrc) <= 0:
+                print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 return f"No Media Found!"
             self.browser.execute_script(f"window.open('{mediaSrc[0]}', '_blank');")
@@ -178,14 +185,17 @@ class Scraper:
             try:
                 uploadedMediaDick = self.browser.execute_script(mediaScript)
                 uploadedMediaSrcList.update(uploadedMediaDick)
+                print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 return uploadedMediaSrcList
             except Exception as e:
+                print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 # return f"Error executing media upload script. Try Again!"
                 return f"Error executing media upload script: {e}"
                 
         except Exception as e:
+            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             return f"General error. Try Again!"
             # return f"General error: {e}"
