@@ -37,13 +37,13 @@ class CloudStorageManager:
         return False
 
 manager = CloudStorageManager()
+scraper = Scraper()
 
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
 def home():
     if request.method == 'POST' and request.form.get('src'):
         src = request.form.get('src')
-        scraper = Scraper()
         response = scraper.get_media(src)
         print(response)
         return jsonify(response)
@@ -69,6 +69,11 @@ def upload_video():
         data.append({"src": uploaded_file})
 
     return jsonify({"message": "Files uploaded successfully!", "success": True, "data": data})
+
+@app.route('/close/', methods=['POST'])
+def close():
+    close = scraper.close()
+    return close
 
 @app.route('/test-mode/', methods=['POST'])
 def get_test_url():
