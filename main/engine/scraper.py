@@ -1,4 +1,4 @@
-import time, re
+import time, re, random
 from selenium import webdriver
 from engine.validator import Validator
 from selenium.webdriver.common.by import By
@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Scraper:
     def __init__(self):
+        self.id = random.randint(1, 100)
         self.edge_options = Options()
         self.edge_options.use_chromium = True
         self.edge_options.add_argument("--headless")
@@ -18,6 +19,15 @@ class Scraper:
         self.browser = webdriver.Edge(options=self.edge_options)
         self.browser.delete_all_cookies()
         self.browser.set_script_timeout(320)
+
+    def close(self):
+        try:
+            print("Scraper id: ", self.id, " stop")
+            self.browser.quit()
+            return True
+        except Exception as e:
+            print("Scraper id: ", self.id, " unable to stop")
+            return False
 
     def get_media(self, src):
         source = Validator.validate(src)
@@ -62,22 +72,27 @@ class Scraper:
         pass
 
     def scrap_mediaUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
+        print("Scraper id: ", self.id, " start")
         try:
             self.browser.get(media_url)
         except Exception as e:
             self.browser.quit()
-            return f"Error loading page: {e}"
+            return f"Error loading page. Try Again!"
+            # return f"Error loading page: {e}"
+        finally:
+            self.browser.quit()
+            return f"Error loading page. Test"
 
         try:
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
         except Exception as e:
             self.browser.quit()
-            return f"Error getting username: {e}"
+            return f"Error getting username. Try Again!"
+            # return f"Error getting username: {e}"
 
         file_folder = f"{platform}/{username}"
-        uploadedMediaSrcList = {'data':[], 'success':False, 'message': 'Default'}
-        mediaSrcImages = []
-        mediaSrcVdeos = []
+        uploadedMediaSrcList = {}
+        mediaSrc = []
 
         try:
             for className in mediaElement_classNames:
@@ -88,7 +103,7 @@ class Scraper:
                         for video in video_tags:
                             src = video.get_attribute('src') or video.find_element(By.TAG_NAME, 'source').get_attribute('src')
                             if src:
-                                mediaSrcVdeos.append(src)
+                                mediaSrc.append(src)
                     except Exception as e:
                         continue
                     try:
@@ -96,157 +111,91 @@ class Scraper:
                         for image in image_tags:
                             src = image.get_attribute('src')
                             if src:
-                                mediaSrcImages.append(src)
+                                mediaSrc.append(src)
                     except Exception as e:
                         continue
         except Exception as e:
             self.browser.quit()
-            return f"Error finding media elements: {e}"
+            return f"Error finding media elements. Try Again!"
+            # return f"Error finding media elements: {e}"
+        finally:
+            mediaSrc = list(set(mediaSrc))
 
-        videoScrpt = f"""
-            return new Promise((resolve, reject) => {{
-                try {{
-                    var formData = new FormData();
-                    var videoElements = document.querySelectorAll('video');
-                    Promise.all(Array.from(videoElements).map((videoElement, index) => {{
-                        var videoUrl = videoElement.src || videoElement.querySelector('source').src;
-                        return fetch(videoUrl)
-                            .then(response => response.blob())
-                            .then(blob => {{
-                                formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
+        mediaScript = f"""
+        return new Promise((resolve, reject) => {{
+            try {{
+                var formData = new FormData();
+                Promise.all(
+                    {mediaSrc}.map((src, index) => 
+                        fetch(src)
+                            .then(response => {{
+                                if (!response.ok) {{
+                                    throw new Error(`HTTP error! status: ${{response.status}}`);
+                                }}
+                                var contentType = response.headers.get('Content-Type');
+                                return response.blob().then(blob => ({{ blob, contentType, index }}));
                             }})
-                            .catch(error => {{
-                                throw new Error(`Error fetching video URL: ${{error}}`);
-                            }});
-                    }}))
-                    .then(() => {{
-                        formData.append('file_folder', '{file_folder}');
-                        fetch('http://localhost:5000/uploadMedia', {{
-                            method: 'POST',
-                            body: formData
-                        }})
-                        .then(response => response.json())
-                        .then(data => {{
-                            console.log('Response from server(video):', data);
-                            resolve(data);
-                        }})
-                        .catch(error => {{
-                            console.error('Error posting video data:', error);
-                            reject(error);
-                        }});
-                    }})
-                    .catch(error => {{
-                        reject(`Error processing video elements: ${{error}}`);
+                    )
+                )
+                .then(results => {{
+                    results.forEach(({{blob, contentType, index}}) => {{
+                        if (contentType.startsWith('image/')) {{
+                            formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
+                        }} else if (contentType.startsWith('video/')) {{
+                            formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
+                        }} else {{
+                            throw new Error(`Unsupported content type: ${{contentType}}`);
+                        }}
                     }});
-                }} catch (error) {{
-                    reject(`Error in videoScrpt: ${{error}}`);
-                }}
-            }});
-        """
-
-        imageScrpt = f"""
-            return new Promise((resolve, reject) => {{
-                try {{
-                    var formData = new FormData();
-                    var imageElements = document.querySelectorAll('img');
-                    Promise.all(Array.from(imageElements).map((imageElement, index) => {{
-                        var imageUrl = imageElement.src || imageElement.querySelector('source').src;
-                        return fetch(imageUrl)
-                            .then(response => response.blob())
-                            .then(blob => {{
-                                formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
-                            }})
-                            .catch(error => {{
-                                throw new Error(`Error fetching image URL: ${{error}}`);
-                            }});
-                    }}))
-                    .then(() => {{
-                        formData.append('file_folder', '{file_folder}');
-                        fetch('http://localhost:5000/uploadMedia', {{
-                            method: 'POST',
-                            body: formData
-                        }})
-                        .then(response => response.json())
-                        .then(data => {{
-                            console.log('Response from server(image):', data);
-                            resolve(data);
-                        }})
-                        .catch(error => {{
-                            console.error('Error posting image data:', error);
-                            reject(error);
-                        }});
-                    }})
-                    .catch(error => {{
-                        reject(`Error processing image elements: ${{error}}`);
+                    formData.append('file_folder', '{file_folder}');
+                    return fetch('http://localhost:5000/uploadMedia', {{
+                        method: 'POST',
+                        body: formData
                     }});
-                }} catch (error) {{
-                    reject(`Error in imageScrpt: ${{error}}`);
-                }}
-            }});
+                }})
+                .then(response => response.json())
+                .then(data => {{
+                    console.log('Response from server:', data);
+                    resolve(data);
+                }})
+                .catch(error => {{
+                    console.error('Error posting data:', error);
+                    reject(error);
+                }});
+            }} catch (error) {{
+                reject(`Error in script: ${{error}}`);
+            }}
+        }});
         """
 
         try:
-            # print(list(set(mediaSrcImages)))
-            for src in list(set(mediaSrcImages)):
-                self.browser.execute_script(f"window.open('{src}', '_blank');")
-                time.sleep(2)
-                self.browser.switch_to.window(self.browser.window_handles[-1])
-                try:
-                    uploadedImages = self.browser.execute_script(imageScrpt)
-                    
-                    for dick in uploadedImages['data']:
-                        uploadedMediaSrcList['data'].append(dick)
-
-                except Exception as e:
-                    self.browser.quit()
-                    return f"Error executing image script: {e}"
-                    
-                # finally:
-                    # self.browser.close()
-                    
-            # print(list(set(mediaSrcVdeos)))
-            for src in list(set(mediaSrcVdeos)):
-                self.browser.execute_script(f"window.open('{src}', '_blank');")
-                time.sleep(2)
-                self.browser.switch_to.window(self.browser.window_handles[-1])
-                try:
-                    uploadedVideos = self.browser.execute_script(videoScrpt)
-                    
-                    for dick in uploadedVideos['data']:
-                        uploadedMediaSrcList['data'].append(dick)
-
-                except Exception as e:
-                    self.browser.quit()
-                    return f"Error executing video script: {e}"
-
-                # finally:
-                    # self.browser.close()
-
+            print(mediaSrc)
+            if len(mediaSrc) <= 0:
+                self.browser.quit()
+                return f"No Media Found!"
+            self.browser.execute_script(f"window.open('{mediaSrc[0]}', '_blank');")
+            time.sleep(2)
+            self.browser.switch_to.window(self.browser.window_handles[-1])
             try:
+                uploadedMediaDick = self.browser.execute_script(mediaScript)
+                uploadedMediaSrcList.update(uploadedMediaDick)
                 self.browser.quit()
                 return uploadedMediaSrcList
             except Exception as e:
                 self.browser.quit()
+                # return f"Error executing media upload script. Try Again!"
                 return f"Error executing media upload script: {e}"
+                
         except Exception as e:
             self.browser.quit()
-            return f"General error: {e}"
-
-        # self.browser.execute_script(f"window.open('{media_src}', '_blank');")
-        # time.sleep(5)
-
-        # self.browser.switch_to.window(self.browser.window_handles[-1])
-
-        # response_data = self.browser.execute_script(js_upload)
-        # print("response_data: ", response_data)
-
-        # return response_data
+            return f"General error. Try Again!"
+            # return f"General error: {e}"
 
 
 """
 # Cum test
 if __name__ == "__main__":
-    tiktok_url = 'https://www.tiktok.com/@oorsz/video/7380872550236048645?is_from_webapp=1&sender_device=pc'
+    tiktok_url = 'https://www.tiktok.com/@devfemibadmus/video/7390912680883899654'
     scraper = Scraper()
     scraper.scrape_tiktok(tiktok_url)
 """
