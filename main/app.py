@@ -44,7 +44,7 @@ scraper = Scraper()
 def home():
     if request.method == 'POST' and request.form.get('src'):
         src = request.form.get('src')
-        response = scraper.get_media(src)
+        response = scraper.getMedia(src)
         print(response)
         return jsonify(response)
     return render_template("home.html")

@@ -29,28 +29,27 @@ class Scraper:
             print("Scraper id: ", self.id, " unable to stop")
             return False
 
-    def get_media(self, src):
+    def getMedia(self, src):
         source = Validator.validate(src)
         print("source: ", source)
         if source == "TikTok":
-            return self.scrape_tiktok(src)
+            return self.scrapTiktok(src)
         elif source == "Instagram Post":
-            return self.scrape_instagram(src)
+            return self.scrapInstagram(src)
         elif source == "Facebook Video":
-            return self.scrape_facebook_video(src)
+            return self.scrap_facebook_video(src)
         else:
             print(f"Unsupported video source: {source}")
             return False
 
-    def scrape_tiktok(self, tiktok_url):
-        # Done
+    def scrapTiktok(self, tiktok_url):
         mediaElement_classNames = ['css-1sb4dwc-DivPlayerContainer', 'swiper-slide']
         usernameElement_xpath = '//span[@data-e2e="browse-username"]'
         media_id = re.search(r'(video|photo)/(\d+)', tiktok_url)
         media_id = media_id.group(2) if media_id else None
-        return self.scrap_mediaUrl("TikTok", tiktok_url, usernameElement_xpath, mediaElement_classNames, media_id)
+        return self.cloudUrl("TikTok", tiktok_url, usernameElement_xpath, mediaElement_classNames, media_id)
 
-    def scrape_instagram(self, instagram_url):
+    def scrapInstagram(self, instagram_url):
         mediaElement_classNamess = [
             '//div[@class="css-8lv75m-DivBasicPlayerWrapper e1yey0rl2"]/div/video'
         ]
@@ -58,20 +57,20 @@ class Scraper:
         media_id = instagram_url.split('.com/p/')[1].split('/')[0]
         for xpath in mediaElement_classNamess:
             try:
-                return self.scrap_mediaUrl("Instagram", instagram_url, usernameElement_xpath, xpath, media_id, True)
+                return self.cloudUrl("Instagram", instagram_url, usernameElement_xpath, xpath, media_id, True)
             except Exception as e:
                 return {"message": f"{e}", "error": True}
                 print(f"XPath: {xpath}. Error: {e}")
                 continue
         return {"error":False, "message":"default"}
 
-    def scrape_facebook_reel(self, facebook_reel_url):
+    def scrap_facebook_reel(self, facebook_reel_url):
         pass
 
-    def scrape_facebook_video(self, facebook_src):
+    def scrap_facebook_video(self, facebook_src):
         pass
 
-    def scrap_mediaUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
+    def cloudUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
         print("Scraper id: ", self.id, " start")
         try:
             self.browser.get(media_url)
@@ -79,9 +78,9 @@ class Scraper:
             self.browser.quit()
             return f"Error loading page. Try Again!"
             # return f"Error loading page: {e}"
-        finally:
-            self.browser.quit()
-            return f"Error loading page. Test"
+        # finally:
+            # self.browser.quit()
+            # return f"Error loading page. Test"
 
         try:
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
@@ -122,50 +121,50 @@ class Scraper:
             mediaSrc = list(set(mediaSrc))
 
         mediaScript = f"""
-        return new Promise((resolve, reject) => {{
-            try {{
-                var formData = new FormData();
-                Promise.all(
-                    {mediaSrc}.map((src, index) => 
-                        fetch(src)
-                            .then(response => {{
-                                if (!response.ok) {{
-                                    throw new Error(`HTTP error! status: ${{response.status}}`);
-                                }}
-                                var contentType = response.headers.get('Content-Type');
-                                return response.blob().then(blob => ({{ blob, contentType, index }}));
-                            }})
+            return new Promise((resolve, reject) => {{
+                try {{
+                    var formData = new FormData();
+                    Promise.all(
+                        {mediaSrc}.map((src, index) => 
+                            fetch(src)
+                                .then(response => {{
+                                    if (!response.ok) {{
+                                        throw new Error(`HTTP error! status: ${{response.status}}`);
+                                    }}
+                                    var contentType = response.headers.get('Content-Type');
+                                    return response.blob().then(blob => ({{ blob, contentType, index }}));
+                                }})
+                        )
                     )
-                )
-                .then(results => {{
-                    results.forEach(({{blob, contentType, index}}) => {{
-                        if (contentType.startsWith('image/')) {{
-                            formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
-                        }} else if (contentType.startsWith('video/')) {{
-                            formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
-                        }} else {{
-                            throw new Error(`Unsupported content type: ${{contentType}}`);
-                        }}
+                    .then(results => {{
+                        results.forEach(({{blob, contentType, index}}) => {{
+                            if (contentType.startsWith('image/')) {{
+                                formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
+                            }} else if (contentType.startsWith('video/')) {{
+                                formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
+                            }} else {{
+                                throw new Error(`Unsupported content type: ${{contentType}}`);
+                            }}
+                        }});
+                        formData.append('file_folder', '{file_folder}');
+                        return fetch('http://localhost:5000/uploadMedia', {{
+                            method: 'POST',
+                            body: formData
+                        }});
+                    }})
+                    .then(response => response.json())
+                    .then(data => {{
+                        console.log('Response from server:', data);
+                        resolve(data);
+                    }})
+                    .catch(error => {{
+                        console.error('Error posting data:', error);
+                        reject(error);
                     }});
-                    formData.append('file_folder', '{file_folder}');
-                    return fetch('http://localhost:5000/uploadMedia', {{
-                        method: 'POST',
-                        body: formData
-                    }});
-                }})
-                .then(response => response.json())
-                .then(data => {{
-                    console.log('Response from server:', data);
-                    resolve(data);
-                }})
-                .catch(error => {{
-                    console.error('Error posting data:', error);
-                    reject(error);
-                }});
-            }} catch (error) {{
-                reject(`Error in script: ${{error}}`);
-            }}
-        }});
+                }} catch (error) {{
+                    reject(`Error in script: ${{error}}`);
+                }}
+            }});
         """
 
         try:
@@ -193,10 +192,9 @@ class Scraper:
 
 
 """
-# Cum test
 if __name__ == "__main__":
     tiktok_url = 'https://www.tiktok.com/@devfemibadmus/video/7390912680883899654'
     scraper = Scraper()
-    scraper.scrape_tiktok(tiktok_url)
+    scraper.scrapTiktok(tiktok_url)
 """
 
