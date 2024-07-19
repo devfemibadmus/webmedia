@@ -196,6 +196,20 @@
          font-weight: bold;
          font-size: large;
          }
+         .loader {
+            border: 8px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 8px solid #999;
+            width: 60px;
+            height: 60px;
+            animation: spin 0.5s linear infinite;
+            margin: 100px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
       </style>
    </head>
    <body>
@@ -213,7 +227,7 @@
       <div class="main container">
          <div class="section" id="home">
             <div class="scrollable-container">
-               <p id="loading-message" style="display: none;">Loading...</p>
+               <p id='loading-message' style='display: none;'>Loading...</p>
             </div>
          </div>
          <div class="section active" id="save">
@@ -313,6 +327,14 @@
                 formData.append('src', url);
                 
                 // scrollableContainer.style.display = 'none';
+                Array.from(scrollableContainer.children).forEach(child => {
+                  if (child !== loadingMessage) {
+                     scrollableContainer.removeChild(child);
+                  }
+                });
+                loadingMessage.textContent = '';
+                loadingMessage.classList.add('loader');
+                loadingMessage.style.color = '#777';
                 loadingMessage.style.display = 'block';
                 
                 sections.forEach(section => {
@@ -326,9 +348,9 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success && data.data) {
-                        scrollableContainer.innerHTML = '';
-                        
+                    if (data.data && data.data.length > 0) {
+                        //scrollableContainer.innerHTML = '';
+                        loadingMessage.classList.remove('loader');
                         data.data.forEach(item => {
                             const containerDiv = document.createElement('div');
                             containerDiv.className = 'container post';
@@ -376,21 +398,23 @@
                         scrollableContainer.style.display = 'flex';
                         loadingMessage.style.display = 'none';
                     } else {
-                     loadingMessage.style.color = 'red';
-                     loadingMessage.textContent = data.message;
-                     console.log(data.message)
+                        console.log(data);
+                        loadingMessage.textContent = data;
+                        loadingMessage.style.color = 'red';
+                        loadingMessage.style.display = 'block';
+                        loadingMessage.classList.remove('loader');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    loadingMessage.textContent = 'An error occurred. Please try again.';
+                    loadingMessage.style.color = 'red';
+                    loadingMessage.textContent = error;
+                    loadingMessage.style.display = 'block';
+                    loadingMessage.classList.remove('loader');
                 });
             });
          });                
          
-         window.onresize = function () {
-             window.location.reload();
-         };
          let navLink = document.getElementById('nav-privacy');
          let isAbout = true;
          
@@ -405,6 +429,15 @@
          isAbout = !isAbout;
          }, 500);
          }, 8000);
+
+         window.onbeforeunload = function() {
+            fetch('/close/', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => data)
+            .catch(error => console.error('Error:', error));
+          };
       </script>
    </body>
 </html>
