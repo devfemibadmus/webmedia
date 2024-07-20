@@ -13,20 +13,23 @@ class Scraper:
         self.userId = userId
         self.edge_options = Options()
         self.edge_options.use_chromium = True
-        self.edge_options.add_argument("--headless")
-        self.edge_options.add_argument("--disable-gpu")
-        self.edge_options.add_argument("--mute-audio")
+        # self.edge_options.add_argument("--headless")
+        # self.edge_options.add_argument("--disable-gpu")
+        # self.edge_options.add_argument("--mute-audio")
         self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(options=self.edge_options)
-        self.browser.delete_all_cookies()
         self.browser.set_script_timeout(320)
+        self.browser.delete_all_cookies()
         print("Scraper userId: ", self.userId, " start", datetime.now().strftime("%H:%M:%S"))
 
     def close(self):
         try:
-            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
-            self.browser.delete_all_cookies()
-            self.browser.quit()
+            if self.browser.session_id:
+                self.browser.delete_all_cookies()
+                self.browser.quit()
+                print("Scraper userId: ", self.userId, " browser Quit : ", datetime.now().strftime("%H:%M:%S"))
+            else:
+                print("Scraper userId: ", self.userId, " browser already Quit by user : ", datetime.now().strftime("%H:%M:%S"))
             return True
         except Exception as e:
             print("Scraper userId: ", self.userId, " unable to stop: ", datetime.now().strftime("%H:%M:%S"))
@@ -77,10 +80,11 @@ class Scraper:
         try:
             self.browser.get(media_url)
         except Exception as e:
-            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+            print("self.browser.session_id: ", self.browser.session_id)
+            print("Scraper userId: ", self.userId, " stop 1 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            return f"Error loading page. Try Again!"
-            # return f"Error loading page: {e}"
+            #return f"Error loading page. Try Again!"
+            return f"Error loading page: {e}"
         # finally:
             # print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
             # self.browser.quit()
@@ -89,13 +93,25 @@ class Scraper:
         try:
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
         except Exception as e:
-            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
-            self.browser.quit()
-            return f"Error getting username. Try Again!"
+            # print(self.browser.page_source)
+            # print("Scraper userId: ", self.userId, " stop 2 : ", datetime.now().strftime("%H:%M:%S"))
+            # self.browser.quit()
+            # return f"Error getting username. Try Again!"
             # return f"Error getting username: {e}"
+            try:
+                print("refreshing: ")
+                self.browser.refresh()
+                print("refreshed: ")
+                username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
+            except Exception as e:
+                print("Scraper userId: ", self.userId, " stop 2 : ", datetime.now().strftime("%H:%M:%S"))
+                self.browser.quit()
+                return f"Error getting username: {e}"
+
+        original_window = self.browser.current_window_handle
 
         file_folder = f"{platform}/{username}"
-        uploadedMediaSrcList = {}
+        uploadedMediaSrcList = []
         mediaSrc = []
 
         try:
@@ -119,12 +135,14 @@ class Scraper:
                     except Exception as e:
                         continue
         except Exception as e:
-            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+            print("Scraper userId: ", self.userId, " stop 3 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            return f"Error finding media elements. Try Again!"
-            # return f"Error finding media elements: {e}"
+            #return f"Error finding media elements. Try Again!"
+            return f"Error finding media elements: {e}"
         finally:
             mediaSrc = list(set(mediaSrc))
+
+        time.sleep(5)
 
         mediaScript = f"""
             return new Promise((resolve, reject) => {{
@@ -139,6 +157,10 @@ class Scraper:
                                     }}
                                     var contentType = response.headers.get('Content-Type');
                                     return response.blob().then(blob => ({{ blob, contentType, index }}));
+                                }})
+                                .catch(error => {{
+                                    console.error(`Error fetching URL: ${{src}} - Error: ${{error.message}}`);
+                                    throw error;
                                 }})
                         )
                     )
@@ -173,32 +195,107 @@ class Scraper:
             }});
         """
 
+        def formScrpt(boot):
+            return f"""
+            return new Promise((resolve, reject) => {{
+                try {{
+                    var formData = new FormData();
+                    const isImage = document.querySelectorAll('img');
+                    const isVideo = document.querySelectorAll('video');
+                    
+                    const isImagePresent = isImage.length > 0;
+                    const formats = isImagePresent ? 'jpg' : 'mp4';
+                    const mediaType = isImagePresent ? 'image' : 'video';
+                    const mediaElements = isImagePresent ? isImage : isVideo;
+
+                    Promise.all(Array.from(mediaElements).map((mediaElement, index) => {{
+                        if (mediaElements.length >= 1){{
+                            // var mediaUrl = mediaElement.src || mediaElement.querySelector('source').src;
+                            var mediaUrl = isImagePresent ? mediaElement.src : mediaElement.querySelector('source').src;
+                            return fetch(mediaUrl)
+                                .then(response => response.blob())
+                                .then(blob => {{
+                                    formData.append(`${{mediaType}}_{boot}`, blob, `{media_id}_{boot}.${{formats}}`);
+                                }})
+                                .catch(error => {{
+                                    throw new Error(`Error fetching media URL: ${{error}}`);
+                                }});
+                        }} else {{
+                            console.log(`No media elements found in URL ${{window.location.href}}`);
+                            console.log(`No media elements found in URL ${{window.location.href}}`);
+                            resolve(JSON.stringify({{"data": []}}))
+                        }}
+                    }}))
+                    .then(() => {{
+                        formData.append('file_folder', '{file_folder}');
+                        fetch('http://localhost:5000/uploadMedia', {{
+                            method: 'POST',
+                            body: formData
+                        }})
+                        .then(response => response.json())
+                        .then(data => {{
+                            console.log('Response from server(media):', data);
+                            resolve(data);
+                        }})
+                        .catch(error => {{
+                            console.error('Error posting media data:', error);
+                            reject(error);
+                        }});
+                    }})
+                    .catch(error => {{
+                        reject(`Error processing media elements: ${{error}}`);
+                    }});
+                }} catch (error) {{
+                    reject(`Error in mediaScrpt: ${{error}}`);
+                }}
+            }});
+            """
+
         try:
-            print(mediaSrc)
+            print("mediaSrc: ", mediaSrc)
             if len(mediaSrc) <= 0:
-                print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+                print("Scraper userId: ", self.userId, " stop 4 : ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 return f"No Media Found!"
-            self.browser.execute_script(f"window.open('{mediaSrc[0]}', '_blank');")
-            time.sleep(2)
-            self.browser.switch_to.window(self.browser.window_handles[-1])
             try:
-                uploadedMediaDick = self.browser.execute_script(mediaScript)
-                uploadedMediaSrcList.update(uploadedMediaDick)
-                print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+                for boot, puss in enumerate(mediaSrc):
+                    self.browser.execute_script(f"window.open('{puss}', '_blank');")
+                    self.browser.switch_to.window(self.browser.window_handles[-1])
+                    page_source = self.browser.page_source
+                    if '<video' in page_source or '<img' in page_source:
+                        pass
+                    else:
+                        print("refreshing: ", puss)
+                        self.browser.refresh()
+                        print("refreshed: ", puss)
+                    # uploadedMediaDick = self.browser.execute_script(formScrpt(boot))
+                    time.sleep(3)
+                    uploadedMediaDick = WebDriverWait(self.browser, 60).until(lambda driver: driver.execute_script(formScrpt(boot)))
+                    # if boot == 0:
+                        # uploadedMediaSrcList.update(uploadedMediaDick)
+                    # else:
+                        # uploadedMediaSrcList['data'].append(uploadedMediaDick)
+                    print("the url: ",puss, " index: ", boot)
+                    print("uploadedMediaDick: ",uploadedMediaDick)
+                    uploadedMediaSrcList.append(uploadedMediaDick)
+                    # if boot == len(mediaSrc) - 1:
+                    #    time.sleep(30)
+                    self.browser.close()
+                    self.browser.switch_to.window(self.browser.window_handles[0])
+                print("Scraper userId: ", self.userId, " finished : ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 return uploadedMediaSrcList
             except Exception as e:
-                print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+                print("Scraper userId: ", self.userId, " stop 5 : ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 # return f"Error executing media upload script. Try Again!"
                 return f"Error executing media upload script: {e}"
                 
         except Exception as e:
-            print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
+            print("Scraper userId: ", self.userId, " stop 6 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            return f"General error. Try Again!"
-            # return f"General error: {e}"
+            #return f"General error. Try Again!"
+            return f"General error: {e}"
 
 
 """
