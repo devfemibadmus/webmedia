@@ -136,6 +136,7 @@
          margin-bottom: 10px;
          }
          .section .productimg {
+         border: 1px solid whitesmoke;
          width: 250px;
          height: 250px;
          object-fit: cover;
@@ -149,6 +150,24 @@
          .section .container.post {
          max-width: 250px;
          }
+         ::-webkit-scrollbar {
+            width: 10px;
+            height: 12px;
+          }
+          
+          ::-webkit-scrollbar-track {
+            background: black;
+            border-radius: 10px;
+          }
+          
+          ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+          }
+          
+          ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+          }
          }
          .section * {
          color: #777;
@@ -214,23 +233,23 @@
    </head>
    <body>
       <header>
-         <a class="logo" href="">
+         <a class="nav-link logo" href="#home">
          <img src="static/icon-512.png" alt="Logo">
          </a>
          <ul class="nav-list">
             <li><a href="#home" class="nav-link">Mediasaver</a></li>
-            <li><a href="#save" class="nav-link">Saver</a></li>
+            <li><a href="#save" class="nav-link">Saves</a></li>
             <li><a href="#app" class="nav-link" >App</a></li>
             <li><a href="#privacy" class="nav-link" id="nav-privacy">Privacy</a></li>
          </ul>
       </header>
       <div class="main container">
-         <div class="section" id="home">
+         <div class="section" id="save">
             <div class="scrollable-container">
-               <p id='loading-message' style='display: none;'>Loading...</p>
+               <p id="loading-message">No history</p>
             </div>
          </div>
-         <div class="section active" id="save">
+         <div class="section active" id="home">
             <div class="scrollable-container">
                <div class="text-sized">
                   <h1 style="color:whitesmoke;">Media Saver</h1>
@@ -299,7 +318,7 @@
             const sections = document.querySelectorAll('.section');
             const searchButton = document.getElementById('search-button');
             const searchInput = document.getElementById('search-input');
-            const homeSection = document.getElementById('home');
+            const saveSection = document.getElementById('save');
             const scrollableContainer = document.querySelector('.scrollable-container');
             const loadingMessage = document.getElementById('loading-message');
         
@@ -340,23 +359,25 @@
                 sections.forEach(section => {
                     section.classList.remove('active');
                 });
-                homeSection.classList.add('active');
+                saveSection.classList.add('active');
                 
                 fetch('/', {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.data && data.data.length > 0) {
+                .then(response => response.text())
+                .then(response => {
+                    console.log(response)
+                    try {
+                        const data = JSON.parse(response); 
                         //scrollableContainer.innerHTML = '';
                         loadingMessage.classList.remove('loader');
-                        data.data.forEach(item => {
+                        data.forEach(item => {
                             const containerDiv = document.createElement('div');
                             containerDiv.className = 'container post';
-                            console.log(item.src)
+                            console.log(item)
         
-                            if (item.src.includes('.mp4?X-Goog-Algorithm')) {
+                            if (item.src && item.src.includes('.mp4?X-Goog-Algorithm')) {
                                 const video = document.createElement('video');
                                 video.className = 'productimg';
                                 video.controls = true;
@@ -372,7 +393,7 @@
         
                                 video.appendChild(source);
                                 containerDiv.appendChild(video);
-                              } else if (item.src.includes('.png?X-Goog-Algorithm') || item.src.includes('.jpg?X-Goog-Algorithm') || item.src.includes('.jpeg?X-Goog-Algorithm')) {
+                            } else if (item.src && item.src.includes('.png?X-Goog-Algorithm') || item.src && item.src.includes('.jpg?X-Goog-Algorithm') || item.src && item.src.includes('.jpeg?X-Goog-Algorithm')) {
                                 const a = document.createElement('a');
                                 a.href = item.src;
                                 a.download = item.src.split('/').pop();
@@ -385,11 +406,10 @@
                                 a.appendChild(img);
                                 containerDiv.appendChild(a);
                              } else {
-                                const a = document.createElement('a');
-                                a.href = item.src;
-                                a.download = item.src.split('/').pop();
-                                a.innerHTML = "Click Here to Download";
-                                containerDiv.appendChild(a);
+                                const p = document.createElement('p');
+                                p.textContent = item.message;
+                                p.style.color = 'red';
+                                containerDiv.appendChild(p);
                              }
         
                             scrollableContainer.appendChild(containerDiv);
@@ -397,9 +417,9 @@
                         
                         scrollableContainer.style.display = 'flex';
                         loadingMessage.style.display = 'none';
-                    } else {
-                        console.log(data);
-                        loadingMessage.textContent = data;
+                    } catch (error) {
+                        console.log(response);
+                        loadingMessage.textContent = response;
                         loadingMessage.style.color = 'red';
                         loadingMessage.style.display = 'block';
                         loadingMessage.classList.remove('loader');
@@ -436,12 +456,6 @@
           console.info(performance.navigation.type);
           if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
             console.info( "This page is reloaded" );
-            fetch('/close/', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => data)
-            .catch(error => console.error('Error:', error));
           } else {
             console.info( "This page is not reloaded");
           }
