@@ -44,52 +44,55 @@ user_instances = {}
 @app.route('/', methods=['POST', 'GET'])
 def home():
     userId = session['userId']
-    if userId not in user_instances:
-        user_instances[userId] = Scraper(userId)
-    scraper = user_instances[userId]
-    if request.method == 'POST' and request.form.get('src'):
+    if request.method == 'POST':
+        if not request.form.get('src'):
+            return "Nigga"
+        scraper = Scraper(userId)
         src = request.form.get('src')
         response = scraper.getMedia(src)
         print("response: ", response)
-        return jsonify(response)
+        if isinstance(response, list):
+            return jsonify(response)
+        return response
     return render_template("home.html")
 
 @app.route('/uploadMedia', methods=['POST'])
 @cross_origin()
 def upload_video():
     print("request.files: ", request.files)
-    if 'video_0' not in request.files and 'image_0' not in request.files:
+
+    if len(request.files) == 0:
         return jsonify({"message": "No media found!", "error": True})
+
+    file = next(iter(request.files.values()))
+
+    if file.filename == "":
+        return jsonify({"message": "Missing file name", "error": True})
 
     file_folder = request.form.get('file_folder')
     print("file_folder: ", file_folder)
-    data = []
+    
+    data = manager.upload_file(file_folder, file)
 
-    for key in request.files:
-        file = request.files[key]
-        if file.filename == "":
-            return jsonify({"message": "No media found!", "error": True})
-        print("file: ", file.filename)      
-        uploaded_file = manager.upload_file(file_folder, file)
-        data.append({"src": uploaded_file})
-
-    return jsonify({"message": "Files uploaded successfully!", "success": True, "data": data})
+    return jsonify({"message": "Files uploaded successfully!", "success": True, "src": data})
 
 @app.before_request
 def ensure_userId():
     if 'userId' not in session:
         session['userId'] = str(uuid.uuid4())
-    # print("userId: ", session['userId'])
 
 @app.route('/close/', methods=['POST'])
 def close():
     userId = session.get('userId')
-    if userId:
-        user_instances[userId] = Scraper(userId)
-        scraper = user_instances[userId].close()
-        # print(scraper)
-        return jsonify({'scraper': scraper})
-    return jsonify({'success': False, 'message': 'No user ID found'})
+    if userId in user_instances:
+        print(userId, " in user_instances")
+        scraper = user_instances[userId]
+        closed = scraper.close()
+        if closed:
+            del user_instances[userId]
+            session.pop('userId', None)
+        return jsonify({'success': closed})
+    return jsonify({'success': False, 'message': 'No user ID found or instance not found'})
 
 @app.route('/test-mode/', methods=['POST'])
 def get_test_url():
