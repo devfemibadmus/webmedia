@@ -1,6 +1,3 @@
-a = []
-def aa():
-    print(len(a) >= 1)
+from flask import Flask, render_template, request, jsonify, session
 
-#a = list(set(a))
-aa()
+print(jsonify("fuck"))

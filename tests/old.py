@@ -1,301 +1,112 @@
-import time, re
-from selenium import webdriver
-from engine.validator import Validator
-from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from flask import Flask, render_template, request, jsonify, session
+from flask_cors import cross_origin
+from engine.scraper import Scraper
+from google.cloud import storage
+from pathlib import Path
+import os, uuid
 
-
-class Scraper:
+BASE_DIR = Path(__file__).resolve().parent.parent
+app = Flask(__name__, static_url_path='/static')
+app.secret_key = 'aaaaaaaaaaa2222222222!!!!!!!!!##'
+application = app
+class CloudStorageManager:
     def __init__(self):
-        self.edge_options = Options()
-        self.edge_options.use_chromium = True
-        self.edge_options.add_argument("--headless")
-        self.edge_options.add_argument("--disable-gpu")
-        self.edge_options.add_argument("--mute-audio")
-        self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        self.browser = webdriver.Edge(options=self.edge_options)
-        self.browser.delete_all_cookies()
-        self.browser.set_script_timeout(320)
+        self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "mediasaver.json"))
+        self.bucket = self.storage_client.bucket('mediasaver')
 
-    def get_media(self, src):
-        source = Validator.validate(src)
-        print("source: ", source)
-        if source == "TikTok":
-            return self.scrape_tiktok(src)
-        elif source == "Instagram Post":
-            return self.scrape_instagram(src)
-        elif source == "Facebook Video":
-            return self.scrape_facebook_video(src)
-        else:
-            print(f"Unsupported video source: {source}")
-            return False
+    def upload_file(self, file_folder, file_upload):
+        if file_upload:
+            blob = self.bucket.blob(file_folder + "/" + file_upload.filename)
+            blob.upload_from_file(file_upload)
+            signed_url = blob.generate_signed_url(expiration=3600, version='v4')
+            return signed_url
+        return False
 
-    def scrape_tiktok(self, tiktok_url):
-        # Done
-        mediaElement_classNames = ['css-1sb4dwc-DivPlayerContainer', 'swiper-slide']
-        usernameElement_xpath = '//span[@data-e2e="browse-username"]'
-        media_id = re.search(r'(video|photo)/(\d+)', tiktok_url)
-        media_id = media_id.group(2) if media_id else None
-        return self.scrap_mediaUrl("TikTok", tiktok_url, usernameElement_xpath, mediaElement_classNames, media_id)
+    def get_signed_url(self, file_folder, file_name):
+        if file_name:
+            blob = self.bucket.blob(file_folder + "/" + file_name)
+            signed_url = blob.generate_signed_url(expiration=3600, version='v4')
+            print("signed_url: ", signed_url)
+            return signed_url
+        return False
 
-    def scrape_instagram(self, instagram_url):
-        mediaElement_classNamess = [
-            '//div[@class="css-8lv75m-DivBasicPlayerWrapper e1yey0rl2"]/div/video'
-        ]
-        usernameElement_xpath = '//a[contains(@class, "_acan") and contains(@class, "_acao") and contains(@class, "_acat") and contains(@class, "_acaw")][1]'
-        media_id = instagram_url.split('.com/p/')[1].split('/')[0]
-        for xpath in mediaElement_classNamess:
-            try:
-                return self.scrap_mediaUrl("Instagram", instagram_url, usernameElement_xpath, xpath, media_id, True)
-            except Exception as e:
-                return {"message": f"{e}", "error": True}
-                print(f"XPath: {xpath}. Error: {e}")
-                continue
-        return {"error":False, "message":"default"}
+    def delete_file(self, file_folder, file_name):
+        if file_name:
+            blob = self.bucket.blob(file_folder + "/" + file_name)
+            blob.delete()
+            return True
+        return False
 
-    def scrape_facebook_reel(self, facebook_reel_url):
-        pass
+manager = CloudStorageManager()
+user_instances = {}
 
-    def scrape_facebook_video(self, facebook_src):
-        pass
+@app.route('/app/', methods=['POST'])
+@app.route('/', methods=['POST', 'GET'])
+def home():
+    userId = session['userId']
+    if userId not in user_instances:
+        user_instances[userId] = Scraper(userId)
+    scraper = user_instances[userId]
+    if request.method == 'POST' and request.form.get('src'):
+        src = request.form.get('src')
+        response = scraper.getMedia(src)
+        print("response: ", response)
+        return jsonify(response)
+    return render_template("home.html")
 
-    def scrap_mediaUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
-        try:
-            self.browser.get(media_url)
-        except Exception as e:
-            self.browser.quit()
-            return f"Error loading page: {e}"
+@app.route('/uploadMedia', methods=['POST'])
+@cross_origin()
+def upload_video():
+    print("request.files: ", request.files)
+    file = request.files['file']
+    # if 'video_0' not in request.files and 'image_0' not in request.files:
+        # return jsonify({"message": "No media found!", "error": True, "data": []})
 
-        try:
-            username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
-        except Exception as e:
-            self.browser.quit()
-            return f"Error getting username: {e}"
+    if file.filename == "":
+        return jsonify({"message": "No media found!", "error": True})
 
-        file_folder = f"{platform}/{username}"
-        uploadedMediaSrcList = {'data':[], 'success':False, 'message': 'Default'}
-        mediaSrcImages = []
-        mediaSrcVdeos = []
-        mediaSrc = []
+    file_folder = request.form.get('file_folder')
+    print("file_folder: ", file_folder)
+    # data = []
 
-        try:
-            for className in mediaElement_classNames:
-                elements = self.browser.find_elements(By.CLASS_NAME, className)
-                for element in elements:
-                    try:
-                        video_tags = element.find_elements(By.TAG_NAME, 'video')
-                        for video in video_tags:
-                            src = video.get_attribute('src') or video.find_element(By.TAG_NAME, 'source').get_attribute('src')
-                            if src:
-                                mediaSrcVdeos.append(src)
-                    except Exception as e:
-                        continue
-                    try:
-                        image_tags = element.find_elements(By.TAG_NAME, 'img')
-                        for image in image_tags:
-                            src = image.get_attribute('src')
-                            if src:
-                                mediaSrcImages.append(src)
-                    except Exception as e:
-                        continue
-        except Exception as e:
-            self.browser.quit()
-            return f"Error finding media elements: {e}"
+    #for key in request.files:
+        # file = request.files[key]
+        # if file.filename == "":
+            # return jsonify({"message": "No media found!", "error": True})
+        # print("file: ", file.filename)      
+        # uploaded_file = manager.upload_file(file_folder, file)
+        # data.append({"src": uploaded_file})
+    data = manager.upload_file(file_folder, file)
 
-        videoScrpt = f"""
-            return new Promise((resolve, reject) => {{
-                try {{
-                    var formData = new FormData();
-                    var videoElements = document.querySelectorAll('video');
-                    Promise.all(Array.from(videoElements).map((videoElement, index) => {{
-                        var videoUrl = videoElement.src || videoElement.querySelector('source').src;
-                        return fetch(videoUrl)
-                            .then(response => response.blob())
-                            .then(blob => {{
-                                formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
-                            }})
-                            .catch(error => {{
-                                throw new Error(`Error fetching video URL: ${{error}}`);
-                            }});
-                    }}))
-                    .then(() => {{
-                        formData.append('file_folder', '{file_folder}');
-                        fetch('http://localhost:5000/uploadMedia', {{
-                            method: 'POST',
-                            body: formData
-                        }})
-                        .then(response => response.json())
-                        .then(data => {{
-                            console.log('Response from server(video):', data);
-                            resolve(data);
-                        }})
-                        .catch(error => {{
-                            console.error('Error posting video data:', error);
-                            reject(error);
-                        }});
-                    }})
-                    .catch(error => {{
-                        reject(`Error processing video elements: ${{error}}`);
-                    }});
-                }} catch (error) {{
-                    reject(`Error in videoScrpt: ${{error}}`);
-                }}
-            }});
-        """
+    return jsonify({"message": "Files uploaded successfully!", "success": True, "src": data})
 
-        imageScrpt = f"""
-            return new Promise((resolve, reject) => {{
-                try {{
-                    var formData = new FormData();
-                    var imageElements = document.querySelectorAll('img');
-                    Promise.all(Array.from(imageElements).map((imageElement, index) => {{
-                        var imageUrl = imageElement.src || imageElement.querySelector('source').src;
-                        return fetch(imageUrl)
-                            .then(response => response.blob())
-                            .then(blob => {{
-                                formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
-                            }})
-                            .catch(error => {{
-                                throw new Error(`Error fetching image URL: ${{error}}`);
-                            }});
-                    }}))
-                    .then(() => {{
-                        formData.append('file_folder', '{file_folder}');
-                        fetch('http://localhost:5000/uploadMedia', {{
-                            method: 'POST',
-                            body: formData
-                        }})
-                        .then(response => response.json())
-                        .then(data => {{
-                            console.log('Response from server(image):', data);
-                            resolve(data);
-                        }})
-                        .catch(error => {{
-                            console.error('Error posting image data:', error);
-                            reject(error);
-                        }});
-                    }})
-                    .catch(error => {{
-                        reject(`Error processing image elements: ${{error}}`);
-                    }});
-                }} catch (error) {{
-                    reject(`Error in imageScrpt: ${{error}}`);
-                }}
-            }});
-        """
+@app.before_request
+def ensure_userId():
+    if 'userId' not in session:
+        session['userId'] = str(uuid.uuid4())
+    # print("userId: ", session['userId'])
 
-        media_script = f"""
-        return new Promise((resolve, reject) => {{
-            try {{
-                var formData = new FormData();
-                Promise.all(
-                    {media_scrpt_src}.map((src, index) => 
-                        fetch(src)
-                            .then(response => {{
-                                if (!response.ok) {{
-                                    throw new Error(`HTTP error! status: ${{response.status}}`);
-                                }}
-                                var contentType = response.headers.get('Content-Type');
-                                return response.blob().then(blob => ({{ blob, contentType, index }}));
-                            }})
-                    )
-                )
-                .then(results => {{
-                    results.forEach(({blob, contentType, index}) => {{
-                        if (contentType.startsWith('image/')) {{
-                            formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
-                        }} else if (contentType.startsWith('video/')) {{
-                            formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
-                        }} else {{
-                            throw new Error(`Unsupported content type: ${{contentType}}`);
-                        }}
-                    }});
-                    formData.append('file_folder', '{file_folder}');
-                    return fetch('http://localhost:5000/uploadMedia', {{
-                        method: 'POST',
-                        body: formData
-                    }});
-                }})
-                .then(response => response.json())
-                .then(data => {{
-                    console.log('Response from server:', data);
-                    resolve(data);
-                }})
-                .catch(error => {{
-                    console.error('Error posting data:', error);
-                    reject(error);
-                }});
-            }} catch (error) {{
-                reject(`Error in script: ${{error}}`);
-            }}
-        }});
-        """
+@app.route('/close/', methods=['POST'])
+def close():
+    userId = session.get('userId')
+    if userId in user_instances:
+        scraper = user_instances[userId]
+        closed = scraper.close()
+        # Remove the instance from user_instances after closing
+        if closed:
+            del user_instances[userId]
+            session.pop('userId', None)
+        return jsonify({'success': closed})
+    return jsonify({'success': False, 'message': 'No user ID found or instance not found'})
 
-        try:
-            # print(list(set(mediaSrcImages)))
-            for src in list(set(mediaSrcImages)):
-                self.browser.execute_script(f"window.open('{src}', '_blank');")
-                time.sleep(2)
-                self.browser.switch_to.window(self.browser.window_handles[-1])
-                try:
-                    uploadedImages = self.browser.execute_script(imageScrpt)
-                    
-                    for dick in uploadedImages['data']:
-                        uploadedMediaSrcList['data'].append(dick)
+@app.route('/test-mode/', methods=['POST'])
+def get_test_url():
+    src = [{"src": "static/0713.mp4"}, {"src": "static/0713.mp4"}, {"src": "static/icon-512.png"}]
+    return jsonify({"data": src})
 
-                except Exception as e:
-                    self.browser.quit()
-                    return f"Error executing image script: {e}"
-                    
-                # finally:
-                    # self.browser.close()
-                    
-            # print(list(set(mediaSrcVdeos)))
-            for src in list(set(mediaSrcVdeos)):
-                self.browser.execute_script(f"window.open('{src}', '_blank');")
-                time.sleep(2)
-                self.browser.switch_to.window(self.browser.window_handles[-1])
-                try:
-                    uploadedVideos = self.browser.execute_script(videoScrpt)
-                    
-                    for dick in uploadedVideos['data']:
-                        uploadedMediaSrcList['data'].append(dick)
+@app.route('/<path:path>')
+def catch_all(path):
+    return render_template("home.html")
 
-                except Exception as e:
-                    self.browser.quit()
-                    return f"Error executing video script: {e}"
-
-                # finally:
-                    # self.browser.close()
-
-            try:
-                self.browser.quit()
-                return uploadedMediaSrcList
-            except Exception as e:
-                self.browser.quit()
-                return f"Error executing media upload script: {e}"
-        except Exception as e:
-            self.browser.quit()
-            return f"General error: {e}"
-
-        # self.browser.execute_script(f"window.open('{media_src}', '_blank');")
-        # time.sleep(5)
-
-        # self.browser.switch_to.window(self.browser.window_handles[-1])
-
-        # response_data = self.browser.execute_script(js_upload)
-        # print("response_data: ", response_data)
-
-        # return response_data
-
-
-"""
-# Cum test
-if __name__ == "__main__":
-    tiktok_url = 'https://www.tiktok.com/@oorsz/video/7380872550236048645?is_from_webapp=1&sender_device=pc'
-    scraper = Scraper()
-    scraper.scrape_tiktok(tiktok_url)
-"""
-
+if __name__ == '__main__':
+    app.run(debug=True)
