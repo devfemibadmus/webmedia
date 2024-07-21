@@ -261,7 +261,7 @@ class Scraper:
             return f"No Media Found!"
         try:
             for boot, puss in enumerate(mediaSrc):
-                update_message(session['userId'], f"scraping {boot+1} of {len(mediaSrc)}")
+                update_message(session['userId'], f"Scraping {boot+1} of {len(mediaSrc)}")
                 self.browser.execute_script(f"window.open('{puss}', '_blank');")
                 self.browser.switch_to.window(self.browser.window_handles[-1])
                 page_source = self.browser.page_source
@@ -278,7 +278,7 @@ class Scraper:
                 self.browser.switch_to.window(self.browser.window_handles[0])
                 set_data(session['userId'], uploadedMediaSrcList)
                 update_message(session['userId'], f"scraped {boot+1} of {len(mediaSrc)}")
-            update_message(session['userId'], f"Total Scraped Meida: {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
+            update_message(session['userId'], f"Total Scraped Media: {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
             print("Scraper userId: ", self.userId, " finished : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             return f"Done"
