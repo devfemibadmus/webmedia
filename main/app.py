@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, Response
 from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
+from engine.helper import *
 from pathlib import Path
 import os, uuid
 
@@ -50,10 +51,7 @@ def home():
         scraper = Scraper(userId)
         src = request.form.get('src')
         response = scraper.getMedia(src)
-        print("response: ", response)
-        if isinstance(response, list):
-            return jsonify(response)
-        return response
+        return jsonify(response)
     return render_template("home.html")
 
 @app.route('/uploadMedia', methods=['POST'])
@@ -81,23 +79,14 @@ def ensure_userId():
     if 'userId' not in session:
         session['userId'] = str(uuid.uuid4())
 
-@app.route('/close/', methods=['POST'])
-def close():
-    userId = session.get('userId')
-    if userId in user_instances:
-        print(userId, " in user_instances")
-        scraper = user_instances[userId]
-        closed = scraper.close()
-        if closed:
-            del user_instances[userId]
-            session.pop('userId', None)
-        return jsonify({'success': closed})
-    return jsonify({'success': False, 'message': 'No user ID found or instance not found'})
+@app.route('/getMessage', methods=['POST'])
+def getMessage():
+    print(session['userId'])
+    return jsonify(get_message(session['userId']))
 
-@app.route('/test-mode/', methods=['POST'])
-def get_test_url():
-    src = [{"src": "static/0713.mp4"}, {"src": "static/0713.mp4"}, {"src": "static/icon-512.png"}]
-    return jsonify({"data": src})
+@app.route('/getData', methods=['POST'])
+def getData():
+    return jsonify(get_data(session['userId']))
 
 @app.route('/<path:path>')
 def catch_all(path):
