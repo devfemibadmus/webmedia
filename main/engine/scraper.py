@@ -80,6 +80,9 @@ class Scraper:
     def cloudUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
         try:
             update_message(session['userId'], f"loading {media_url}")
+            if page_unload(session['userId']):
+                self.browser.quit()
+                return f"User close or refresh page"
             self.browser.get(media_url)
         except Exception as e:
             print("self.browser.session_id: ", self.browser.session_id)
@@ -94,14 +97,26 @@ class Scraper:
             # return f"Error loading page. Test"
 
         try:
+            if page_unload(session['userId']):
+                self.browser.quit()
+                print("User close or refresh page")
+                return f"User close or refresh page"
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
             update_message(session['userId'], f"username: {username}")
         except Exception as e:
             update_message(session['userId'], f"retrying get username")
             try:
+                if page_unload(session['userId']):
+                    self.browser.quit()
+                    print("User close or refresh page")
+                    return f"User close or refresh page"
                 print("refreshing: ")
                 self.browser.refresh()
                 print("refreshed: ")
+                if page_unload(session['userId']):
+                    self.browser.quit()
+                    print("User close or refresh page")
+                    return f"User close or refresh page"
                 username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
                 update_message(session['userId'], f"username: {username}")
             except Exception as e:
@@ -111,16 +126,22 @@ class Scraper:
                 set_data(session['userId'], [])
                 return f"Error getting username: {e}"
 
-        original_window = self.browser.current_window_handle
-
         file_folder = f"{platform}/{username}"
         uploadedMediaSrcList = []
         mediaSrc = []
 
         try:
             for className in mediaElement_classNames:
+                if page_unload(session['userId']):
+                    self.browser.quit()
+                    print("User close or refresh page")
+                    return f"User close or refresh page"
                 elements = self.browser.find_elements(By.CLASS_NAME, className)
                 for element in elements:
+                    if page_unload(session['userId']):
+                       self.browser.quit()
+                       print("User close or refresh page")
+                       return f"User close or refresh page"
                     try:
                         update_message(session['userId'], f"finding videos...")
                         video_tags = element.find_elements(By.TAG_NAME, 'video')
@@ -278,6 +299,10 @@ class Scraper:
                     self.browser.refresh()
                     print("refreshed: ", puss)
                 time.sleep(3)
+                if page_unload(session['userId']):
+                    self.browser.quit()
+                    print("User close or refresh page")
+                    return f"User close or refresh page"
                 uploadedMediaDick = WebDriverWait(self.browser, 60).until(lambda driver: driver.execute_script(formScrpt(boot)))
                 print("the url: ",puss, " index: ", boot)
                 print("uploadedMediaDick: ",uploadedMediaDick)
