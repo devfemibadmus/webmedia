@@ -85,6 +85,8 @@ class Scraper:
             print("self.browser.session_id: ", self.browser.session_id)
             print("Scraper userId: ", self.userId, " stop 1 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
+            update_message(session['userId'], "")
+            set_data(session['userId'], [])
             return f"Error loading page: {e}"
         # finally:
             # print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
@@ -105,6 +107,8 @@ class Scraper:
             except Exception as e:
                 print("Scraper userId: ", self.userId, " stop 2 : ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
+                update_message(session['userId'], "")
+                set_data(session['userId'], [])
                 return f"Error getting username: {e}"
 
         original_window = self.browser.current_window_handle
@@ -138,6 +142,8 @@ class Scraper:
         except Exception as e:
             print("Scraper userId: ", self.userId, " stop 3 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
+            update_message(session['userId'], "")
+            set_data(session['userId'], [])
             return f"Error finding media elements: {e}"
         finally:
             mediaSrc = list(set(mediaSrc))
@@ -258,6 +264,8 @@ class Scraper:
         if len(mediaSrc) <= 0:
             print("Scraper userId: ", self.userId, " stop 4 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
+            update_message(session['userId'], "")
+            set_data(session['userId'], [])
             return f"No Media Found!"
         try:
             for boot, puss in enumerate(mediaSrc):
@@ -278,13 +286,16 @@ class Scraper:
                 self.browser.switch_to.window(self.browser.window_handles[0])
                 set_data(session['userId'], uploadedMediaSrcList)
                 update_message(session['userId'], f"scraped {boot+1} of {len(mediaSrc)}")
-            update_message(session['userId'], f"Total Scraped Media: {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
+            update_message(session['userId'], f"Total scrape media {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
             print("Scraper userId: ", self.userId, " finished : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            return f"Done"
+            update_message(session['userId'], "")
+            return f"Done!"
         except Exception as e:
             print("Scraper userId: ", self.userId, " stop 5 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
+            update_message(session['userId'], "")
+            set_data(session['userId'], [])
             return f"Error executing media upload script: {e}"
 
 

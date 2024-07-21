@@ -43,7 +43,7 @@ def set_data(user_id, data):
     # If user_id doesn't exist, add new entry with empty data
     global_messages.append({
         user_id: [
-            {'message': '', 'last check_or_update__time': datetime.now().isoformat()},
+            {'message': 'loading...', 'last check_or_update__time': datetime.now().isoformat()},
             {'data': data}
         ]
     })

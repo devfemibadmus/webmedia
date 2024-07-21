@@ -48,10 +48,9 @@ def home():
     if request.method == 'POST':
         if not request.form.get('src'):
             return "Nigga"
+        update_message(session['userId'], f"Starting")
         scraper = Scraper(userId)
-        src = request.form.get('src')
-        response = scraper.getMedia(src)
-        return jsonify(response)
+        return jsonify({'message':scraper.getMedia(request.form.get('src'))})
     return render_template("home.html")
 
 @app.route('/uploadMedia', methods=['POST'])
@@ -79,14 +78,11 @@ def ensure_userId():
     if 'userId' not in session:
         session['userId'] = str(uuid.uuid4())
 
-@app.route('/getMessage', methods=['POST'])
-def getMessage():
-    print(session['userId'])
-    return jsonify(get_message(session['userId']))
-
 @app.route('/getData', methods=['POST'])
 def getData():
-    return jsonify(get_data(session['userId']))
+    message = get_message(session['userId'])
+    mediaurl = get_data(session['userId'])
+    return jsonify({'message':message, 'mediaurl':mediaurl})
 
 @app.route('/<path:path>')
 def catch_all(path):
