@@ -1,464 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Media Saver</title>
-      <style>
-         body {
-         margin: 0;
-         font-family: 'Helvetica', sans-serif;
-         background-color: black;
-         color: white;
-         overflow: hidden;
-         font-family: 'Roboto', sans-serif;
-         }
-         header {
-         background-color: black;
-         position: absolute;
-         top: 0px;
-         right: 10px;
-         width: 100%;
-         padding: 2em 0;
-         z-index: 2;
-         }
-         .nav-list {
-         display: flex;
-         justify-content: space-between;
-         list-style: none;
-         margin: 0;
-         right: 0px;
-         }
-         .nav-list li {
-         flex-grow: 1;
-         text-align: center;
-         }
-         .nav-list a {
-         color: white;
-         text-decoration: none;
-         font-weight: bold;
-         display: block;
-         }
-         .nav-list li:first-child a {
-         color: black;
-         visibility: hidden;
-         }
-         .logo {
-         position: absolute;
-         top: 0px;
-         left: 20px;
-         width: 50px;
-         height: 50px;
-         padding-top: 1em;
-         border-radius: 50%;
-         overflow: hidden;
-         }
-         .logo img {
-         width: 100%;
-         height: 100%;
-         object-fit: cover;
-         border-radius: 50%;
-         }
-         #background {
-         position: absolute;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         z-index: -1;
-         background-color: #000;
-         }
-         .main.container {
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         justify-content: center;
-         text-align: center;
-         height: 100vh;
-         width: 100vw;
-         margin-top: 10vh;
-         position: relative;
-         z-index: 1;
-         }
-         .section {
-         display: none;
-         margin-top: -10vh;
-         }
-         .section .text-sized{
-         padding: 10px;
-         width:80vw;
-         max-width: 600px;
-         }
-         .section.active {
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         justify-content: center;
-         text-align: center;
-         animation: slide-up 0.5s ease forwards;
-         }
-         @keyframes slide-up {
-         from {
-         transform: translateY(100%);
-         opacity: 0;
-         }
-         to {
-         transform: translateY(0);
-         opacity: 1;
-         }
-         }
-         .section .scrollable-container{
-         display: flex;
-         flex-wrap: wrap;
-         justify-content: center;
-         align-items: flex-center;
-         gap: 20px;
-         width: 80vw;
-         height: 70vh;
-         overflow: auto;
-         padding-top: 30vh;
-         padding-bottom: 30vh;
-         }
-         .section .title {
-         width: 100%;
-         }
-         .section .container {
-         border-radius: 8px;
-         padding: 20px;
-         height: auto;
-         max-height: 80vh;
-         }
-         .section .fanimg {
-         width: 100px;
-         height: 100px;
-         border-radius: 50%;
-         object-fit: cover;
-         margin-bottom: 10px;
-         }
-         .section .productimg {
-         border: 1px solid whitesmoke;
-         width: 250px;
-         height: 250px;
-         object-fit: cover;
-         margin-bottom: 10px;
-         }
-         .section h2 {
-         font-size: 1.2em;
-         margin-bottom: 10px;
-         }
-         @media screen and (min-width: 480px) {
-         .section .container.post {
-         max-width: 250px;
-         }
-         ::-webkit-scrollbar {
-            width: 10px;
-            height: 12px;
-          }
-          
-          ::-webkit-scrollbar-track {
-            background: black;
-            border-radius: 10px;
-          }
-          
-          ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-          }
-          
-          ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-          }
-         }
-         .section * {
-         color: #777;
-         text-decoration: none;
-         word-wrap: break-word;
-         overflow-wrap: break-word;
-         }
-         .section a {
-         color: #00faff;
-         text-decoration:underline;
-         }
-         .nav-link {
-         cursor: pointer;
-         transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-         }
-         .nav-link.hidden {
-         transform: translateY(100%);
-         opacity: 0;
-         }
-         .nav-link.visible {
-         transform: translateY(0);
-         opacity: 1;
-         }
-         .search-container {
-         display: flex;
-         flex-wrap: wrap;
-         justify-content: center;
-         align-items: flex-center;
-         width:100%;
-         }
-         #search-input {
-         width:60%;
-         padding: 5px;
-         border: 1px solid #777;
-         border-radius: 4px 0 0 4px;
-         outline: none;
-         background-color:black;
-         color:white;
-         }
-         #search-button {
-         border: 0px;
-         background-color: black;
-         color: white;
-         cursor: pointer;
-         font-weight: bold;
-         font-size: large;
-         }
-         .loader {
-            border: 8px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            border-top: 8px solid #999;
-            width: 60px;
-            height: 60px;
-            animation: spin 0.5s linear infinite;
-            margin: 100px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-      </style>
-   </head>
-   <body>
-      <header>
-         <a class="nav-link logo" href="#home">
-         <img src="static/icon-512.png" alt="Logo">
-         </a>
-         <ul class="nav-list">
-            <li><a href="#home" class="nav-link">Mediasaver</a></li>
-            <li><a href="#save" class="nav-link">Saves</a></li>
-            <li><a href="#app" class="nav-link" >App</a></li>
-            <li><a href="#privacy" class="nav-link" id="nav-privacy">Privacy</a></li>
-         </ul>
-      </header>
-      <div class="main container">
-         <div class="section" id="save">
-            <div class="scrollable-container">
-               <p id="loading-message">No history</p>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <title>Media Saver</title>
+    </head>
+    <body>
+        <header>
+            <a class="nav-link logo" href="#home">
+            <img src="static/icon-512.png" alt="Logo">
+            </a>
+            <ul class="nav-list">
+                <li><a href="#home" class="nav-link">Mediasaver</a></li>
+                <li><a href="#save" class="nav-link">Saves</a></li>
+                <li><a href="#app" class="nav-link" >App</a></li>
+                <li><a href="#privacy" class="nav-link" id="nav-privacy">Privacy</a></li>
+            </ul>
+        </header>
+        <div class="main container">
+            <div class="section" id="save">
+                <div class="scrollable-container">
+                    <div class="title" id="saveId">
+                        <h3 id="loading-message">No history</h3>
+                    </div>
+                </div>
             </div>
-         </div>
-         <div class="section active" id="home">
-            <div class="scrollable-container">
-               <div class="text-sized">
-                  <h1 style="color:whitesmoke;">Media Saver</h1>
-                  <br/> <br/>
-                  <div class="search-container">
-                     <input type="text" id="search-input" placeholder="https://www...">
-                     <button id="search-button">Download</button>
-                  </div>
-                  <br/> <br/>
-                  <p>Examples:</p>
-                  <p style="overflow-wrap: break-word;word-wrap: break-word;">https://www.facebook.com/share/reel/BLaPVaFoEguzQBio/ https://www.facebook.com/share/r/BLaPVaFoEguzQBio/ https://www.instagram.com/p/C3mr9v5IEr9/ https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/ https://www.tiktok.com/@devfemibadmus/video/7390912680883899654 </p>
-               </div>
+            <div class="section active" id="home">
+                <div class="scrollable-container">
+                    <div class="text-sized">
+                        <h1 style="color:whitesmoke;">Media Saver</h1>
+                        <br/> <br/>
+                        <div class="search-container">
+                            <input type="text" id="search-input" placeholder="https://www...">
+                            <button id="search-button">Download</button>
+                        </div>
+                        <br/> <br/>
+                        <p>Examples:</p>
+                        <p style="overflow-wrap: break-word;word-wrap: break-word;">https://www.facebook.com/share/reel/BLaPVaFoEguzQBio/ https://www.facebook.com/share/r/BLaPVaFoEguzQBio/ https://www.instagram.com/p/C3mr9v5IEr9/ https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/ https://www.tiktok.com/@devfemibadmus/video/7390912680883899654 </p>
+                    </div>
+                </div>
             </div>
-         </div>
-         <div class="section" id="app">
-            <h2 style="color:whitesmoke;">Download App</h2>
-            <div class="text-sized">
-               <p>Coming soon, Check out it's <a href="https://github.com/devfemibadmus/mediasaver">GtiHub repo</a></p>
+            <div class="section" id="app">
+                <h2 style="color:whitesmoke;">Download App</h2>
+                <div class="text-sized">
+                    <p>Coming soon, Check out it's <a href="https://github.com/devfemibadmus/mediasaver">GtiHub repo</a></p>
+                </div>
             </div>
-         </div>
-         <div class="section" id="privacy">
-            <div class="scrollable-container">
-               <div class="text-sized">
-                  <h1 style="color:whitesmoke;">Media Saver Privacy Policy</h1>
-                  <p>Welcome to Media Saver! Our privacy policy outlines how we collect, use, and safeguard your personal information when you use our application.</p>
-                  <h2>Information We Collect</h2>
-                  <h3>Personal Information</h3>
-                  <p>We do not collect any personally identifiable information from our users. We respect your privacy and do not require you to provide any personal details to use our app.</p>
-                  <h3>Device Information</h3>
-                  <p>We do not collect any device information. Our app operates entirely offline and does not gather any data about your device.</p>
-                  <h3>Media Files</h3>
-                  <p>Media Saver allows you to download media from social platforms such as Instagram, TikTok, etc., and manage media files from WhatsApp and WhatsApp Business. The app will access and store media files on your device to perform these actions. We do not access or store these files on our servers.</p>
-                  <h2>Storage Permission</h2>
-                  <p>To ensure our app operates smoothly, we require full access to your device's storage. This permission is necessary for:</p>
-                  <ul>
-                     <li>Managing WhatsApp statuses and WhatsApp Business statuses on your device.</li>
-                     <li>Downloading media from the internet to your device.</li>
-                     <li>Deleting saved statuses or media downloaded from the internet on your device.</li>
-                  </ul>
-                  <h2>Google Ads</h2>
-                  <p>Our app includes Google Ads, which may collect and use certain information from your device to provide personalized advertising. Google Ads may collect:</p>
-                  <ul>
-                     <li>Device information (e.g., device model, operating system version)</li>
-                     <li>Advertising ID</li>
-                     <li>Location information (if location services are enabled)</li>
-                  </ul>
-                  <p>For more details on how Google Ads collects and uses data, please refer to <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</p>
-                  <h2>How We Use Your Information</h2>
-                  <p>We do not collect or use any information from our users. Our app functions by allowing you to save and manage status updates from WhatsApp and WhatsApp Business seamlessly and download public media from social platforms such as Instagram, TikTok, etc., without collecting any data.</p>
-                  <h2>Information Sharing and Disclosure</h2>
-                  <p>We do not share your personal information with third-party services or companies because we do not collect any information. Our app may contain links to external websites or services that have their own privacy policies. We are not responsible for the privacy practices of these third-party services.</p>
-                  <h2>Your Choices and Rights</h2>
-                  <p>Since we do not collect any information, there are no choices or rights related to information collection, access, update, or deletion.</p>
-                  <h2>Changes to This Privacy Policy</h2>
-                  <p>We may update our privacy policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We encourage you to review this policy periodically for any updates.</p>
-                  <h2>Contact Us</h2>
-                  <p>If you have any questions or concerns about our privacy policy or our app's practices, please contact us at <a href="mailto:devfemibadmus@gmail.com">devfemibadmus@gmail.com</a>.</p>
-                  <p>Last Updated: 5/7/2024</p>
-               </div>
+            <div class="section" id="privacy">
+                <div class="scrollable-container">
+                    <div class="text-sized">
+                        <h1 style="color:whitesmoke;">Media Saver Privacy Policy</h1>
+                        <p>Welcome to Media Saver! Our privacy policy outlines how we collect, use, and safeguard your personal information when you use our application.</p>
+                        <h2>Information We Collect</h2>
+                        <h3>Personal Information</h3>
+                        <p>We do not collect any personally identifiable information from our users. We respect your privacy and do not require you to provide any personal details to use our app.</p>
+                        <h3>Device Information</h3>
+                        <p>We do not collect any device information. Our app operates entirely offline and does not gather any data about your device.</p>
+                        <h3>Media Files</h3>
+                        <p>Media Saver allows you to download media from social platforms such as Instagram, TikTok, etc., and manage media files from WhatsApp and WhatsApp Business. The app will access and store media files on your device to perform these actions. We do not access or store these files on our servers.</p>
+                        <h2>Storage Permission</h2>
+                        <p>To ensure our app operates smoothly, we require full access to your device's storage. This permission is necessary for:</p>
+                        <ul>
+                            <li>Managing WhatsApp statuses and WhatsApp Business statuses on your device.</li>
+                            <li>Downloading media from the internet to your device.</li>
+                            <li>Deleting saved statuses or media downloaded from the internet on your device.</li>
+                        </ul>
+                        <h2>Google Ads</h2>
+                        <p>Our app includes Google Ads, which may collect and use certain information from your device to provide personalized advertising. Google Ads may collect:</p>
+                        <ul>
+                            <li>Device information (e.g., device model, operating system version)</li>
+                            <li>Advertising ID</li>
+                            <li>Location information (if location services are enabled)</li>
+                        </ul>
+                        <p>For more details on how Google Ads collects and uses data, please refer to <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</p>
+                        <h2>How We Use Your Information</h2>
+                        <p>We do not collect or use any information from our users. Our app functions by allowing you to save and manage status updates from WhatsApp and WhatsApp Business seamlessly and download public media from social platforms such as Instagram, TikTok, etc., without collecting any data.</p>
+                        <h2>Information Sharing and Disclosure</h2>
+                        <p>We do not share your personal information with third-party services or companies because we do not collect any information. Our app may contain links to external websites or services that have their own privacy policies. We are not responsible for the privacy practices of these third-party services.</p>
+                        <h2>Your Choices and Rights</h2>
+                        <p>Since we do not collect any information, there are no choices or rights related to information collection, access, update, or deletion.</p>
+                        <h2>Changes to This Privacy Policy</h2>
+                        <p>We may update our privacy policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We encourage you to review this policy periodically for any updates.</p>
+                        <h2>Contact Us</h2>
+                        <p>If you have any questions or concerns about our privacy policy or our app's practices, please contact us at <a href="mailto:devfemibadmus@gmail.com">devfemibadmus@gmail.com</a>.</p>
+                        <p>Last Updated: 5/7/2024</p>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <script>
-         document.addEventListener('DOMContentLoaded', function () {
-            const links = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('.section');
-            const searchButton = document.getElementById('search-button');
-            const searchInput = document.getElementById('search-input');
-            const saveSection = document.getElementById('save');
-            const scrollableContainer = document.querySelector('.scrollable-container');
-            const loadingMessage = document.getElementById('loading-message');
-        
-            links.forEach(link => {
-                link.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-                    const targetElement = document.getElementById(targetId);
-        
-                    if (targetElement) {
-                        sections.forEach(container => {
-                            container.classList.remove('active');
-                        });
-        
-                        targetElement.classList.add('active');
-                    }
-                });
-            });
-        
-            searchButton.addEventListener('click', function (event) {
-                event.preventDefault();
-                const url = searchInput.value;
-        
-                var formData = new FormData();
-                formData.append('src', url);
-                
-                // scrollableContainer.style.display = 'none';
-                Array.from(scrollableContainer.children).forEach(child => {
-                  if (child !== loadingMessage) {
-                     scrollableContainer.removeChild(child);
-                  }
-                });
-                loadingMessage.textContent = '';
-                loadingMessage.classList.add('loader');
-                loadingMessage.style.color = '#777';
-                loadingMessage.style.display = 'block';
-                
-                sections.forEach(section => {
-                    section.classList.remove('active');
-                });
-                saveSection.classList.add('active');
-                
-                fetch('/', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(response => {
-                    console.log(response)
-                    try {
-                        const data = JSON.parse(response); 
-                        //scrollableContainer.innerHTML = '';
-                        loadingMessage.classList.remove('loader');
-                        data.forEach(item => {
-                            const containerDiv = document.createElement('div');
-                            containerDiv.className = 'container post';
-                            console.log(item)
-        
-                            if (item.src && item.src.includes('.mp4?X-Goog-Algorithm')) {
-                                const video = document.createElement('video');
-                                video.className = 'productimg';
-                                video.controls = true;
-                                // video.autoplay = true;
-                                video.loop = true;
-                                video.style.width = '100%';
-                                video.style.height = 'auto';
-        
-                                const source = document.createElement('source');
-                                source.src = item.src;
-                                source.type = 'video/mp4';
-                                source.className = 'productimg';
-        
-                                video.appendChild(source);
-                                containerDiv.appendChild(video);
-                            } else if (item.src && item.src.includes('.png?X-Goog-Algorithm') || item.src && item.src.includes('.jpg?X-Goog-Algorithm') || item.src && item.src.includes('.jpeg?X-Goog-Algorithm')) {
-                                const a = document.createElement('a');
-                                a.href = item.src;
-                                a.download = item.src.split('/').pop();
-                                const img = document.createElement('img');
-                                img.src = item.src;
-                                img.alt = '';
-                                img.className = 'productimg';
-                                img.style.width = '100%';
-                                img.style.height = 'auto';
-                                a.appendChild(img);
-                                containerDiv.appendChild(a);
-                             } else {
-                                const p = document.createElement('p');
-                                p.textContent = item.message;
-                                p.style.color = 'red';
-                                containerDiv.appendChild(p);
-                             }
-        
-                            scrollableContainer.appendChild(containerDiv);
-                        });
-                        
-                        scrollableContainer.style.display = 'flex';
-                        loadingMessage.style.display = 'none';
-                    } catch (error) {
-                        console.log(response);
-                        loadingMessage.textContent = response;
-                        loadingMessage.style.color = 'red';
-                        loadingMessage.style.display = 'block';
-                        loadingMessage.classList.remove('loader');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    loadingMessage.style.color = 'red';
-                    loadingMessage.textContent = error;
-                    loadingMessage.style.display = 'block';
-                    loadingMessage.classList.remove('loader');
-                });
-            });
-         });                
-         
-         let navLink = document.getElementById('nav-privacy');
-         let isAbout = true;
-         
-         setInterval(() => {
-         navLink.classList.remove('visible');
-         navLink.classList.add('hidden');
-         
-         setTimeout(() => {
-         navLink.textContent = isAbout ? 'About' : 'Privacy';
-         navLink.classList.remove('hidden');
-         navLink.classList.add('visible');
-         isAbout = !isAbout;
-         }, 500);
-         }, 8000);
-
-         if (window.performance) {
-            console.info("window.performance works fine on this browser");
-          }
-          console.info(performance.navigation.type);
-          if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
-            console.info( "This page is reloaded" );
-          } else {
-            console.info( "This page is not reloaded");
-          }
-      </script>
-   </body>
+        </div>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </body>
 </html>
