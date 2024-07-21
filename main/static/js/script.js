@@ -1,6 +1,5 @@
 let collectedData = [];
 let message = [];
-let serverResponse;
 
 let intervalData;
 let intervalMessage;
@@ -89,7 +88,6 @@ async function getData() {
 
         }
         if(message == ""){
-            loadingMessage.textContent = serverResponse;
             clearInterval(intervalData);
             intervalData = null;
             console.log('Data already collected. Stopping interval.');
@@ -138,9 +136,10 @@ searchButton.addEventListener('click', function (event) {
         })
         .then(response => response.json())
         .then(response => {
+            clearInterval(intervalData);
+            intervalData = null;
             console.log(response);
             loading.style.display = "none"
-            serverResponse = response.message;
             loadingMessage.textContent = response.message
         })
         .catch(error => {
