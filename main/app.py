@@ -80,6 +80,7 @@ def ensure_userId():
 
 @app.route('/getData', methods=['POST'])
 def getData():
+    update_date(session['userId'])
     message = get_message(session['userId'])
     mediaurl = get_data(session['userId'])
     return jsonify({'message':message, 'mediaurl':mediaurl})
