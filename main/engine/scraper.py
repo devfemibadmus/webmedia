@@ -1,11 +1,10 @@
 import time, re
-from flask import session
-from engine.helper import *
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
+from engine.helper import GlobalMessagesManager, Validator
 from selenium.webdriver.support import expected_conditions as EC
 
 
@@ -13,6 +12,7 @@ class Scraper:
     def __init__(self, userId):
         self.userId = userId
         self.edge_options = Options()
+        self.globalMessage = GlobalMessagesManager(userId)
         self.edge_options.use_chromium = True
         # self.edge_options.add_argument("--headless")
         # self.edge_options.add_argument("--disable-gpu")
@@ -79,8 +79,8 @@ class Scraper:
 
     def cloudUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
         try:
-            update_message(session['userId'], f"loading {media_url}")
-            if page_unload(session['userId']):
+            self.globalMessage.updateMessage(f"loading {media_url}")
+            if self.globalMessage.pageUnload():
                 self.browser.quit()
                 return f"User close or refresh page"
             self.browser.get(media_url)
@@ -88,8 +88,8 @@ class Scraper:
             print("self.browser.session_id: ", self.browser.session_id)
             print("Scraper userId: ", self.userId, " stop 1 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            update_message(session['userId'], "")
-            set_data(session['userId'], [])
+            self.globalMessage.updateMessage("")
+            self.globalMessage.setData([])
             return f"Error loading page: {e}"
         # finally:
             # print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
@@ -97,33 +97,33 @@ class Scraper:
             # return f"Error loading page. Test"
 
         try:
-            if page_unload(session['userId']):
+            if self.globalMessage.pageUnload():
                 self.browser.quit()
                 print("User close or refresh page")
                 return f"User close or refresh page"
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
-            update_message(session['userId'], f"username: {username}")
+            self.globalMessage.updateMessage(f"username: {username}")
         except Exception as e:
-            update_message(session['userId'], f"retrying get username")
+            self.globalMessage.updateMessage(f"retrying get username")
             try:
-                if page_unload(session['userId']):
+                if self.globalMessage.pageUnload():
                     self.browser.quit()
                     print("User close or refresh page")
                     return f"User close or refresh page"
                 print("refreshing: ")
                 self.browser.refresh()
                 print("refreshed: ")
-                if page_unload(session['userId']):
+                if self.globalMessage.pageUnload():
                     self.browser.quit()
                     print("User close or refresh page")
                     return f"User close or refresh page"
                 username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
-                update_message(session['userId'], f"username: {username}")
+                self.globalMessage.updateMessage(f"username: {username}")
             except Exception as e:
                 print("Scraper userId: ", self.userId, " stop 2 : ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
-                update_message(session['userId'], "")
-                set_data(session['userId'], [])
+                self.globalMessage.updateMessage("")
+                self.globalMessage.setData([])
                 return f"Error getting username: {e}"
 
         file_folder = f"{platform}/{username}"
@@ -132,18 +132,18 @@ class Scraper:
 
         try:
             for className in mediaElement_classNames:
-                if page_unload(session['userId']):
+                if self.globalMessage.pageUnload():
                     self.browser.quit()
                     print("User close or refresh page")
                     return f"User close or refresh page"
                 elements = self.browser.find_elements(By.CLASS_NAME, className)
                 for element in elements:
-                    if page_unload(session['userId']):
+                    if self.globalMessage.pageUnload():
                        self.browser.quit()
                        print("User close or refresh page")
                        return f"User close or refresh page"
                     try:
-                        update_message(session['userId'], f"finding videos...")
+                        self.globalMessage.updateMessage(f"finding videos...")
                         video_tags = element.find_elements(By.TAG_NAME, 'video')
                         for video in video_tags:
                             src = video.get_attribute('src') or video.find_element(By.TAG_NAME, 'source').get_attribute('src')
@@ -152,7 +152,7 @@ class Scraper:
                     except Exception as e:
                         continue
                     try:
-                        update_message(session['userId'], f"finding images...")
+                        self.globalMessage.updateMessage(f"finding images...")
                         image_tags = element.find_elements(By.TAG_NAME, 'img')
                         for image in image_tags:
                             src = image.get_attribute('src')
@@ -163,12 +163,12 @@ class Scraper:
         except Exception as e:
             print("Scraper userId: ", self.userId, " stop 3 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            update_message(session['userId'], "")
-            set_data(session['userId'], [])
+            self.globalMessage.updateMessage("")
+            self.globalMessage.setData([])
             return f"Error finding media elements: {e}"
         finally:
             mediaSrc = list(set(mediaSrc))
-            update_message(session['userId'], f"Total media found: {len(mediaSrc)}")
+            self.globalMessage.updateMessage(f"Total media found {len(mediaSrc)}")
             
 
         time.sleep(5)
@@ -285,12 +285,12 @@ class Scraper:
         if len(mediaSrc) <= 0:
             print("Scraper userId: ", self.userId, " stop 4 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            update_message(session['userId'], "")
-            set_data(session['userId'], [])
+            self.globalMessage.updateMessage("")
+            self.globalMessage.setData([])
             return f"No Media Found!"
         try:
             for boot, puss in enumerate(mediaSrc):
-                update_message(session['userId'], f"Scraping {boot+1} of {len(mediaSrc)}")
+                self.globalMessage.updateMessage(f"Scraping {boot+1} of {len(mediaSrc)}")
                 self.browser.execute_script(f"window.open('{puss}', '_blank');")
                 self.browser.switch_to.window(self.browser.window_handles[-1])
                 page_source = self.browser.page_source
@@ -299,7 +299,7 @@ class Scraper:
                     self.browser.refresh()
                     print("refreshed: ", puss)
                 time.sleep(3)
-                if page_unload(session['userId']):
+                if self.globalMessage.pageUnload():
                     self.browser.quit()
                     print("User close or refresh page")
                     return f"User close or refresh page"
@@ -309,25 +309,18 @@ class Scraper:
                 uploadedMediaSrcList.append(uploadedMediaDick)
                 self.browser.close()
                 self.browser.switch_to.window(self.browser.window_handles[0])
-                set_data(session['userId'], uploadedMediaSrcList)
-                update_message(session['userId'], f"scraped {boot+1} of {len(mediaSrc)}")
-            update_message(session['userId'], f"Total scrape media {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
+                self.globalMessage.setData(uploadedMediaSrcList)
+                self.globalMessage.updateMessage(f"scraped {boot+1} of {len(mediaSrc)}")
+            self.globalMessage.updateMessage(f"Total scrape media {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
             print("Scraper userId: ", self.userId, " finished : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            update_message(session['userId'], "")
+            self.globalMessage.updateMessage("")
             return f"Done!"
         except Exception as e:
             print("Scraper userId: ", self.userId, " stop 5 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            update_message(session['userId'], "")
-            set_data(session['userId'], [])
+            self.globalMessage.updateMessage("")
+            self.globalMessage.setData([])
             return f"Error executing media upload script: {e}"
 
-
-"""
-if __name__ == "__main__":
-    tiktok_url = 'https://www.tiktok.com/@devfemibadmus/video/7390912680883899654'
-    scraper = Scraper()
-    scraper.scrapTiktok(tiktok_url)
-"""
 

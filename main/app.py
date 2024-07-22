@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, jsonify, session, Response
+from engine.helper import GlobalMessagesManager
 from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
-from engine.helper import *
 from pathlib import Path
 import os, uuid
 
@@ -10,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'aaaaaaaaaaa2222222222!!!!!!!!!##'
 application = app
+
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "mediasaver.json"))
@@ -39,16 +40,17 @@ class CloudStorageManager:
         return False
 
 manager = CloudStorageManager()
-user_instances = {}
 
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
 def home():
     userId = session['userId']
+    globalMessage = GlobalMessagesManager(userId)
     if request.method == 'POST':
         if not request.form.get('src'):
             return "Nigga"
-        update_message(session['userId'], f"Starting")
+        globalMessage.updateMessage(f"Starting")
+        globalMessage.update()
         scraper = Scraper(userId)
         return jsonify({'message':scraper.getMedia(request.form.get('src'))})
     return render_template("home.html")
@@ -80,9 +82,10 @@ def ensure_userId():
 
 @app.route('/getData', methods=['POST'])
 def getData():
-    update_date(session['userId'])
-    message = get_message(session['userId'])
-    mediaurl = get_data(session['userId'])
+    globalMessage = GlobalMessagesManager(session['userId'])
+    globalMessage.update()
+    message = globalMessage.getMessage()
+    mediaurl = globalMessage.getData()
     return jsonify({'message':message, 'mediaurl':mediaurl})
 
 @app.route('/<path:path>')
