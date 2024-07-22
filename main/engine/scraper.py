@@ -23,19 +23,6 @@ class Scraper:
         self.browser.delete_all_cookies()
         print("Scraper userId: ", self.userId, " start", datetime.now().strftime("%H:%M:%S"))
 
-    def close(self):
-        try:
-            if self.browser.session_id:
-                self.browser.delete_all_cookies()
-                self.browser.quit()
-                print("Scraper userId: ", self.userId, " browser Quit : ", datetime.now().strftime("%H:%M:%S"))
-            else:
-                print("Scraper userId: ", self.userId, " browser already Quit by user : ", datetime.now().strftime("%H:%M:%S"))
-            return True
-        except Exception as e:
-            print("Scraper userId: ", self.userId, " unable to stop: ", datetime.now().strftime("%H:%M:%S"))
-            return False
-
     def getMedia(self, src):
         source = Validator.validate(src)
         print("source: ", source)
