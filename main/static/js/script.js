@@ -33,7 +33,7 @@ async function getData() {
         const message = allData.message;
         const newData = allData.mediaurl;
 
-        loadingMessage.textContent = message
+        loadingMessage.textContent = message.substring(0, 21)
 
         if (!newData.includes("nigga")) {
             const filteredData = newData.filter(newItem =>
@@ -140,7 +140,7 @@ searchButton.addEventListener('click', function (event) {
             intervalData = null;
             console.log(response);
             loading.style.display = "none"
-            loadingMessage.textContent = response.message
+            loadingMessage.textContent = ((response.message).substring(0, 19) + "...")
         })
         .catch(error => {
             console.error('Error:', error);
@@ -153,12 +153,10 @@ async function checkDone() {
         console.log("checkDone include start")
         message = [];
 
-        // Clear the previous interval if it exists
         if (intervalData) {
             clearInterval(intervalData);
         }
 
-        // Set a new interval
         intervalData = setInterval(getData, 5000);
     }
     console.log("checkDone")
@@ -178,6 +176,21 @@ setInterval(() => {
     }, 500);
 }, 8000);
 
+
+function retryVideo(video) {
+    let retries = 0;
+    video.addEventListener('error', () => {
+        if (retries < 3) {
+            retries++;
+            video.load();
+            video.play();
+        }
+    });
+}
+
+document.body.addEventListener('DOMNodeInserted', e => {
+    if (e.target.tagName === 'VIDEO') retryVideo(e.target);
+});
 
 if (window.performance) {
     console.info("window.performance works fine on this browser");
