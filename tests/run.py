@@ -1,52 +1,19 @@
-import re
+import requests
 
-class Validator:
-    TIKTOK_REGEX = re.compile(r'^https?://(?:www\.)?tiktok\.com/@[\w.-]+/video/\d+.*$')
-    INSTAGRAM_REGEX = re.compile(r'^https?://(?:www\.)?instagram\.com/p/[\w-]+/?.*$')
-    FACEBOOK_REEL_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/r/[\w-]+/?.*$')
-    FACEBOOK_REEL_REGEX_2 = re.compile(r'^https?://(?:www\.)?facebook\.com/share/reel/[\w-]+/?.*$')
-    FACEBOOK_VIDEO_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/v/[\w-]+/?.*$')
+url = 'https://v16-webapp-prime.tiktok.com/video/tos/useast2a/tos-useast2a-pve-0068/oIK0jD5IfCFsBADfEQma4Jmtz2RimAyhEECBQP/?a=1988&bti=ODszNWYuMDE6&ch=0&cr=3&dr=0&lr=unwatermarked&cd=0%7C0%7C0%7C&cv=1&br=394&bt=197&cs=0&ds=6&ft=4fUEKMkj8Zmo0eiwG-4jVRTyppWrKsd.&mime_type=video_mp4&qs=5&rc=N2RlODc3PDczPDo4N2VnM0Bpajg4Om05cmpmdDMzNzczM0BiMTIyNV4xXy4xM2EuYF42YSNjLy1hMmRzcGFgLS1kMTZzcw%3D%3D&btag=e00090000&expire=1721689852&l=20240722170904F6395C5699D934330126&ply_type=2&policy=2&signature=cccb1d06d42f0d36dff3909e734afdda&tk=tt_chain_token'
+headers = {
+    'Referer': 'https://www.tiktok.com/',
+}
 
-    @staticmethod
-    def is_tiktok(url):
-        return bool(Validator.TIKTOK_REGEX.match(url))
-    
-    @staticmethod
-    def is_instagram_post(url):
-        return bool(Validator.INSTAGRAM_REGEX.match(url))
-    
-    @staticmethod
-    def is_facebook_reel(url):
-        return bool(Validator.FACEBOOK_REEL_REGEX.match(url)) or bool(Validator.FACEBOOK_REEL_REGEX_2.match(url))
-    
-    @staticmethod
-    def is_facebook_video(url):
-        return bool(Validator.FACEBOOK_VIDEO_REGEX.match(url))
-    
-    @staticmethod
-    def validate(url):
-        if Validator.is_tiktok(url):
-            return "TikTok"
-        elif Validator.is_instagram_post(url):
-            return "Instagram Post"
-        elif Validator.is_facebook_reel(url):
-            return "Facebook Reel"
-        elif Validator.is_facebook_video(url):
-            return "Facebook Video"
-        else:
-            return "Unknown"
+response = requests.get(url, headers=headers)
 
-
-urls = [
-    "https://www.facebook.com/share/reel/BLaPVaFoEguzQBio/",
-    "https://www.tiktok.com/@devfemibadmus/video/7390912680883899654?is_from_webapp=1&sender_device=pc&web_id=7379337792747193862",
-    "https://www.facebook.com/share/r/BLaPVaFoEguzQBio/",
-    "https://www.instagram.com/p/C3mr9v5IEr9/",
-    "https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/"
-]
-
-for url in urls:
-    platform = Validator.validate(url)
-    print(f"{url} is a {platform} URL.")
-
-
+# Check the status code and response content
+if response.status_code == 200:
+    print("Access is OK")
+    with open('video.mp4', 'wb') as file:
+        file.write(response.content)
+elif response.status_code == 403:
+    print("Access Denied")
+else:
+    print(f"Request failed with status code: {response.status_code}")
+    print(response.text)
