@@ -70,10 +70,12 @@ def upload_video():
 
     file_folder = request.form.get('file_folder')
     print("file_folder: ", file_folder)
+    mediaType = request.form.get('mediaType')
+    print("mediaType: ", mediaType)
     
     data = manager.upload_file(file_folder, file)
 
-    return jsonify({"message": "Files uploaded successfully!", "success": True, "src": data})
+    return jsonify({"message": "Files uploaded successfully!", "success": True, "src": data, "mediaType": mediaType})
 
 @app.before_request
 def ensure_userId():

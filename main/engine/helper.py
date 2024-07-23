@@ -65,31 +65,31 @@ class GlobalMessagesManager:
 
 
 class Validator:
-    INSTAGRAM_REGEX = re.compile(r'^https?://(?:www\.)?instagram\.com/p/[\w-]+/?.*$')
-    TIKTOK_REGEX = re.compile(r'^https?://(?:www\.)?tiktok\.com/@[\w.-]+/(video|photo)/\d+.*$')
-    FACEBOOK_REEL_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/(r|reel)/[\w-]+/?.*$')
-    FACEBOOK_VIDEO_REGEX = re.compile(r'^https?://(?:www\.)?facebook\.com/share/(v|video)/[\w-]+/?.*$')
+    TIKTOK_REGEX = re.compile(r'^https://(?:www\.)?tiktok\.com/@[\w.-]+/video/\d+.*$')
+    INSTAGRAM_REGEX = re.compile(r'^https://(?:www\.)?instagram\.com/(p|reel)/[\w-]+/?.*$')
+    FACEBOOK_REGEX = re.compile(r'^https://(?:www\.)?facebook\.com/(?:watch|share/(?:r|v)|reel)/.*$')
+
 
     @staticmethod
     def is_tiktok(url):
         return bool(Validator.TIKTOK_REGEX.match(url))
     
     @staticmethod
-    def is_instagram_post(url):
+    def is_instagram(url):
         return bool(Validator.INSTAGRAM_REGEX.match(url))
     
     @staticmethod
-    def is_facebook_video(url):
-        return bool(Validator.FACEBOOK_VIDEO_REGEX.match(url))
+    def is_facebook(url):
+        return bool(Validator.FACEBOOK_REGEX.match(url))
     
     @staticmethod
     def validate(url):
         if Validator.is_tiktok(url):
             return "TikTok"
-        elif Validator.is_instagram_post(url):
-            return "Instagram Post"
-        elif Validator.is_facebook_video(url):
-            return "Facebook Video"
+        elif Validator.is_instagram(url):
+            return "Instagram"
+        elif Validator.is_facebook(url):
+            return "Facebook"
         else:
             return "Unknown"
 

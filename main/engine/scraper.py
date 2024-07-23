@@ -25,6 +25,7 @@ class Scraper:
 
     def getMedia(self, src):
         source = Validator.validate(src)
+        print("src: ", src)
         print("source: ", source)
         if source == "TikTok":
             return self.scrapTiktok(src)
@@ -36,33 +37,29 @@ class Scraper:
             print(f"Unsupported video source: {source}")
             return False
 
-    def scrapTiktok(self, tiktok_url):
+    def scrapTiktok(self, url):
         mediaElement_classNames = ['css-1sb4dwc-DivPlayerContainer', 'swiper-slide']
         usernameElement_xpath = '//span[@data-e2e="browse-username"]'
-        media_id = re.search(r'(video|photo)/(\d+)', tiktok_url)
+        media_id = re.search(r'(video|photo)/(\d+)', url)
         media_id = media_id.group(2) if media_id else None
-        return self.cloudUrl("TikTok", tiktok_url, usernameElement_xpath, mediaElement_classNames, media_id)
+        return self.cloudUrl("TikTok", url, usernameElement_xpath, mediaElement_classNames, media_id)
 
-    def scrapInstagram(self, instagram_url):
-        mediaElement_classNamess = [
-            '//div[@class="css-8lv75m-DivBasicPlayerWrapper e1yey0rl2"]/div/video'
-        ]
-        usernameElement_xpath = '//a[contains(@class, "_acan") and contains(@class, "_acao") and contains(@class, "_acat") and contains(@class, "_acaw")][1]'
-        media_id = instagram_url.split('.com/p/')[1].split('/')[0]
-        for xpath in mediaElement_classNamess:
-            try:
-                return self.cloudUrl("Instagram", instagram_url, usernameElement_xpath, xpath, media_id, True)
-            except Exception as e:
-                return {"message": f"{e}", "error": True}
-                print(f"XPath: {xpath}. Error: {e}")
-                continue
-        return {"error":False, "message":"default"}
+    def scrapInstagram(self, url):
+        mediaElement_classNames = ['css-1sb4dwc-DivPlayerContainer', 'swiper-slide']
+        usernameElement_xpath = "//div[text()[normalize-space()='More posts from']]/following-sibling::a"
+        media_id = re.search(r'/p/([^/]+)/', url)
+        media_id = media_id.group(2) if media_id else None
+        return self.cloudUrl("Instagram", url, usernameElement_xpath, mediaElement_classNames, media_id)
 
     def scrap_facebook_reel(self, facebook_reel_url):
         pass
 
-    def scrap_facebook_video(self, facebook_src):
-        pass
+    def scrapFacebook(self, facebook_src):
+        mediaElement_classNames = ['inline-video-container']
+        usernameElement_xpath = "//div[text()[normalize-space()='More posts from']]/following-sibling::a"
+        media_id = re.search(r'/p/([^/]+)/', url)
+        media_id = media_id.group(2) if media_id else None
+        return self.cloudUrl("Instagram", url, usernameElement_xpath, mediaElement_classNames, media_id)
 
     def cloudUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
         try:
@@ -156,60 +153,8 @@ class Scraper:
         finally:
             mediaSrc = list(set(mediaSrc))
             self.globalMessage.updateMessage(f"Total media found {len(mediaSrc)}")
-            
 
-        time.sleep(5)
-
-        mediaScript = f"""
-            return new Promise((resolve, reject) => {{
-                try {{
-                    var formData = new FormData();
-                    Promise.all(
-                        {mediaSrc}.map((src, index) => 
-                            fetch(src)
-                                .then(response => {{
-                                    if (!response.ok) {{
-                                        throw new Error(`HTTP error! status: ${{response.status}}`);
-                                    }}
-                                    var contentType = response.headers.get('Content-Type');
-                                    return response.blob().then(blob => ({{ blob, contentType, index }}));
-                                }})
-                                .catch(error => {{
-                                    console.error(`Error fetching URL: ${{src}} - Error: ${{error.message}}`);
-                                    throw error;
-                                }})
-                        )
-                    )
-                    .then(results => {{
-                        results.forEach(({{blob, contentType, index}}) => {{
-                            if (contentType.startsWith('image/')) {{
-                                formData.append(`image_${{index}}`, blob, `{media_id}_${{index}}.jpg`);
-                            }} else if (contentType.startsWith('video/')) {{
-                                formData.append(`video_${{index}}`, blob, `{media_id}_${{index}}.mp4`);
-                            }} else {{
-                                throw new Error(`Unsupported content type: ${{contentType}}`);
-                            }}
-                        }});
-                        formData.append('file_folder', '{file_folder}');
-                        return fetch('http://localhost:5000/uploadMedia', {{
-                            method: 'POST',
-                            body: formData
-                        }});
-                    }})
-                    .then(response => response.json())
-                    .then(data => {{
-                        console.log('Response from server:', data);
-                        resolve(data);
-                    }})
-                    .catch(error => {{
-                        console.error('Error posting data:', error);
-                        reject(error);
-                    }});
-                }} catch (error) {{
-                    reject(`Error in script: ${{error}}`);
-                }}
-            }});
-        """
+        time.sleep(2)
 
         def formScrpt(boot):
             return f"""
@@ -226,12 +171,12 @@ class Scraper:
 
                     Promise.all(Array.from(mediaElements).map((mediaElement, index) => {{
                         if (mediaElements.length >= 1){{
-                            // var mediaUrl = mediaElement.src || mediaElement.querySelector('source').src;
                             var mediaUrl = isImagePresent ? mediaElement.src : mediaElement.querySelector('source').src;
                             return fetch(mediaUrl)
                                 .then(response => response.blob())
                                 .then(blob => {{
                                     formData.append(`${{mediaType}}_{boot}`, blob, `{media_id}_{boot}.${{formats}}`);
+                                    formData.append('mediaType', `${{mediaType}}`);
                                 }})
                                 .catch(error => {{
                                     throw new Error(`Error fetching media URL: ${{error}}`);
