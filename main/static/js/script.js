@@ -39,6 +39,8 @@ async function getData() {
             const filteredData = newData.filter(newItem =>
                 !collectedData.some(collectedItem => JSON.stringify(collectedItem) === JSON.stringify(newItem))
             );
+            console.log("allData: ", allData)
+            console.log("filteredData: ", filteredData)
             if (filteredData.length > 0) {
                 filteredData.forEach(item => {
                     collectedData.push(item);
@@ -47,7 +49,7 @@ async function getData() {
                     containerDiv.className = 'container post';
                     console.log(newData)
 
-                    if (item.src && item.src.includes('.mp4?X-Goog-Algorithm')) {
+                    if (item.src && item.mediaType == "video") {
                         const video = document.createElement('video');
                         video.className = 'productimg';
                         video.controls = true;
@@ -63,7 +65,7 @@ async function getData() {
 
                         video.appendChild(source);
                         containerDiv.appendChild(video);
-                    } else if (item.src && item.src.includes('.png?X-Goog-Algorithm') || item.src && item.src.includes('.jpg?X-Goog-Algorithm') || item.src && item.src.includes('.jpeg?X-Goog-Algorithm')) {
+                    } else if (item.src && item.mediaType == "image") {
                         const a = document.createElement('a');
                         a.href = item.src;
                         a.download = item.src.split('/').pop();
