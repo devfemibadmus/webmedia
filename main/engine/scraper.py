@@ -16,7 +16,7 @@ class Scraper:
         self.edge_options.use_chromium = True
         # self.edge_options.add_argument("--headless")
         # self.edge_options.add_argument("--disable-gpu")
-        # self.edge_options.add_argument("--mute-audio")
+        self.edge_options.add_argument("--mute-audio")
         self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(options=self.edge_options)
         self.browser.set_script_timeout(320)
@@ -63,10 +63,11 @@ class Scraper:
 
     def cloudUrl(self, platform, media_url, usernameElement_xpath, mediaElement_classNames, media_id, new_doc=False):
         try:
+            print("Have reach here")
             self.globalMessage.updateMessage(f"loading {media_url}")
-            if self.globalMessage.pageUnload():
+            if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                 self.browser.quit()
-                return f"User close or refresh page"
+                return f"page unload or spam"
             self.browser.get(media_url)
         except Exception as e:
             print("self.browser.session_id: ", self.browser.session_id)
@@ -81,26 +82,26 @@ class Scraper:
             # return f"Error loading page. Test"
 
         try:
-            if self.globalMessage.pageUnload():
+            if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                 self.browser.quit()
-                print("User close or refresh page")
-                return f"User close or refresh page"
+                print("page unload or spam")
+                return f"page unload or spam"
             username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
             self.globalMessage.updateMessage(f"username: {username}")
         except Exception as e:
             self.globalMessage.updateMessage(f"retrying get username")
             try:
-                if self.globalMessage.pageUnload():
+                if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                     self.browser.quit()
-                    print("User close or refresh page")
-                    return f"User close or refresh page"
+                    print("page unload or spam")
+                    return f"page unload or spam"
                 print("refreshing: ")
                 self.browser.refresh()
                 print("refreshed: ")
-                if self.globalMessage.pageUnload():
+                if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                     self.browser.quit()
-                    print("User close or refresh page")
-                    return f"User close or refresh page"
+                    print("page unload or spam")
+                    return f"page unload or spam"
                 username = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.XPATH, usernameElement_xpath))).text
                 self.globalMessage.updateMessage(f"username: {username}")
             except Exception as e:
@@ -116,16 +117,16 @@ class Scraper:
 
         try:
             for className in mediaElement_classNames:
-                if self.globalMessage.pageUnload():
+                if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                     self.browser.quit()
-                    print("User close or refresh page")
-                    return f"User close or refresh page"
+                    print("page unload or spam")
+                    return f"page unload or spam"
                 elements = self.browser.find_elements(By.CLASS_NAME, className)
                 for element in elements:
-                    if self.globalMessage.pageUnload():
+                    if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                        self.browser.quit()
-                       print("User close or refresh page")
-                       return f"User close or refresh page"
+                       print("page unload or spam")
+                       return f"page unload or spam"
                     try:
                         self.globalMessage.updateMessage(f"finding videos...")
                         video_tags = element.find_elements(By.TAG_NAME, 'video')
@@ -231,10 +232,10 @@ class Scraper:
                     self.browser.refresh()
                     print("refreshed: ", puss)
                 time.sleep(3)
-                if self.globalMessage.pageUnload():
+                if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                     self.browser.quit()
-                    print("User close or refresh page")
-                    return f"User close or refresh page"
+                    print("page unload or spam")
+                    return f"page unload or spam"
                 uploadedMediaDick = WebDriverWait(self.browser, 60).until(lambda driver: driver.execute_script(formScrpt(boot)))
                 print("the url: ",puss, " index: ", boot)
                 print("uploadedMediaDick: ",uploadedMediaDick)
@@ -243,11 +244,10 @@ class Scraper:
                 self.browser.switch_to.window(self.browser.window_handles[0])
                 self.globalMessage.setData(uploadedMediaSrcList)
                 self.globalMessage.updateMessage(f"scraped {boot+1} of {len(mediaSrc)}")
-            self.globalMessage.updateMessage(f"Total scrape media {len(uploadedMediaSrcList)} of {len(mediaSrc)}")
+            self.globalMessage.updateMessage(f"Done scraping {len(uploadedMediaSrcList)} in {media_url}")
             print("Scraper userId: ", self.userId, " finished : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            self.globalMessage.updateMessage("")
-            return f"Done!"
+            return f"Scraping completed successfully!"
         except Exception as e:
             print("Scraper userId: ", self.userId, " stop 5 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()

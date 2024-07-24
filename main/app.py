@@ -49,10 +49,19 @@ def home():
     if request.method == 'POST':
         if not request.form.get('src'):
             return "Nigga"
+        if not globalMessage.pageUnload():
+            globalMessage.pageUnload()
+            print(globalMessage.pageUnload())
+            return jsonify({"message": "wait for a process to end before requesting new one", "cancel": True})
         globalMessage.updateMessage(f"Starting")
+        globalMessage.setData([])
         globalMessage.update()
+        print("globalMessage.update()")
         scraper = Scraper(userId)
-        return jsonify({'message':scraper.getMedia(request.form.get('src'))})
+        message = scraper.getMedia(request.form.get('src'))
+        if "error" in message.lower():
+            return jsonify({"message":message, "error":True})
+        return jsonify({"message":message})
     return render_template("home.html")
 
 @app.route('/uploadMedia', methods=['POST'])
@@ -68,10 +77,12 @@ def upload_video():
     if file.filename == "":
         return jsonify({"message": "Missing file name", "error": True})
 
+    file_size_mb = file.content_length / (1024 * 1024) 
     file_folder = request.form.get('file_folder')
-    print("file_folder: ", file_folder)
     mediaType = request.form.get('mediaType')
-    print("mediaType: ", mediaType)
+
+    if file_size_mb > 80:
+        return jsonify({"message": "Media too big for web, Try using app", "error": True})
     
     data = manager.upload_file(file_folder, file)
 
