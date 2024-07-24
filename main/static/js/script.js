@@ -1,8 +1,7 @@
 let collectedData = [];
-let message = [];
+let startFucking;
 
-let intervalData;
-let intervalMessage;
+let severResponse;
 let isAbout = true;
 let navLink = document.getElementById('nav-privacy');
 
@@ -18,85 +17,90 @@ const scrollableContainer = document.querySelector('.scrollable-container');
 
 
 async function getData() {
-    try {
+    if (startFucking == "yes"){
+        console.log("started Fucking")
+        try {
+    
+            const response = await fetch('/getData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            const allData = await response.json();
+            console.log(allData)
+    
+            const message = allData.message;
+            const newData = allData.mediaurl;
 
-        const response = await fetch('/getData', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+            loadingMessage.textContent = severResponse || message;
+        
+            if (!newData.includes("nigga")) {
+                const filteredData = newData.filter(newItem =>
+                    !collectedData.some(collectedItem => JSON.stringify(collectedItem) === JSON.stringify(newItem))
+                );
+                console.log("allData: ", allData)
+                console.log("filteredData: ", filteredData)
+                if (filteredData.length > 0) {
+                    filteredData.forEach(item => {
+                        collectedData.push(item);
+                        console.log('New Data collected. Continue interval.');
+                        const containerDiv = document.createElement('div');
+                        const title = document.createElement('p');
+                        containerDiv.className = 'container post';
+                        title.className = 'title';
+                        title.style.color = 'red';
+                        console.log(newData)
+                        startCountdown(3, title, containerDiv);
+    
+                        if (item.src && item.mediaType == "video") {
+                            const video = document.createElement('video');
+                            video.className = 'productimg';
+                            video.controls = true;
+                            // video.autoplay = true;
+                            video.loop = true;
+                            video.style.width = '100%';
+                            video.style.height = 'auto';
+    
+                            const source = document.createElement('source');
+                            source.src = item.src;
+                            source.type = 'video/mp4';
+                            source.className = 'productimg';
+    
+                            video.appendChild(source);
+                            containerDiv.appendChild(video);
+                        } else if (item.src && item.mediaType == "image") {
+                            const a = document.createElement('a');
+                            a.href = item.src;
+                            a.download = item.src.split('/').pop();
+                            const img = document.createElement('img');
+                            img.src = item.src;
+                            img.alt = '';
+                            img.className = 'productimg';
+                            img.style.width = '100%';
+                            img.style.height = 'auto';
+                            a.appendChild(img);
+                            containerDiv.appendChild(a);
+                        } else {
+                            const p = document.createElement('p');
+                            p.textContent = item.message;
+                            p.style.color = 'red';
+                            containerDiv.appendChild(p);
+                        }
+    
+                        containerDiv.appendChild(title);
+                        scrollableContainer.insertBefore(containerDiv, saveId.nextSibling);
+                    });
+                }
+    
             }
-        });
-
-        const allData = await response.json();
-        console.log(allData)
-
-        const message = allData.message;
-        const newData = allData.mediaurl;
-
-        loadingMessage.textContent = message.substring(0, 21)
-
-        if (!newData.includes("nigga")) {
-            const filteredData = newData.filter(newItem =>
-                !collectedData.some(collectedItem => JSON.stringify(collectedItem) === JSON.stringify(newItem))
-            );
-            console.log("allData: ", allData)
-            console.log("filteredData: ", filteredData)
-            if (filteredData.length > 0) {
-                filteredData.forEach(item => {
-                    collectedData.push(item);
-                    console.log('New Data collected. Continue interval.');
-                    const containerDiv = document.createElement('div');
-                    containerDiv.className = 'container post';
-                    console.log(newData)
-
-                    if (item.src && item.mediaType == "video") {
-                        const video = document.createElement('video');
-                        video.className = 'productimg';
-                        video.controls = true;
-                        // video.autoplay = true;
-                        video.loop = true;
-                        video.style.width = '100%';
-                        video.style.height = 'auto';
-
-                        const source = document.createElement('source');
-                        source.src = item.src;
-                        source.type = 'video/mp4';
-                        source.className = 'productimg';
-
-                        video.appendChild(source);
-                        containerDiv.appendChild(video);
-                    } else if (item.src && item.mediaType == "image") {
-                        const a = document.createElement('a');
-                        a.href = item.src;
-                        a.download = item.src.split('/').pop();
-                        const img = document.createElement('img');
-                        img.src = item.src;
-                        img.alt = '';
-                        img.className = 'productimg';
-                        img.style.width = '100%';
-                        img.style.height = 'auto';
-                        a.appendChild(img);
-                        containerDiv.appendChild(a);
-                    } else {
-                        const p = document.createElement('p');
-                        p.textContent = item.message;
-                        p.style.color = 'red';
-                        containerDiv.appendChild(p);
-                    }
-
-                    scrollableContainer.insertBefore(containerDiv, saveId.nextSibling);
-                });
-            }
-
+    
+        } catch (error) {
+            console.error('Error fetching session data:', error);
         }
-        if(message == ""){
-            clearInterval(intervalData);
-            intervalData = null;
-            console.log('Data already collected. Stopping interval.');
-        }
-
-    } catch (error) {
-        console.error('Error fetching session data:', error);
+    } else{
+        console.log("stop Fucking")
     }
 }
 
@@ -129,8 +133,10 @@ searchButton.addEventListener('click', function (event) {
     saveSection.classList.add('active');
 
     loadingMessage.textContent = "Starting"
+    loading.style.display = "inline"
 
-    message.push("start")
+    startFucking = "yes";
+    severResponse = null
 
     fetch('/', {
             method: 'POST',
@@ -138,33 +144,22 @@ searchButton.addEventListener('click', function (event) {
         })
         .then(response => response.json())
         .then(response => {
-            clearInterval(intervalData);
-            intervalData = null;
             console.log(response);
-            loading.style.display = "none"
-            loadingMessage.textContent = ((response.message).substring(0, 19) + "...")
+            if (response.cancel){
+                loadingMessage.textContent = (response.message)
+            } else {
+                startFucking = "no";
+                severResponse = response.message;
+                loading.style.display = "none"
+                loadingMessage.textContent = (response.message)
+            }
         })
         .catch(error => {
             console.error('Error:', error);
         });
 });
 
-async function checkDone() {
-    if (message.includes("start")) {
-        loading.style.display = "inline"
-        console.log("checkDone include start")
-        message = [];
-
-        if (intervalData) {
-            clearInterval(intervalData);
-        }
-
-        intervalData = setInterval(getData, 5000);
-    }
-    console.log("checkDone")
-}
-
-setInterval(checkDone, 5000);
+setInterval(getData, 5000);
 
 setInterval(() => {
     navLink.classList.remove('visible');
@@ -178,6 +173,27 @@ setInterval(() => {
     }, 500);
 }, 8000);
 
+
+function startCountdown(duration, countdownElement, containerDiv) {
+    let totalSeconds = duration * 60;
+
+    function updateCountdown() {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        countdownElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        if (totalSeconds <= 0) {
+            clearInterval(countdownInterval);
+            countdownElement.textContent = '00:00';
+            containerDiv.remove();
+        } else {
+            totalSeconds--;
+        }
+    }
+
+    updateCountdown();
+    const countdownInterval = setInterval(updateCountdown, 1000);
+}
 
 function retryVideo(video) {
     let retries = 0;

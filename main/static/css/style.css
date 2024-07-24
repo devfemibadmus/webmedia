@@ -128,8 +128,17 @@ header {
     padding-bottom: 30vh;
 }
 
+.section .saveId {
+    width: 80vw;
+    padding: 10px;
+}
+
 .section .title {
     width: 100%;
+}
+
+p {
+    word-break: break-word;
 }
 
 .section .container {
@@ -237,10 +246,6 @@ header {
     cursor: pointer;
     font-weight: bold;
     font-size: large;
-}
-
-.section .title {
-    width: 100%;
 }
 
 .loader {
