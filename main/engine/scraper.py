@@ -74,7 +74,7 @@ class Scraper:
             print("Scraper userId: ", self.userId, " stop 1 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             self.globalMessage.updateMessage("")
-            self.globalMessage.setData([])
+            self.globalMessage.setData([], [])
             return f"Error loading page: {e}"
         # finally:
             # print("Scraper userId: ", self.userId, " stop: ", datetime.now().strftime("%H:%M:%S"))
@@ -108,12 +108,13 @@ class Scraper:
                 print("Scraper userId: ", self.userId, " stop 2 : ", datetime.now().strftime("%H:%M:%S"))
                 self.browser.quit()
                 self.globalMessage.updateMessage("")
-                self.globalMessage.setData([])
+                self.globalMessage.setData([], [])
                 return f"Error getting username: {e}"
 
         file_folder = f"{platform}/{username}"
         uploadedMediaSrcList = []
         mediaSrc = []
+        cloudUrl = []
 
         try:
             for className in mediaElement_classNames:
@@ -121,6 +122,7 @@ class Scraper:
                     self.browser.quit()
                     print("page unload or spam")
                     return f"page unload or spam"
+                self.globalMessage.updateMessage(f"finding media")
                 elements = self.browser.find_elements(By.CLASS_NAME, className)
                 for element in elements:
                     if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
@@ -128,7 +130,7 @@ class Scraper:
                        print("page unload or spam")
                        return f"page unload or spam"
                     try:
-                        self.globalMessage.updateMessage(f"finding videos...")
+                        self.globalMessage.updateMessage(f"finding videos")
                         video_tags = element.find_elements(By.TAG_NAME, 'video')
                         for video in video_tags:
                             src = video.get_attribute('src') or video.find_element(By.TAG_NAME, 'source').get_attribute('src')
@@ -137,7 +139,7 @@ class Scraper:
                     except Exception as e:
                         continue
                     try:
-                        self.globalMessage.updateMessage(f"finding images...")
+                        self.globalMessage.updateMessage(f"finding images")
                         image_tags = element.find_elements(By.TAG_NAME, 'img')
                         for image in image_tags:
                             src = image.get_attribute('src')
@@ -149,13 +151,13 @@ class Scraper:
             print("Scraper userId: ", self.userId, " stop 3 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             self.globalMessage.updateMessage("")
-            self.globalMessage.setData([])
+            self.globalMessage.setData([], [])
             return f"Error finding media elements: {e}"
         finally:
             mediaSrc = list(set(mediaSrc))
             self.globalMessage.updateMessage(f"Total media found {len(mediaSrc)}")
 
-        time.sleep(2)
+        # time.sleep(2)
 
         def formScrpt(boot):
             return f"""
@@ -219,7 +221,7 @@ class Scraper:
             print("Scraper userId: ", self.userId, " stop 4 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             self.globalMessage.updateMessage("")
-            self.globalMessage.setData([])
+            self.globalMessage.setData([], [])
             return f"No Media Found!"
         try:
             for boot, puss in enumerate(mediaSrc):
@@ -231,7 +233,7 @@ class Scraper:
                     print("refreshing: ", puss)
                     self.browser.refresh()
                     print("refreshed: ", puss)
-                time.sleep(3)
+                # time.sleep(3)
                 if self.globalMessage.pageUnload() or self.globalMessage.spamRequest():
                     self.browser.quit()
                     print("page unload or spam")
@@ -240,11 +242,13 @@ class Scraper:
                 print("the url: ",puss, " index: ", boot)
                 print("uploadedMediaDick: ",uploadedMediaDick)
                 uploadedMediaSrcList.append(uploadedMediaDick)
+                if uploadedMediaDick['src']:
+                    cloudUrl.append(uploadedMediaDick['src'])
                 self.browser.close()
                 self.browser.switch_to.window(self.browser.window_handles[0])
-                self.globalMessage.setData(uploadedMediaSrcList)
+                self.globalMessage.setData(uploadedMediaSrcList, cloudUrl)
                 self.globalMessage.updateMessage(f"scraped {boot+1} of {len(mediaSrc)}")
-            self.globalMessage.updateMessage(f"Done scraping {len(uploadedMediaSrcList)} in {media_url}")
+            self.globalMessage.updateMessage(f"Done scraping {len(uploadedMediaSrcList)} media in {media_url}")
             print("Scraper userId: ", self.userId, " finished : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             return f"Scraping completed successfully!"
@@ -252,7 +256,7 @@ class Scraper:
             print("Scraper userId: ", self.userId, " stop 5 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
             self.globalMessage.updateMessage("")
-            self.globalMessage.setData([])
+            self.globalMessage.setData([], [])
             return f"Error executing media upload script: {e}"
 
 
