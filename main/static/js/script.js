@@ -1,11 +1,24 @@
+/*
+ *************************************
+ * WARNING: DO NOT EDIT THIS CODE
+ *
+ * Unauthorized changes to this code
+ * can cause unexpected behavior and
+ * errors. For any modifications,
+ * please contact the nigga (devfemibadmus@gmail.com).
+ *************************************
+ */
+
 let collectedData = [];
 let startFucking;
+let intervalId;
 
 let severResponse;
 let isAbout = true;
 let navLink = document.getElementById('nav-privacy');
 
 const saveId = document.getElementById('saveId');
+const searchId = document.getElementById('home');
 const loading = document.getElementById('loading');
 const saveSection = document.getElementById('save');
 const links = document.querySelectorAll('.nav-link');
@@ -29,7 +42,6 @@ async function getData() {
             });
     
             const allData = await response.json();
-            console.log(allData)
     
             const message = allData.message;
             const newData = allData.mediaurl;
@@ -104,22 +116,6 @@ async function getData() {
     }
 }
 
-links.forEach(link => {
-    link.addEventListener('click', function (event) {
-        event.preventDefault();
-        const targetId = this.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
-
-        if (targetElement) {
-            sections.forEach(container => {
-                container.classList.remove('active');
-            });
-
-            targetElement.classList.add('active');
-        }
-    });
-});
-
 searchButton.addEventListener('click', function (event) {
     event.preventDefault();
     const url = searchInput.value;
@@ -137,6 +133,9 @@ searchButton.addEventListener('click', function (event) {
 
     startFucking = "yes";
     severResponse = null
+    console.log("%cNIGGA SAID STOP!", "color: red; font-size: 50px; font-weight: bold;");
+    console.log("%cWARNING: Unauthorized changes to this code can cause unexpected behavior and errors. Please contact the developer for any modifications.", "color: white; font-size: 16px;");
+    intervalId = setInterval(getData, 5000);
 
     fetch('/', {
             method: 'POST',
@@ -144,6 +143,7 @@ searchButton.addEventListener('click', function (event) {
         })
         .then(response => response.json())
         .then(response => {
+            clearInterval(intervalId)
             console.log(response);
             if (response.cancel){
                 loadingMessage.textContent = (response.message)
@@ -159,7 +159,21 @@ searchButton.addEventListener('click', function (event) {
         });
 });
 
-setInterval(getData, 5000);
+links.forEach(link => {
+    link.addEventListener('click', function (event) {
+        event.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+            sections.forEach(container => {
+                container.classList.remove('active');
+            });
+
+            targetElement.classList.add('active');
+        }
+    });
+});
 
 setInterval(() => {
     navLink.classList.remove('visible');
@@ -186,6 +200,13 @@ function startCountdown(duration, countdownElement, containerDiv) {
             clearInterval(countdownInterval);
             countdownElement.textContent = '00:00';
             containerDiv.remove();
+            const numberOfChildren = scrollableContainer.children.length;
+            if(numberOfChildren == 1){
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                searchId.classList.add('active');
+            }
         } else {
             totalSeconds--;
         }
@@ -219,3 +240,15 @@ if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
 } else {
     console.info("This page is not reloaded");
 }
+
+
+/*
+ *************************************
+ * WARNING: DO NOT EDIT THIS CODE
+ *
+ * Unauthorized changes to this code
+ * can cause unexpected behavior and
+ * errors. For any modifications,
+ * please contact the nigga (devfemibadmus@gmail.com).
+ *************************************
+ */
