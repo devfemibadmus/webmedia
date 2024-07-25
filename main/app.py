@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, jsonify, session, Response
-from engine.helper import GlobalMessagesManager
+from engine.helper import Common, GlobalMessagesManager
 from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
 from pathlib import Path
-import os, uuid
+import os, uuid, time, threading
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
@@ -40,6 +40,33 @@ class CloudStorageManager:
         return False
 
 manager = CloudStorageManager()
+binList = []
+
+def add_to_bin_list(bin_list):
+    timestamp = time.time() + 180
+    for bin in bin_list:
+        if bin not in [b[0] for b in binList]:
+            binList.append((bin, timestamp))
+    # print("binList: ", binList)
+
+def threemin_autodelete():
+    while True:
+        time.sleep(1)
+        current_time = time.time()
+        bins_to_delete = []
+
+        for bin, delete_time in binList:
+            if current_time >= delete_time:
+                try:
+                    bins_to_delete.append((bin, delete_time))
+                except:
+                    pass
+
+        for bin, delete_time in bins_to_delete:
+            folder = Common.get_folder(bin)
+            file_name = Common.get_file_name(bin)
+            print(f"delete {file_name}: {manager.delete_file(folder, file_name)}")
+            binList.remove((bin, delete_time))
 
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
@@ -51,12 +78,10 @@ def home():
             return "Nigga"
         if not globalMessage.pageUnload():
             globalMessage.pageUnload()
-            print(globalMessage.pageUnload())
             return jsonify({"message": "wait for a process to end before requesting new one", "cancel": True})
         globalMessage.updateMessage(f"Starting")
-        globalMessage.setData([])
-        globalMessage.update()
-        print("globalMessage.update()")
+        globalMessage.setData([], [])
+        globalMessage.reload()
         scraper = Scraper(userId)
         message = scraper.getMedia(request.form.get('src'))
         if "error" in message.lower():
@@ -67,8 +92,6 @@ def home():
 @app.route('/uploadMedia', methods=['POST'])
 @cross_origin()
 def upload_video():
-    print("request.files: ", request.files)
-
     if len(request.files) == 0:
         return jsonify({"message": "No media found!", "error": True})
 
@@ -88,22 +111,28 @@ def upload_video():
 
     return jsonify({"message": "Files uploaded successfully!", "success": True, "src": data, "mediaType": mediaType})
 
-@app.before_request
-def ensure_userId():
-    if 'userId' not in session:
-        session['userId'] = str(uuid.uuid4())
-
 @app.route('/getData', methods=['POST'])
 def getData():
     globalMessage = GlobalMessagesManager(session['userId'])
     globalMessage.update()
     message = globalMessage.getMessage()
     mediaurl = globalMessage.getData()
+    add_to_bin_list(globalMessage.getUrl())
+    # print(mediaurl)
     return jsonify({'message':message, 'mediaurl':mediaurl})
+
+@app.before_request
+def ensure_userId():
+    if 'userId' not in session:
+        session['userId'] = str(uuid.uuid4())
 
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("home.html")
+
+delete_thread = threading.Thread(target=threemin_autodelete)
+delete_thread.daemon = True
+delete_thread.start()
 
 if __name__ == '__main__':
     app.run(debug=True)
