@@ -73,7 +73,7 @@ class Scraper:
             print("self.browser.session_id: ", self.browser.session_id)
             print("Scraper userId: ", self.userId, " stop 1 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            self.globalMessage.updateMessage("")
+            self.globalMessage.updateMessage("slow internet detected")
             self.globalMessage.setData([], [])
             return f"Error loading page: {e}"
         # finally:
@@ -220,7 +220,7 @@ class Scraper:
         if len(mediaSrc) <= 0:
             print("Scraper userId: ", self.userId, " stop 4 : ", datetime.now().strftime("%H:%M:%S"))
             self.browser.quit()
-            self.globalMessage.updateMessage("")
+            self.globalMessage.updateMessage("No Media Found!")
             self.globalMessage.setData([], [])
             return f"No Media Found!"
         try:

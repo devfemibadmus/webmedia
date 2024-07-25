@@ -28,6 +28,8 @@ const searchButton = document.getElementById('search-button');
 const loadingMessage = document.getElementById('loading-message');
 const scrollableContainer = document.querySelector('.scrollable-container');
 
+console.log("%cNIGGA SAID STOP!", "color: red; font-size: 50px; font-weight: bold;");
+console.log("%cWARNING: Unauthorized changes to this code can cause unexpected behavior and errors. Please contact the developer for any modifications.", "color: white; font-size: 16px;");
 
 async function getData() {
     if (startFucking == "yes"){
@@ -133,8 +135,6 @@ searchButton.addEventListener('click', function (event) {
 
     startFucking = "yes";
     severResponse = null
-    console.log("%cNIGGA SAID STOP!", "color: red; font-size: 50px; font-weight: bold;");
-    console.log("%cWARNING: Unauthorized changes to this code can cause unexpected behavior and errors. Please contact the developer for any modifications.", "color: white; font-size: 16px;");
     intervalId = setInterval(getData, 5000);
 
     fetch('/', {
@@ -145,6 +145,7 @@ searchButton.addEventListener('click', function (event) {
         .then(response => {
             clearInterval(intervalId)
             console.log(response);
+            collectedData = []
             if (response.cancel){
                 loadingMessage.textContent = (response.message)
             } else {

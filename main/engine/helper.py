@@ -1,4 +1,4 @@
-import re, urllib.parse, threading
+import re, threading
 from datetime import datetime, timedelta
 
 
@@ -11,6 +11,7 @@ class GlobalMessagesManager:
     def reset(self):
         for user_message in global_messages:
             if self.userId in user_message:
+                print("reseting...")
                 user_message[self.userId][0].update({
                     'this_time': datetime.now().isoformat(),
                     'last_time': 0,
@@ -18,7 +19,6 @@ class GlobalMessagesManager:
                     'count': 0
                 })
                 user_message[self.userId][1].update({'data': [], 'url': []})
-                return
         global_messages.append({
             self.userId: [
                 {
@@ -31,11 +31,13 @@ class GlobalMessagesManager:
                 {'data': [], 'url': []}
             ]
         })
+        return
 
     def updateMessage(self, message):
         for user_message in global_messages:
             if self.userId in user_message:
                 user_message[self.userId][0]['message'] = message
+        return
 
     def update(self):
         for user_message in global_messages:
@@ -54,13 +56,14 @@ class GlobalMessagesManager:
                 user_data['count'] += 1
 
                 print(user_data)
-                return
+        return
 
     def reload(self):
         for user_message in global_messages:
             if self.userId in user_message:
                 user_data = user_message[self.userId][0]
                 user_data.update({'reload': True})
+        return
     
     def pageUnload(self):
         for user_message in global_messages:
@@ -68,8 +71,6 @@ class GlobalMessagesManager:
                 user_data = user_message[self.userId][0]
                 if user_data['reload'] == False:
                     return True
-                if user_data['reload'] == True and user_data['count'] <= 2:
-                    return False
                                 
                 this_time = datetime.now().isoformat()
                 last_time = user_data['this_time']
@@ -115,12 +116,11 @@ class GlobalMessagesManager:
     def setData(self, data, url):
         for user_message in global_messages:
             if self.userId in user_message:
-                if url:
-                    user_message[self.userId][1]['url'] = url
+                user_message[self.userId][1]['url'].extend(url)
                 if data:
+                    print("data: ", data)
                     user_message[self.userId][1]['data'] = data
-                    return
-        self.reset()
+        return
 
     def getUrl(self):
         for user_message in global_messages:
@@ -134,25 +134,8 @@ class GlobalMessagesManager:
                 return user_message[self.userId][1]['data']
         return "a nigga once said..."
 
-class Common:
-    @staticmethod
-    def get_folder(url: str) -> str:
-        parsed_url = urllib.parse.urlparse(url)
-        path = parsed_url.path
-        path_components = path.split('/')
-        folder = '/'.join(path_components[2:-1])
-        return folder
-
-    @staticmethod
-    def get_file_name(url: str) -> str:
-        parsed_url = urllib.parse.urlparse(url)
-        path = parsed_url.path
-        path_components = path.split('/')
-        file_name = path_components[-1]
-        return file_name
-
 class Validator:
-    TIKTOK_REGEX = re.compile(r'^https://(?:www\.)?tiktok\.com/@[\w.-]+/video/\d+.*$')
+    TIKTOK_REGEX = re.compile(r'^https://(?:www\.)?tiktok\.com/@[\w.-]+/(video|photo)/\d+.*$')
     INSTAGRAM_REGEX = re.compile(r'^https://(?:www\.)?instagram\.com/(p|reel)/[\w-]+/?.*$')
     FACEBOOK_REGEX = re.compile(r'^https://(?:www\.)?facebook\.com/(?:watch|share/(?:r|v)|reel)/.*$')
 

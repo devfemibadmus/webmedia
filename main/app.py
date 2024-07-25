@@ -1,16 +1,15 @@
 from flask import Flask, render_template, request, jsonify, session, Response
-from engine.helper import Common, GlobalMessagesManager
+import os, uuid, time, threading, atexit, urllib.parse
+from engine.helper import GlobalMessagesManager
 from flask_cors import cross_origin
 from engine.scraper import Scraper
 from google.cloud import storage
 from pathlib import Path
-import os, uuid, time, threading
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'aaaaaaaaaaa2222222222!!!!!!!!!##'
 application = app
-
 class CloudStorageManager:
     def __init__(self):
         self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "mediasaver.json"))
@@ -32,41 +31,61 @@ class CloudStorageManager:
             return signed_url
         return False
 
-    def delete_file(self, file_folder, file_name):
-        if file_name:
-            blob = self.bucket.blob(file_folder + "/" + file_name)
+    def delete_file(self, file_path):
+        if file_path:
+            blob = self.bucket.blob(file_path)
             blob.delete()
             return True
         return False
+class Common:
+    def __init__(self):
+        self.binList = []
+
+    def get_folder(self, url: str) -> str:
+        parsed_url = urllib.parse.urlparse(url)
+        path = parsed_url.path
+        path_components = path.split('/')
+        folder = '/'.join(path_components[2:-1])
+        return folder
+
+    def get_file_name(self, url: str) -> str:
+        parsed_url = urllib.parse.urlparse(url)
+        path = parsed_url.path
+        path_components = path.split('/')
+        file_name = path_components[-1]
+        return file_name
+
+    def add_to_bin_list(self, bin_list):
+        timestamp = time.time() + 180
+        for bin in bin_list:
+            folder = self.get_folder(bin)
+            file_name = self.get_file_name(bin)
+            bin = f"{folder}/{file_name}"
+            if bin not in [b[0] for b in self.binList]:
+                self.binList.append((bin, timestamp))
+        print("binList: ", self.binList)
+
+    def threemin_autodelete(self):
+        while True:
+            time.sleep(1)
+            current_time = time.time()
+            bins_to_delete = []
+
+            for bin, delete_time in self.binList:
+                if current_time >= delete_time:
+                    try:
+                        print(f"delete {bin}: {manager.delete_file(bin)}")
+                        self.binList.remove((bin, delete_time))
+                    except:
+                        pass
 
 manager = CloudStorageManager()
-binList = []
+common = Common()
 
-def add_to_bin_list(bin_list):
-    timestamp = time.time() + 180
-    for bin in bin_list:
-        if bin not in [b[0] for b in binList]:
-            binList.append((bin, timestamp))
-    # print("binList: ", binList)
-
-def threemin_autodelete():
-    while True:
-        time.sleep(1)
-        current_time = time.time()
-        bins_to_delete = []
-
-        for bin, delete_time in binList:
-            if current_time >= delete_time:
-                try:
-                    bins_to_delete.append((bin, delete_time))
-                except:
-                    pass
-
-        for bin, delete_time in bins_to_delete:
-            folder = Common.get_folder(bin)
-            file_name = Common.get_file_name(bin)
-            print(f"delete {file_name}: {manager.delete_file(folder, file_name)}")
-            binList.remove((bin, delete_time))
+delete_thread = threading.Thread(target=common.threemin_autodelete)
+# stop_event = threading.Event()
+delete_thread.daemon = True
+delete_thread.start()
 
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
@@ -80,7 +99,7 @@ def home():
             globalMessage.pageUnload()
             return jsonify({"message": "wait for a process to end before requesting new one", "cancel": True})
         globalMessage.updateMessage(f"Starting")
-        globalMessage.setData([], [])
+        globalMessage.reset()
         globalMessage.reload()
         scraper = Scraper(userId)
         message = scraper.getMedia(request.form.get('src'))
@@ -117,7 +136,7 @@ def getData():
     globalMessage.update()
     message = globalMessage.getMessage()
     mediaurl = globalMessage.getData()
-    add_to_bin_list(globalMessage.getUrl())
+    common.add_to_bin_list(globalMessage.getUrl())
     # print(mediaurl)
     return jsonify({'message':message, 'mediaurl':mediaurl})
 
@@ -126,13 +145,18 @@ def ensure_userId():
     if 'userId' not in session:
         session['userId'] = str(uuid.uuid4())
 
+def stop_thread():
+    stop_event.set()
+    delete_thread.join()
+
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("home.html")
 
-delete_thread = threading.Thread(target=threemin_autodelete)
-delete_thread.daemon = True
-delete_thread.start()
+
+# atexit.register(stop_thread)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
