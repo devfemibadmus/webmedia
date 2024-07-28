@@ -1,4 +1,4 @@
-from formats import video_format, image_format
+from leaked import video_leak, image_leak
 from flask import Flask, request, jsonify
 import requests, re
 
@@ -11,7 +11,7 @@ app = Flask(__name__, static_url_path='/static')
 application = app
 
 def get_tiktok_videos(url, item_id):    
-    api_url = video_format.format(item_id=item_id)
+    api_url = video_leak.format(item_id=item_id)
     
     try:
         response = requests.get(api_url)
@@ -26,8 +26,8 @@ def get_tiktok_videos(url, item_id):
         found_items = [item for item in item_list if item['id'] == item_id]
 
         if not found_items:
-            print(f'Error: Quick Tiktok formats changed\n{data}')
-            return f'Error: Quick Tiktok formats changed.'
+            print(f'Error: Quick Tiktok leaked changed\n{data}')
+            return f'Error: Quick Tiktok leaked changed.'
         
         item = found_items[0]
         video_info = {
@@ -80,7 +80,7 @@ def get_tiktok_videos(url, item_id):
 
 
 def get_tiktok_images(url, item_id):    
-    api_url = image_format.format(item_id=item_id)
+    api_url = image_leak.format(item_id=item_id)
     
     try:
         response = requests.get(api_url)
@@ -94,8 +94,8 @@ def get_tiktok_images(url, item_id):
         item = data['itemInfo']['itemStruct']
 
         if not item:
-            print(f'Error: Quick Tiktok formats changed\n{data}')
-            return f'Error: Quick Tiktok formats changed.'
+            print(f'Error: Quick Tiktok leaked changed\n{data}')
+            return f'Error: Quick Tiktok leaked changed.'
 
         photo_info = {
             'message': 'success',
