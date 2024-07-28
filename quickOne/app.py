@@ -142,10 +142,12 @@ def tiktok(url):
     tiktok_images = re.search(tiktok_photo_pattern, url)
     if tiktok_video:
         item_id = tiktok_video.group(1)
-        return get_tiktok_videos(url, item_id)
+        tiktok_videos = get_tiktok_videos(url, item_id)
+        return jsonify(tiktok_videos)
     elif tiktok_images:
         item_id = tiktok_images.group(1)
-        return get_tiktok_images(url, item_id)
+        tiktok_images = get_tiktok_images(url, item_id)
+        return jsonify(tiktok_images)
     else:
         return "UNSUPPORTED URL FORMAT."
 
