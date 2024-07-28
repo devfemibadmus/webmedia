@@ -1,4 +1,4 @@
-from leaked import video_leak, image_leak
+from quickOne.leaked import video_leak, image_leak
 import requests
 
 tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']

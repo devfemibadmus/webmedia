@@ -39,7 +39,7 @@ searchButton.addEventListener('click', function (event) {
     loadingMessage.style.color = "grey"
     loading.style.display = "inline"
 
-    fetch('/api/', {
+    fetch('/webmedia/api/', {
             method: 'POST',
             body: formData
         })

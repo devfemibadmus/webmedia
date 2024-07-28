@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-from platforms.tiktok import *
+from quickOne.platforms.tiktok import *
 import re
 
 tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
