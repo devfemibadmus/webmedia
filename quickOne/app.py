@@ -3,12 +3,12 @@ from flask import Flask, request, jsonify
 import requests, re
 
 
-application = app
-app = Flask(__name__, static_url_path='/static')
+tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
 tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
 tiktok_photo_pattern = r'tiktok\.com/.*/photo/(\d+)'
-tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
 
+app = Flask(__name__, static_url_path='/static')
+application = app
 
 def get_tiktok_videos(url, item_id):    
     api_url = video_format.format(item_id=item_id)
@@ -136,9 +136,10 @@ def get_tiktok_images(url, item_id):
         return f'Error: No items with id {item_id} found.'
 
 
-@app.route('api/', methods=['POST'])
+@app.route('/api/', methods=['POST'])
 def tiktok(url):
-    if not request.json.get('url'):
+    url = request.json.get('url')
+    if not url:
         return jsonify({'error': 'URL is required'}), 400
     tiktok_video = re.search(tiktok_video_pattern, url)
     tiktok_images = re.search(tiktok_photo_pattern, url)
