@@ -136,7 +136,7 @@ def get_tiktok_images(url, item_id):
 
 @app.route('api/', methods=['POST'])
 def tiktok(url):
-    if not request.form.get(url):
+    if not request.json.get('url'):
         return "Url not found"
     tiktok_video = re.search(tiktok_video_pattern, url)
     tiktok_images = re.search(tiktok_photo_pattern, url)
