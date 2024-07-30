@@ -13,15 +13,14 @@
 
 ## Limitations
 
--   **Website Blocking**: Support websites that allow static IP. Recommend using the [QuickOne version](#quickone).
--   **Performance**: Running multiple Selenium instances may slow down performance, so this service is intended for pro users only.
+-   **Supported Platform**: Tiktok, Instagram, Facebook. CheckOut [QuickOne version](#quickone).
+-   **Performance**: Limited download for web version checkout [MediaSaver](https://github.com/devfemibadmus/mediasaver) for unlimited.
 
 ### Apps
+-   **Web App**: [WebMedia](https://devfemibadmus.blackstackhub.com/webmedia) limited download
+-   **Mobile App**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) unlimited download | one ads
 
--   **Windows App**: Offers the same features as the backend service, with unlimited spam detection, login may be required to download private media.
--   **Mobile App**: The [MediaSaver](https://github.com/devfemibadmus/mediasaver) app uses the lightweight [QuickOne version](#QuickOne), which supports only public media.
-
-## Supported Social Media Platforms
+## OnGoing Platforms
 | Websites | Status |
 |------|------|
 | TikTok Videos |✅|
@@ -36,14 +35,21 @@
 
 ## QuickOne
 
-Currently supports social media platforms, including TikTok, Facebook, YouTube, and Instagram. Intended to be a lightweight tool for studying website networks to identify leaked API request paths and occasionally using public APIs while analyzing website networks for potential API leaks.
+Just a test script clone [repo](https://devfemibadmus.blackstackhub.com/webmedia/) cd quickOne python app.py. Currently supports Tiktok and Instagram. Intended to be a lightweight tool for studying website networks to identify leaked request paths.
 
 
-### Leaked
 
-not gonna be public they are said to be gitignore
+### API ?
 
-### API url
+No API? Follow these steps to get yours:
+
+1. Star the original repo [https://devfemibadmus.blackstackhub.com/webmedia](https://devfemibadmus.blackstackhub.com/webmedia)
+2. Fork it
+3. Clone it
+4. Host it on any VPS
+
+Good, now you have yours. Below is a sample:
+
 ```http
 POST https://devfemibadmus.blackstackhub.com/webmedia/api
 Content-Type: application/json
@@ -205,3 +211,5 @@ Content-Type: application/json
 | Screenshot | Screenshot |
 |-------------------------------------------------------------|-------------------------------------------------------------|
 | ![post and video quality](screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true) | ![author and musicc](screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true) |
+
+
