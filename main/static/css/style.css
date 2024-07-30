@@ -135,7 +135,14 @@ header {
 
 .section .title {
     width: 100%;
+    color: #00faff;
 }
+
+.section .key{
+    color: #00faff;
+    background-color: #000;
+}
+
 
 p {
     word-break: break-word;
@@ -239,7 +246,7 @@ p {
     color: white;
 }
 
-#search-button {
+.button {
     border: 0px;
     background-color: black;
     color: white;
@@ -297,4 +304,7 @@ p {
     100% {
         content: ".";
     }
+}
+.select{
+    background-color: #000;
 }

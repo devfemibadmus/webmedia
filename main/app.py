@@ -37,55 +37,8 @@ class CloudStorageManager:
             blob.delete()
             return True
         return False
-class Common:
-    def __init__(self):
-        self.binList = []
-
-    def get_folder(self, url: str) -> str:
-        parsed_url = urllib.parse.urlparse(url)
-        path = parsed_url.path
-        path_components = path.split('/')
-        folder = '/'.join(path_components[2:-1])
-        return folder
-
-    def get_file_name(self, url: str) -> str:
-        parsed_url = urllib.parse.urlparse(url)
-        path = parsed_url.path
-        path_components = path.split('/')
-        file_name = path_components[-1]
-        return file_name
-
-    def add_to_bin_list(self, bin_list):
-        timestamp = time.time() + 180
-        for bin in bin_list:
-            folder = self.get_folder(bin)
-            file_name = self.get_file_name(bin)
-            bin = f"{folder}/{file_name}"
-            if bin not in [b[0] for b in self.binList]:
-                self.binList.append((bin, timestamp))
-        print("binList: ", self.binList)
-
-    def threemin_autodelete(self):
-        while True:
-            time.sleep(1)
-            current_time = time.time()
-            bins_to_delete = []
-
-            for bin, delete_time in self.binList:
-                if current_time >= delete_time:
-                    try:
-                        print(f"delete {bin}: {manager.delete_file(bin)}")
-                        self.binList.remove((bin, delete_time))
-                    except:
-                        pass
 
 manager = CloudStorageManager()
-common = Common()
-
-delete_thread = threading.Thread(target=common.threemin_autodelete)
-# stop_event = threading.Event()
-delete_thread.daemon = True
-delete_thread.start()
 
 @app.route('/app/', methods=['POST'])
 @app.route('/', methods=['POST', 'GET'])
@@ -103,7 +56,7 @@ def home():
         globalMessage.reload()
         scraper = Scraper(userId)
         message = scraper.getMedia(request.form.get('src'))
-        if "error" in message.lower():
+        if not message or "error" in message.lower():
             return jsonify({"message":message, "error":True})
         return jsonify({"message":message})
     return render_template("home.html")
@@ -136,8 +89,6 @@ def getData():
     globalMessage.update()
     message = globalMessage.getMessage()
     mediaurl = globalMessage.getData()
-    common.add_to_bin_list(globalMessage.getUrl())
-    # print(mediaurl)
     return jsonify({'message':message, 'mediaurl':mediaurl})
 
 @app.before_request
@@ -145,16 +96,9 @@ def ensure_userId():
     if 'userId' not in session:
         session['userId'] = str(uuid.uuid4())
 
-def stop_thread():
-    stop_event.set()
-    delete_thread.join()
-
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("home.html")
-
-
-# atexit.register(stop_thread)
 
 
 if __name__ == '__main__':

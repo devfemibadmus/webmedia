@@ -35,7 +35,7 @@ class Scraper:
             return self.scrap_facebook_video(src)
         else:
             print(f"Unsupported video source: {source}")
-            return False
+            return "Error: Unsupported video source"
 
     def scrapTiktok(self, url):
         mediaElement_classNames = ['css-1sb4dwc-DivPlayerContainer', 'swiper-slide']
