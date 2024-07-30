@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
         <title>Web Media Saver</title>
+        <meta name="referrer" content="no-referrer">
     </head>
     <body>
         <header>
@@ -22,7 +23,7 @@
             <div class="section" id="save">
                 <div class="scrollable-container">
                     <div class="saveId" id="saveId">
-                        <span id="loading-message">No history</span><span class="loading" id="loading"></span><br>
+                        <span id="loading-message">nothing's new</span><span class="loading" id="loading"></span><br>
                     </div>
                 </div>
             </div>
@@ -33,7 +34,7 @@
                         <br/> <br/>
                         <div class="search-container">
                             <input type="text" id="search-input" placeholder="https://www...">
-                            <button id="search-button">Download</button>
+                            <button id="search-button" class="button">Download</button>
                         </div>
                         <br/> <br/>
                         <p>Examples:</p>

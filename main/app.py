@@ -1,100 +1,51 @@
-from flask import Flask, render_template, request, jsonify, session, Response
-import os, uuid, time, threading, atexit, urllib.parse
-from engine.helper import GlobalMessagesManager
-from flask_cors import cross_origin
-from engine.scraper import Scraper
-from google.cloud import storage
+import re
 from pathlib import Path
+from datetime import datetime
+from platforms.tiktok import TikTok
+from platforms.instagram import Instagram
+from flask import Flask, render_template, request, jsonify
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_url_path='/static')
-app.secret_key = 'aaaaaaaaaaa2222222222!!!!!!!!!##'
 application = app
-class CloudStorageManager:
-    def __init__(self):
-        self.storage_client = storage.Client.from_service_account_json(os.path.join(BASE_DIR, "mediasaver.json"))
-        self.bucket = self.storage_client.bucket('mediasaver')
 
-    def upload_file(self, file_folder, file_upload):
-        if file_upload:
-            blob = self.bucket.blob(file_folder + "/" + file_upload.filename)
-            blob.upload_from_file(file_upload)
-            signed_url = blob.generate_signed_url(expiration=3600, version='v4')
-            return signed_url
-        return False
+instagram = Instagram()
 
-    def get_signed_url(self, file_folder, file_name):
-        if file_name:
-            blob = self.bucket.blob(file_folder + "/" + file_name)
-            signed_url = blob.generate_signed_url(expiration=3600, version='v4')
-            print("signed_url: ", signed_url)
-            return signed_url
-        return False
+class Validator:
+    tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
+    tiktok_photo_pattern = r'tiktok\.com/.*/photo/(\d+)'
+    instagram_pattern = r'(?:https?://(?:www\.)?instagram\.com/(?:p|reel|tv)/)([A-Za-z0-9_-]+)/?'
 
-    def delete_file(self, file_path):
-        if file_path:
-            blob = self.bucket.blob(file_path)
-            blob.delete()
-            return True
-        return False
+    @staticmethod
+    def validate(url):
+        video_match = re.search(Validator.tiktok_video_pattern, url)
+        if video_match:
+            return "TikTok Video", video_match.group(1)
 
-manager = CloudStorageManager()
+        photo_match = re.search(Validator.tiktok_photo_pattern, url)
+        if photo_match:
+            return "TikTok Photo", photo_match.group(1)
 
-@app.route('/app/', methods=['POST'])
-@app.route('/', methods=['POST', 'GET'])
+        insta_match = re.match(Validator.instagram_pattern, url)
+        if insta_match:
+            return "Instagram", insta_match.group(1)
+
+        return "Unknown", None
+
+@app.route('/', methods=['GET'])
 def home():
-    userId = session['userId']
-    globalMessage = GlobalMessagesManager(userId)
-    if request.method == 'POST':
-        if not request.form.get('src'):
-            return "Nigga"
-        if not globalMessage.pageUnload():
-            globalMessage.pageUnload()
-            return jsonify({"message": "wait for a process to end before requesting new one", "cancel": True})
-        globalMessage.updateMessage(f"Starting")
-        globalMessage.reset()
-        globalMessage.reload()
-        scraper = Scraper(userId)
-        message = scraper.getMedia(request.form.get('src'))
-        if not message or "error" in message.lower():
-            return jsonify({"message":message, "error":True})
-        return jsonify({"message":message})
     return render_template("home.html")
 
-@app.route('/uploadMedia', methods=['POST'])
-@cross_origin()
-def upload_video():
-    if len(request.files) == 0:
-        return jsonify({"message": "No media found!", "error": True})
-
-    file = next(iter(request.files.values()))
-
-    if file.filename == "":
-        return jsonify({"message": "Missing file name", "error": True})
-
-    file_size_mb = file.content_length / (1024 * 1024) 
-    file_folder = request.form.get('file_folder')
-    mediaType = request.form.get('mediaType')
-
-    if file_size_mb > 80:
-        return jsonify({"message": "Media too big for web, Try using app", "error": True})
-    
-    data = manager.upload_file(file_folder, file)
-
-    return jsonify({"message": "Files uploaded successfully!", "success": True, "src": data, "mediaType": mediaType})
-
-@app.route('/getData', methods=['POST'])
-def getData():
-    globalMessage = GlobalMessagesManager(session['userId'])
-    globalMessage.update()
-    message = globalMessage.getMessage()
-    mediaurl = globalMessage.getData()
-    return jsonify({'message':message, 'mediaurl':mediaurl})
-
-@app.before_request
-def ensure_userId():
-    if 'userId' not in session:
-        session['userId'] = str(uuid.uuid4())
+@app.route('/api/', methods=['POST', 'GET'])
+def api():
+    url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
+    cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
+    source, item_id = Validator.validate(url)
+    if source == "Instagram":
+        return jsonify(instagram.getData(url, item_id, cut)) if url else {'error':True, 'message':'aswear i no know'}
+    elif source == "TikTok Video":
+        return jsonify(TikTok.get_videos(url, item_id, cut)) if url else {'error':True, 'message':'aswear i no know'}
+    return {'error':True, 'message':'Unsupported url'}
 
 @app.route('/<path:path>')
 def catch_all(path):
