@@ -1,11 +1,11 @@
-from quickOne.leaked import video_leak, image_leak
+from platforms.leaked import video_tiktok, image_tiktok
 import requests
 
 tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
 
 
 def get_tiktok_videos(url, item_id):    
-    api_url = video_leak.format(item_id=item_id)
+    api_url = video_tiktok.format(item_id=item_id)
     
     try:
         response = requests.get(api_url)
@@ -25,6 +25,7 @@ def get_tiktok_videos(url, item_id):
         
         item = found_items[0]
         video_info = {
+            'platform':'tiktok',
             'is_video': True,
             'content': {
                 'id': item['id'],
@@ -72,7 +73,7 @@ def get_tiktok_videos(url, item_id):
         return f'Error: No items with id {item_id} found.'
 
 def get_tiktok_images(url, item_id):    
-    api_url = image_leak.format(item_id=item_id)
+    api_url = image_tiktok.format(item_id=item_id)
     
     try:
         response = requests.get(api_url)
@@ -90,6 +91,7 @@ def get_tiktok_images(url, item_id):
             return f'Error: Quick Tiktok leaked changed.'
 
         photo_info = {
+            'platform':'tiktok',
             'is_image': True,
             'content': {
                 'id': item['id'],

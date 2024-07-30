@@ -24,10 +24,13 @@
 ## Supported Social Media Platforms
 | Websites | Status |
 |------|------|
-| TikTok | ✅|
-| Facebook| ❌|
-| YouTube| ❌|
-| Instagram| ❌|
+| TikTok Videos |✅|
+| Instagram Reels |✅|
+| Instagram Photos |✅|
+| Instagram Posts |✅|
+| TikTok Photos |❌|
+| Facebook|❌|
+| YouTube|❌|
 
 
 
@@ -41,15 +44,17 @@ Currently supports social media platforms, including TikTok, Facebook, YouTube, 
 not gonna be public they are said to be gitignore
 
 ### API url
+```http
+POST https://devfemibadmus.blackstackhub.com/webmedia/api
+Content-Type: application/json
+{"data": "url"}
 ```
-https://devfemibadmus.blackstackhub.com/webmedia/api
-method: post
-data: url
-response: Json
-```
+
 ### Sample Response Tiktok 
 
-Image response
+<details>
+<summary>Image response</summary>
+
 ```json
 {
   "message": "success",
@@ -84,9 +89,12 @@ Image response
     "src": "https://example.com/music.mp3"
   }
 }
-
 ```
-Video reponse
+</details>
+
+<details>
+<summary>Image response</summary>
+
 ```json
 {
   "message": "success",
@@ -142,6 +150,57 @@ Video reponse
 }
 
 ```
+</details>
+
+### Sample Response Instagram 
+<details>
+<summary>reels|photo|video response</summary>
+
+```json
+{
+  "platform": "instagram",
+  "content": {
+    "id": "1234567890",
+    "shortcode": "ABC123",
+    "likes": 1500,
+    "desc": "This is a sample description of the post.",
+    "cover": "https://instagram.com/sample_cover_image.jpg"
+  },
+  "author": {
+    "name": "John Doe",
+    "username": "johndoe",
+    "verified": true,
+    "image": "https://instagram.com/sample_profile_pic.jpg",
+    "videos": 100,
+    "followers": 5000
+  },
+  "media": [
+    {
+      "id": "111222333",
+      "shortcode": "ABC123",
+      "display_url": "https://instagram.com/sample_image1.jpg",
+      "is_video": false
+    },
+    {
+      "id": "444555666",
+      "shortcode": "DEF456",
+      "display_url": "https://instagram.com/sample_image2.jpg",
+      "is_video": false
+    },
+    {
+      "id": "777888999",
+      "shortcode": "GHI789",
+      "display_url": "https://instagram.com/sample_video.mp4",
+      "is_video": true
+    }
+  ],
+  "views": 2000,
+  "play": 1800
+}
+```
+
+</details>
+
 ### Sample Screenshot 
 | Screenshot | Screenshot |
 |-------------------------------------------------------------|-------------------------------------------------------------|
