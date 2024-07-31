@@ -126,8 +126,12 @@ class Instagram:
             }});
             """
         data = self.browser.execute_script(js_script)
+        data['platform'] = 'instagram'
         if not cut:
             return data
         return self.get_instagram_data(data)
+
+    def close(self):
+        self.browser.quit()
 
 
