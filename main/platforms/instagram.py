@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
+from selenium.webdriver.edge.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -10,13 +11,14 @@ class Instagram:
         self.edge_options = Options()
         self.edge_options.use_chromium = True
         self.edge_options.add_argument("--headless")
-        self.edge_options.add_argument("--disable-gpu")
         self.edge_options.add_argument("--mute-audio")
+        self.edge_options.add_argument("--disable-gpu")
+        # service = Service('/usr/local/bin/msedgedriver')
         self.edge_options.add_experimental_option("detach", True)
         self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(options=self.edge_options)
+        # self.browser = webdriver.Edge(service=service, options=self.edge_options)
         self.browser.set_script_timeout(50)
-        # self.browser.delete_all_cookies()
         self.browser.get('https://www.instagram.com/accounts/login/')
 
     def get_slide_media(self, data):
