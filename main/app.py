@@ -6,7 +6,7 @@ from platforms.instagram import Instagram
 from flask import Flask, render_template, request, jsonify
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-app = Flask(__name__, static_url_path='/static')
+app = Flask(__name__, static_folder='templates/static', template_folder='templates')
 application = app
 
 instagram = Instagram()
@@ -36,16 +36,17 @@ class Validator:
 def home():
     return render_template("home.html")
 
+@app.route('/webmedia/api/', methods=['POST', 'GET'])
 @app.route('/api/', methods=['POST', 'GET'])
 def api():
     url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
     source, item_id = Validator.validate(url)
     if source == "Instagram":
-        return jsonify(instagram.getData(url, item_id, cut)) if url else {'error':True, 'message':'aswear i no know'}
+        return jsonify({'success':True, 'data':instagram.getData(url, item_id, cut)}) if url else jsonify({'error':True, 'message':'aswear i no know'})
     elif source == "TikTok Video":
-        return jsonify(TikTok.get_videos(url, item_id, cut)) if url else {'error':True, 'message':'aswear i no know'}
-    return {'error':True, 'message':'Unsupported url'}
+        return jsonify({'success':True, 'data':TikTok.get_videos(url, item_id, cut)}) if url else jsonify({'error':True, 'message':'aswear i no know'})
+    return jsonify({'error':True, 'message':'Unsupported url'})
 
 @app.route('/<path:path>')
 def catch_all(path):

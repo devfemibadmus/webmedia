@@ -3,14 +3,14 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>Web Media Saver</title>
         <meta name="referrer" content="no-referrer">
     </head>
     <body>
         <header>
             <a class="nav-link logo" href="#home">
-            <img src="static/icon-512.png" alt="Logo">
+            <img src="{{ url_for('static', filename='icon-512.png') }}" alt="Logo">
             </a>
             <ul class="nav-list">
                 <li><a href="#home" class="nav-link">Mediasaver</a></li>
@@ -90,6 +90,6 @@
                 </div>
             </div>
         </div>
-        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
     </body>
 </html>
