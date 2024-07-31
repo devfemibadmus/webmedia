@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 app = Flask(__name__, static_folder='templates/static', template_folder='templates')
 application = app
 
-instagram = Instagram()
+instances = []
 
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
@@ -32,6 +32,11 @@ class Validator:
 
         return "Unknown", None
 
+def read_action(file_path='action.txt'):
+    with open(file_path, 'r') as file:
+        first_line = file.readline().strip()
+    return first_line
+
 @app.route('/', methods=['GET'])
 def home():
     return render_template("home.html")
@@ -41,12 +46,30 @@ def home():
 def api():
     url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
+    instagram = next((instance['instance'] for instance in instances if instance['name'] == 'instagram'), None)
     source, item_id = Validator.validate(url)
     if source == "Instagram":
+        if not instagram:
+            return jsonify({'error':True, 'message':'Instagram instance closed, check back in few minutes or go to https://github.com/devfemibadmus/webmedia for more info'})
         return jsonify({'success':True, 'data':instagram.getData(url, item_id, cut)}) if url else jsonify({'error':True, 'message':'aswear i no know'})
     elif source == "TikTok Video":
         return jsonify({'success':True, 'data':TikTok.get_videos(url, item_id, cut)}) if url else jsonify({'error':True, 'message':'aswear i no know'})
     return jsonify({'error':True, 'message':'Unsupported url'})
+
+@app.before_request
+def before_any_request():
+    global instances
+    action = read_action()
+    if action == "end":
+        instagram = next((instance['instance'] for instance in instances if instance['name'] == 'instagram'), None)
+        if instagram:
+            instagram.end()
+            instances = [instance for instance in instances if instance['name'] != 'instagram']
+            instances.append({'name': 'end instagram', 'instance': None})
+    elif action == "start":
+        if not any(instance['name'] == 'instagram' for instance in instances):
+            instagram = Instagram()
+            instances.append({'name': 'instagram', 'instance': instagram})
 
 @app.route('/<path:path>')
 def catch_all(path):
@@ -54,5 +77,5 @@ def catch_all(path):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
 

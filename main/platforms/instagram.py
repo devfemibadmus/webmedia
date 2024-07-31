@@ -7,13 +7,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Instagram:
     def __init__(self):
-        print("class Instagram")
         self.edge_options = Options()
         self.edge_options.use_chromium = True
-        # self.edge_options.add_argument("--headless")
-        # self.edge_options.add_argument("--disable-gpu")
-        # self.edge_options.add_argument("--mute-audio")
-        # self.edge_options.add_experimental_option("detach", True)
+        self.edge_options.add_argument("--headless")
+        self.edge_options.add_argument("--disable-gpu")
+        self.edge_options.add_argument("--mute-audio")
+        self.edge_options.add_experimental_option("detach", True)
         self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(options=self.edge_options)
         self.browser.set_script_timeout(50)
@@ -95,7 +94,7 @@ class Instagram:
             '__spin_t': '1722271940',
             'fb_api_caller_class': 'RelayModern',
             'fb_api_req_friendly_name': 'PolarisPostActionLoadPostQueryQuery',
-            'variables': '{"shortcode":"item_id","fetch_comment_count":40,"parent_comment_count":24,"child_comment_count":3,"fetch_like_count":10,"fetch_tagged_user_count":null,"fetch_preview_comment_count":2,"has_threaded_comments":true,"hoisted_comment_id":null,"hoisted_reply_id":null}',
+            'variables': '{"shortcode":"item_id"}',
             'server_timestamps': 'true',
             'doc_id': '25531498899829322'
         }
@@ -131,7 +130,7 @@ class Instagram:
             return data
         return self.get_instagram_data(data)
 
-    def close(self):
+    def end(self):
         self.browser.quit()
 
 
