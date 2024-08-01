@@ -261,4 +261,4 @@ Good, now you have yours. Below is a sample:
 
 | Screenshot | Screenshot |
 |-------------------------------------------------------------|-------------------------------------------------------------|
-| ![post and video quality](screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true) | ![author and musicc](screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true) |
+| ![post and video quality](conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true) | ![author and musicc](conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true) |

@@ -1,0 +1,8 @@
+app.py
+update instgram ip address
+
+platforms/instgram/bot.py
+update username and password
+
+platforms/instgram/app.conf
+update ServerName
