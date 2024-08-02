@@ -48,7 +48,7 @@ def api():
             print(response.text)
             return jsonify(response.json())
         except requests.exceptions.RequestException as e:
-            return jsonify({'error': True, 'message': f'Yo {str(e)}'}), 500
+            return jsonify({'error': True, 'message': response.text}), 500
     
     elif source == "TikTok Video":
         if item_id:
