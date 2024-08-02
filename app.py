@@ -43,10 +43,11 @@ def api():
     
     if source == "Instagram":
         try:
-            response = requests.get('http://hidden/instagram', params={'item_id': item_id, 'cut': cut})
+            response = requests.get('http://35.226.151.94/instagram/', params={'item_id': item_id, 'cut': cut})
+            print(response.text)
             return jsonify(response.json())
         except requests.exceptions.RequestException as e:
-            return jsonify({'error': True, 'message': str(e)}), 500
+            return jsonify({'error': True, 'message': f'Yo {str(e)}'}), 500
     
     elif source == "TikTok Video":
         if item_id:

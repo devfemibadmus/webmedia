@@ -18,7 +18,7 @@ class Instagram:
         self.edge_options.add_argument("--headless")
         self.edge_options.add_argument("--mute-audio")
         self.edge_options.add_argument("--disable-gpu")
-        service = Service(os.path.join(BASE_DIR, 'msedgedriver'))
+        service = Service(os.path.join(BASE_DIR, 'instagram/msedgedriver'))
         self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(service=service, options=self.edge_options)
         self.browser.set_script_timeout(50)
@@ -229,3 +229,8 @@ class Instagram:
         except Exception as e:
             return f"Error: {e}"
 
+if __name__ == "__main__":
+    print("Starting Instagram bot...")
+    insta_bot = Instagram()
+    data = insta_bot.getData('C8UahW1Nx4y', True)
+    print(data)
