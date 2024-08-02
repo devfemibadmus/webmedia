@@ -80,7 +80,7 @@ class Instagram:
     def save_cookies(self):
         try:
             print("Saving cookies to file...")
-            with open("cookies.pkl", "wb") as f:
+            with open(os.path.join(BASE_DIR, "cookies.pkl"), "wb") as f:
                 pickle.dump(self.browser.get_cookies(), f)
             print("Cookies successfully saved.")
         except Exception as e:
@@ -89,9 +89,9 @@ class Instagram:
     def login_with_cookies(self):
         try:
             print("Attempting to login using saved cookies...")
-            if os.path.exists("cookies.pkl"):
+            if os.path.exists(os.path.join(BASE_DIR, "cookies.pkl")):
                 print("Loading cookies from file...")
-                with open("cookies.pkl", "rb") as f:
+                with open(os.path.join(BASE_DIR, "cookies.pkl"), "rb") as f:
                     cookies = pickle.load(f)
                 for cookie in cookies:
                     print(f"Adding cookie: {cookie['name']}")

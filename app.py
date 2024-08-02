@@ -4,6 +4,7 @@ from platforms.tiktok import TikTok
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__, static_folder='website/static', template_folder='website')
+application = app
 
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'

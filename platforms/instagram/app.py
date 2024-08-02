@@ -11,6 +11,7 @@ application = app
 def before_any_request():
     if request.remote_addr not in ALLOWED_IPS:
         abort(403)
+    print('remote address: ', request.remote_addr)
     global instagram
     if not instagram:
         instagram = Instagram()
@@ -23,7 +24,7 @@ def hello_world():
         data = instagram.getData(item_id, cut)
         if data['platform']:
             return jsonify({'success': True, 'data': data})
-        return jsonify({'error': True, 'message': data})
+        return jsonify({'error': True, 'message': data, 'kk':'kk'})
     else:
         return jsonify({'success': False, 'error': 'item_id not provided'}), 404
 
