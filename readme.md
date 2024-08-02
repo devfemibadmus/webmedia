@@ -173,7 +173,7 @@ if __name__ == "__main__":
     insta_bot = Instagram(username, password)  # Creates an instance of the Instagram class and logs in with the provided credentials.
 
 ```
-</details
+</details>
 
 <details>
 <summary>Saving and using cookies</summary>
@@ -191,7 +191,7 @@ def save_cookies(self):
 #### Zoom and read log
 
 ![post and video quality](conf/image%20copy%205.png?raw=true)
-</details
+</details>
 
 <details>
 <summary>Instagram (Cut Data)</summary>
@@ -371,6 +371,8 @@ def save_cookies(self):
 
 
 ### Sample Screenshot
+
+![post and video quality](conf/image%20copy%205.png?raw=true)
 
 | Screenshot | Screenshot |
 |-------------------------------------------------------------|-------------------------------------------------------------|
