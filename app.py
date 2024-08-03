@@ -1,6 +1,7 @@
 import requests, re
 from datetime import datetime
 from platforms.tiktok import TikTok
+from platforms.facebook import Facebook
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__, static_folder='website/static', template_folder='website')
@@ -9,7 +10,8 @@ application = app
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
     tiktok_photo_pattern = r'tiktok\.com/.*/photo/(\d+)'
-    instagram_pattern = r'(?:https?://(?:www\.)?instagram\.com/(?:p|reel|tv)/)([A-Za-z0-9_-]+)/?'
+    facebook_pattern = r'facebook\.com/.*/(?:r|v|reel|videos|shar/v)/([A-Za-z0-9_-]+)/?'
+    instagram_pattern = r'instagram\.com/(?:p|reel|tv)/([A-Za-z0-9_-]+)/?'
 
     @staticmethod
     def validate(url):
@@ -25,7 +27,12 @@ class Validator:
         if insta_match:
             return "Instagram", insta_match.group(1)
 
-        return "Unknown", None
+        fb_match = re.match(Validator.facebook_pattern, url)
+        if fb_match:
+            return "Facebook", fb_match.group(2)
+
+        return "Invalid URL", None
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -48,7 +55,7 @@ def api():
             print(response.text)
             return jsonify(response.json())
         except requests.exceptions.RequestException as e:
-            return jsonify({'error': True, 'message': 'Invalid Url', 'error': response.text}), 500
+            return jsonify({'error': True, 'message': 'Invalid Url', 'error_mssage': response.text}), 500
     
     elif source == "TikTok Video":
         if item_id:
@@ -56,6 +63,15 @@ def api():
             return jsonify({'success': True, 'data': data})
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
+    
+    elif source == "Facebook":
+        if item_id:
+            data = Facebook.getVideo(url)
+            if 'error' in data:
+                return jsonify({'error': True, 'message': 'Invalid Url', 'error_mssage': data}), 500
+            return jsonify({'success': True, 'data': data})
+        else:
+            return jsonify({'error': True, 'message': 'Invalid Facebook URL'}), 400
     
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
 
