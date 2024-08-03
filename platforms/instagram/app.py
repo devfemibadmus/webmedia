@@ -2,7 +2,7 @@ from flask import Flask, request, abort, jsonify
 from bot import Instagram
 
 app = Flask(__name__)
-ALLOWED_IPS = {'34.123.29.121'}
+ALLOWED_IPS = {'34.45.139.151'}
 
 instagram = None
 application = app
