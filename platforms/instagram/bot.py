@@ -23,6 +23,8 @@ class Instagram:
         self.browser = webdriver.Edge(service=service, options=self.edge_options)
         self.browser.set_script_timeout(50)
 
+        self.graphql = "https://www.instagram.com/graphql/query/"
+
         print("Opening Instagram homepage...")
         self.browser.get('https://www.instagram.com')
         self.wait_for_page_load()
@@ -128,6 +130,8 @@ class Instagram:
                     "display_url": node["display_url"],
                     "is_video": "video_url" in data
                 })
+                if node['display_resources']:
+                    media['display_url'] = node['display_resources'][-1]
         elif "video_url" in data:
                 media.append({
                     "id": data["id"],
@@ -163,6 +167,8 @@ class Instagram:
                 },
                 'media': self.get_slide_media(item),
             }
+            if item['display_resources']:
+                data_info['content']['cover'] = item['display_resources'][-1]
             if item['is_video']:
                 data_info['content'].update({
                     'views': item['video_view_count'],
@@ -229,8 +235,10 @@ class Instagram:
         except Exception as e:
             return f"Error: {e}"
 
+
 if __name__ == "__main__":
     print("Starting Instagram bot...")
     insta_bot = Instagram()
     data = insta_bot.getData('C8UahW1Nx4y', True)
     print(data)
+
