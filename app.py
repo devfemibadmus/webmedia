@@ -56,8 +56,8 @@ def api():
         return jsonify({'success': True, 'data': data}), 200
     
     elif source == "Instagram":
+        response = requests.get('http://35.226.151.94/instagram/', params={'item_id': item_id, 'cut': cut})
         try:
-            response = requests.get('http://35.226.151.94/instagram/', params={'item_id': item_id, 'cut': cut})
             return jsonify(response.json()), 200
         except requests.exceptions.RequestException as e:
             return jsonify({'error': True, 'message': 'server error', 'error_message': response.text}), 500
