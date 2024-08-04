@@ -39,6 +39,13 @@
      loadingMessage.textContent = "Starting"
      loadingMessage.style.color = "grey"
      loading.style.display = "inline"
+     loading.style.color = "grey"
+
+     if(url.includes("facebook")){
+        loadingMessage.textContent = "You need to use the Media Saver app to download facebook videos"
+        loadingMessage.style.color = "red"
+        loading.style.color = "red"
+     }
  
      fetch('/webmedia/api/', {
              method: 'POST',
@@ -61,13 +68,19 @@
                      tiktokContentManager.setMusic(data.music);
                      tiktokContentManager.setAuthor(data.author);
                      tiktokContentManager.setVideos(data.videos);
-                 }else{
+                     console.log(data.platform)
+                 }else if(data.platform == 'instagram'){
                      const instagramContentManager= new InstagramContentManager(scrollableContainer, saveId)
                      instagramContentManager.setContent(data.content)
                      instagramContentManager.setAuthor(data.author)
                      instagramContentManager.setMedia(data.media)
                      console.log(data.platform)
-                 }
+                 }else if(data.platform == 'facebook'){
+                    loadingMessage.textContent = "You need to use the Media Saver app to download facebook videos\n\n"+JSON.stringify(data)
+                    loadingMessage.style.color = "red"
+                    loading.style.color = "red"
+                    console.log(data.platform)
+                }
              }
          })
          .catch(error => {
