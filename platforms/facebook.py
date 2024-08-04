@@ -25,17 +25,17 @@ class Facebook:
             'User-Agent': self.user_agent
         }
 
-    def getVideo(self, link):
+    def getVideo(self, url):
         try:
-            resp = requests.get(link, headers=self.headers)
+            resp = requests.get(url, headers=self.headers)
             resp.raise_for_status()
         except requests.RequestException as e:
             return f"error {e}"
 
         try:
-            link = resp.url.split('?')[0]
+            url = resp.url.split('?')[0]
             resp_text = resp.text
-            splits = link.split('/')
+            splits = url.split('/')
             video_id = ''
             for ids in splits:
                 if ids.isdigit():
@@ -60,11 +60,11 @@ class Facebook:
             return f"error {e}"
 
         try:
-            video_link = resp_text.split('"representation_id":"{}"'.format(sources[0]))[
+            video_url = resp_text.split('"representation_id":"{}"'.format(sources[0]))[
                 1].split('"base_url":"')[1].split('"')[0].replace('\\', '')
-            audio_link = resp_text.split('"representation_id":"{}"'.format(sources[1]))[
+            audio_url = resp_text.split('"representation_id":"{}"'.format(sources[1]))[
                 1].split('"base_url":"')[1].split('"')[0].replace('\\', '')
         except Exception as e:
             return f"error {e}"
 
-        return {"audio_link": audio_link, "video_link": video_link}
+        return {"audio_url": audio_url, "video_url": video_url, "platform": "facebook"}
