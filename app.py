@@ -10,8 +10,8 @@ application = app
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
     tiktok_photo_pattern = r'tiktok\.com/.*/photo/(\d+)'
-    facebook_pattern = r'facebook\.com/.*/(?:r|v|reel|videos|shar/v)/([A-Za-z0-9_-]+)/?'
     instagram_pattern = r'instagram\.com/(?:p|reel|tv)/([A-Za-z0-9_-]+)/?'
+    facebook_pattern = r"(https?:\/\/)?(www\.|web\.)?facebook\.com\/(share\/[vr]\/\w+|[^\/]+\/videos\/\d+\/?|reel\/\d+)"
 
     @staticmethod
     def validate(url):
@@ -27,9 +27,8 @@ class Validator:
         if insta_match:
             return "Instagram", insta_match.group(1)
 
-        fb_match = re.match(Validator.facebook_pattern, url)
-        if fb_match:
-            return "Facebook", fb_match.group(2)
+        if re.match(Validator.facebook_pattern, url) is not None:
+            return "Facebook", "Facebook"
 
         return "Invalid URL", None
 
@@ -48,30 +47,38 @@ def api():
         return jsonify({'error': True, 'message': 'URL is required'}), 400
 
     source, item_id = Validator.validate(url)
+
+    if source == "Facebook":
+        facebook =Facebook()
+        data = facebook.getVideo(url)
+        if "error" in data:
+            return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+        return jsonify({'success': True, 'data': data}), 200
     
-    if source == "Instagram":
+    elif source == "Instagram":
         try:
             response = requests.get('http://35.226.151.94/instagram/', params={'item_id': item_id, 'cut': cut})
-            print(response.text)
-            return jsonify(response.json())
+            return jsonify(response.json()), 200
         except requests.exceptions.RequestException as e:
-            return jsonify({'error': True, 'message': 'Invalid Url', 'error_mssage': response.text}), 500
+            return jsonify({'error': True, 'message': 'server error', 'error_message': response.text}), 500
     
     elif source == "TikTok Video":
         if item_id:
             data = TikTok.get_videos(url, item_id, cut)
-            return jsonify({'success': True, 'data': data})
+            if "error" in data:
+                return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+            return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
     
-    elif source == "Facebook":
+    elif source == "TikTok Photo":
         if item_id:
-            data = Facebook.getVideo(url)
-            if 'error' in data:
-                return jsonify({'error': True, 'message': 'Invalid Url', 'error_mssage': data}), 500
-            return jsonify({'success': True, 'data': data})
+            data = TikTok.get_images(url, item_id, cut)
+            if "error" in data:
+                return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+            return jsonify({'success': True, 'data': data}), 200
         else:
-            return jsonify({'error': True, 'message': 'Invalid Facebook URL'}), 400
+            return jsonify({'error': True, 'message': 'Invalid TikTok Photo URL'}), 400
     
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
 

@@ -1,4 +1,4 @@
-import requests
+import requests, json
 
 class TikTok:
     tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
@@ -110,6 +110,8 @@ class TikTok:
             return f'Error: {e}'
         
         try:
+            with open("tik.json", "w", encoding="utf-8") as file:
+                json.dump(data, file, indent=4, separators=(',', ': '))
             item = data['itemInfo']['itemStruct']
 
             if not item:
