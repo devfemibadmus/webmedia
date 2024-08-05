@@ -22,8 +22,8 @@ def nigga():
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
     if item_id:
         data = instagram.getData(item_id, cut)
-        if isinstance(data, dict):  # Check if data is a dictionary
-            if 'platform' in data:  # Check if 'platform' key exists in data
+        if isinstance(data, dict):
+            if 'platform' in data:
                 return jsonify({'success': True, 'data': data})
             else:
                 return jsonify({'error': True, 'message': 'Platform not found in data', 'data': data})

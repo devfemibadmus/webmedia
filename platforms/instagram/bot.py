@@ -124,14 +124,15 @@ class Instagram:
         if "edge_sidecar_to_children" in data and "edges" in data["edge_sidecar_to_children"]:
             for edge in data["edge_sidecar_to_children"]["edges"]:
                 node = edge["node"]
-                media.append({
+                media_item = {
                     "id": node["id"],
                     "shortcode": node["shortcode"],
                     "display_url": node["display_url"],
                     "is_video": "video_url" in data
-                })
+                }
                 if node['display_resources']:
-                    media['display_url'] = node['display_resources'][-1]
+                    media_item['display_url'] = node['display_resources'][-1]['src']
+                media.append(media_item)
         elif "video_url" in data:
                 media.append({
                     "id": data["id"],
@@ -168,7 +169,7 @@ class Instagram:
                 'media': self.get_slide_media(item),
             }
             if item['display_resources']:
-                data_info['content']['cover'] = item['display_resources'][-1]
+                data_info['content']['cover'] = item['display_resources'][-1]['src']
             if item['is_video']:
                 data_info['content'].update({
                     'views': item['video_view_count'],
