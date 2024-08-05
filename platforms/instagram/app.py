@@ -17,14 +17,18 @@ def before_any_request():
         instagram = Instagram()
 
 @app.route('/', methods=['GET', 'POST'])
-def hello_world():
+def nigga():
     item_id = request.form.get('item_id') if request.method == 'POST' else request.args.get('item_id')
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
     if item_id:
         data = instagram.getData(item_id, cut)
-        if data['platform']:
-            return jsonify({'success': True, 'data': data})
-        return jsonify({'error': True, 'message': data, 'kk':'kk'})
+        if isinstance(data, dict):  # Check if data is a dictionary
+            if 'platform' in data:  # Check if 'platform' key exists in data
+                return jsonify({'success': True, 'data': data})
+            else:
+                return jsonify({'error': True, 'message': 'Platform not found in data', 'data': data})
+        else:
+            return jsonify({'error': True, 'message': 'Invalid data format', 'data': data})
     else:
         return jsonify({'success': False, 'error': 'item_id not provided'}), 404
 
