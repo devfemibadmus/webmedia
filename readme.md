@@ -2,7 +2,18 @@
 
 ## Overview
 
-**WEBMEDIA** [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend to save videos, images and audio from web currently support the social media only. It uses [Selenium](https://github.com/SeleniumHQ/selenium) for web scraping and in other form it uses predefine method seen from network. (onGoing)
+**WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from the web. Currently supports social media platforms only. It performs web scraping and uses predefined methods observed from network traffic.
+
+
+## Dependencies
+
+- **[Selenium](https://github.com/SeleniumHQ/selenium)**: Primarily used for Instagram (av/s 1.1604s). It's capable of supporting other platforms as well and performs efficiently, but optimization is key.
+
+- **[Requests](https://github.com/psf/requests)**: Used for TikTok and Facebook.
+
+- **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video rendering on web 
+
+- **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for image rendering on web
 
 
 ## Features
@@ -25,12 +36,12 @@
 |website| status |
 |--|--|
 | TikTok Videos |✅|
+| TikTok Photos |❌|
+| Facebook Videos |✅|
 | Instagram Reels |✅|
 | Instagram Photos |✅|
-| Instagram Posts |✅|
-| TikTok Photos |❌|
-| Facebook|❌|
-| YouTube|❌|
+| Instagram Videos |✅|
+| YouTube |❌|
 
 
 ### API
