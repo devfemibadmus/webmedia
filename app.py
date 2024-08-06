@@ -2,10 +2,13 @@ import requests, re
 from datetime import datetime
 from platforms.tiktok import TikTok
 from platforms.facebook import Facebook
+from platforms.instagram import Instagram
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__, static_folder='website/static', template_folder='website')
 application = app
+
+instagram = None
 
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
@@ -31,7 +34,6 @@ class Validator:
             return "Facebook", "Facebook"
 
         return "Invalid URL", None
-
 
 @app.route('/', methods=['GET'])
 def home():
@@ -82,10 +84,16 @@ def api():
     
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
 
+@app.before_request
+def before_any_request():
+    print('remote address: ', request.remote_addr)
+    global instagram
+    if not instagram:
+        instagram = Instagram()
+
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("home.html")
-
 
 if __name__ == '__main__':
     app.run(debug=True)
