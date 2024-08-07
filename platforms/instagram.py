@@ -128,13 +128,13 @@ class Instagram:
                     "id": node["id"],
                     "shortcode": node["shortcode"],
                     "display_url": node["display_url"],
-                    "is_video": node["is_video"]
+                    "is_video": 'video_url' in node
                 }
-                if node['display_resources']:
+                if 'display_resources' in node:
                     media_item.update({
                         'display_url': node['display_resources'][-1]['src']
                     })
-                if node['video_url']:
+                if 'video_url' in node:
                     media_item.update({
                         'display_url': node['video_url'],
                         'play': node['video_play_count'],
