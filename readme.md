@@ -101,13 +101,13 @@
    - Install the latest matching version of Microsoft Edge:
 
      ```bash
-     sudo apt install microsoft-edge-stable=123.0.2420.53-1
+     sudo apt install microsoft-edge-stable=123.0.2420.97-1
      ```
 
    - Download the matching version of Edge WebDriver and install it:
 
      ```bash
-     sudo wget https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/123.0.2420.53/edgedriver_linux64.zip
+     sudo wget https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/123.0.2420.97/edgedriver_linux64.zip
      unzip edgedriver_linux64.zip
      sudo mv msedgedriver /usr/local/bin/
      ```
