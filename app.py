@@ -62,11 +62,9 @@ def api():
             data = instagram.getData(item_id, cut)
             if isinstance(data, dict):
                 if 'platform' in data:
-                    return jsonify({'success': True, 'data': data})
-                else:
-                    return jsonify({'error': True, 'message': 'Platform not found in data', 'data': data})
+                    return jsonify({'success': True, 'data': data}), 200
             else:
-                return jsonify({'error': True, 'message': 'Server error', 'data': data})
+                return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
         else:
             return jsonify({'success': False, 'error': 'Post Id not provided'}), 404
     

@@ -18,7 +18,7 @@ class Instagram:
         self.edge_options.add_argument("--headless")
         self.edge_options.add_argument("--mute-audio")
         self.edge_options.add_argument("--disable-gpu")
-        service = Service(os.path.join(BASE_DIR, 'instagram/msedgedriver'))
+        service = Service(os.path.join(BASE_DIR, 'msedgedriver'))
         self.edge_options.add_experimental_option('excludeSwitches', ['enable-logging'])
         self.browser = webdriver.Edge(service=service, options=self.edge_options)
         self.browser.set_script_timeout(50)
@@ -224,8 +224,8 @@ class Instagram:
                     resolve(data);
         
                   }} catch (e) {{
-                    console.error(`Error: Quick Instagram Outdated Error: ${{e}}`);
-                    reject(new Error('Error: Quick Instagram Outdated.'));
+                    console.error(e.message);
+                    reject(new Error(e.message));
                   }}
             }});
             """
