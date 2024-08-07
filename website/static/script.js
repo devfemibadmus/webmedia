@@ -332,7 +332,7 @@
              contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
  
              for (const key in mediaData) {
-                 if (mediaData.hasOwnProperty(key) && key !== "display_url" && key !== "id") {
+                 if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "display_url" && key !== "id") {
                      const spanKey = document.createElement('span');
                      spanKey.className = 'key';
                      spanKey.textContent = key + ': ';

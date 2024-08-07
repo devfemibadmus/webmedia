@@ -128,12 +128,20 @@ class Instagram:
                     "id": node["id"],
                     "shortcode": node["shortcode"],
                     "display_url": node["display_url"],
-                    "is_video": "video_url" in data
+                    "is_video": node["is_video"]
                 }
                 if node['display_resources']:
-                    media_item['display_url'] = node['display_resources'][-1]['src']
+                    media_item.update({
+                        'display_url': node['display_resources'][-1]['src']
+                    })
+                if node['video_url']:
+                    media_item.update({
+                        'display_url': node['video_url'],
+                        'play': node['video_play_count'],
+                        'views': node['video_view_count'],
+                    })
                 media.append(media_item)
-        elif "video_url" in data:
+        if "video_url" in data:
                 media.append({
                     "id": data["id"],
                     "shortcode": data["shortcode"],
