@@ -58,11 +58,17 @@ def api():
         return jsonify({'success': True, 'data': data}), 200
     
     elif source == "Instagram":
-        response = requests.get('http://35.226.151.94/instagram/', params={'item_id': item_id, 'cut': cut})
-        try:
-            return jsonify(response.json()), 200
-        except requests.exceptions.RequestException as e:
-            return jsonify({'error': True, 'message': 'server error', 'error_message': response.text}), 500
+        if item_id:
+            data = instagram.getData(item_id, cut)
+            if isinstance(data, dict):
+                if 'platform' in data:
+                    return jsonify({'success': True, 'data': data})
+                else:
+                    return jsonify({'error': True, 'message': 'Platform not found in data', 'data': data})
+            else:
+                return jsonify({'error': True, 'message': 'Server error', 'data': data})
+        else:
+            return jsonify({'success': False, 'error': 'Post Id not provided'}), 404
     
     elif source == "TikTok Video":
         if item_id:
