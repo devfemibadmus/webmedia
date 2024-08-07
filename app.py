@@ -60,13 +60,11 @@ def api():
     elif source == "Instagram":
         if item_id:
             data = instagram.getData(item_id, cut)
-            if isinstance(data, dict):
-                if 'platform' in data:
-                    return jsonify({'success': True, 'data': data}), 200
-            else:
+            if "error" in data:
                 return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+            return jsonify({'success': True, 'data': data}), 200
         else:
-            return jsonify({'success': False, 'error': 'Post Id not provided'}), 404
+            return jsonify({'success': False, 'error': 'Invalid Instagram video URL'}), 400
     
     elif source == "TikTok Video":
         if item_id:
