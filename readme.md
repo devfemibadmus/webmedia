@@ -2,7 +2,7 @@
 
 ## Overview
 
-**WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from the web. Currently supports social media platforms only. It performs web scraping and uses predefined methods observed from network traffic.
+**WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from Intagram. Supporting Instagram, TikTok, Facebok. It performs web scraping and uses predefined methods observed from network traffic.
 
 
 ## Dependencies
