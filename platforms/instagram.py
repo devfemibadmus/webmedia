@@ -32,6 +32,9 @@ class Instagram:
         if not self.login_with_cookies():
             self.login()
 
+    def close(self):
+        self.browser.quit()
+
     def wait_for_page_load(self):
         try:
             print("Waiting for the page to load...")
@@ -223,10 +226,6 @@ class Instagram:
                       }},
                       body: JSON.stringify({instagram_data})
                     }});
-  
-                    if (!response.ok) {{
-                      throw new Error('Network response was not ok');
-                    }}
   
                     const data = await response.json();
                     resolve(data);
