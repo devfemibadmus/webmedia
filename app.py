@@ -35,10 +35,6 @@ class Validator:
 
         return "Invalid URL", None
 
-@app.route('/', methods=['GET'])
-def home():
-    return render_template("home.html")
-
 @app.route('/webmedia/api/', methods=['POST', 'GET'])
 @app.route('/api/', methods=['POST', 'GET'])
 def api():
@@ -54,14 +50,14 @@ def api():
         facebook =Facebook()
         data = facebook.getVideo(url)
         if "error" in data:
-            return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+            return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
         return jsonify({'success': True, 'data': data}), 200
     
     elif source == "Instagram":
         if item_id:
             data = instagram.getData(item_id, cut)
-            if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+            if "error" in data or "require_login" in data:
+                return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'success': False, 'error': 'Invalid Instagram video URL'}), 400
@@ -70,7 +66,7 @@ def api():
         if item_id:
             data = TikTok.get_videos(url, item_id, cut)
             if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+                return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
@@ -79,12 +75,32 @@ def api():
         if item_id:
             data = TikTok.get_images(url, item_id, cut)
             if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'data': data, 'error_message': data}), 500
+                return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok Photo URL'}), 400
     
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
+
+@app.route('/webmedia/sleep', methods=['GET'])
+@app.route('/sleep', methods=['GET'])
+def sleep():
+    global instagram
+    server_ip = request.host.split(':')[0]
+    client_ip = request.remote_addr
+    
+    if client_ip != server_ip:
+        return jsonify(success=False, error="Unauthorized access from IP: {}".format(client_ip)), 401
+    try:
+        if instagram:
+            instagram.close()
+            instagram = None
+            return jsonify(success=True, message="Instagram instance closed and put to sleep."), 200
+        else:
+            return jsonify(success=False, message="No active Instagram instance to close."), 404
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify(success=False, error="An error occurred while closing Instagram instance: {}".format(str(e))), 500
 
 @app.before_request
 def before_any_request():
@@ -93,6 +109,10 @@ def before_any_request():
     if not instagram:
         instagram = Instagram()
 
+@app.route('/close', methods=['GET'])
+def home():
+    return render_template("home.html")
+    
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("home.html")
