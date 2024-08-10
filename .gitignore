@@ -2,4 +2,3 @@ venv
 *__pycache__
 msedgedriver
 cookies.pkl
-sleep.py

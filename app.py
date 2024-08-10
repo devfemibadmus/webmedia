@@ -1,8 +1,8 @@
 import requests, re
-from datetime import datetime
 from flask_limiter import Limiter
 from platforms.tiktok import TikTok
 from platforms.facebook import Facebook
+from datetime import datetime, timedelta
 from platforms.instagram import Instagram
 from flask_limiter.util import get_remote_address
 from flask import Flask, render_template, request, jsonify
@@ -98,7 +98,7 @@ def api():
 @app.route('/webmedia/sleep', methods=['GET'])
 @app.route('/sleep', methods=['GET'])
 def sleep():
-    global request_timestamps
+    global request_timestamps, instagram
     now = datetime.now()
     request_timestamps = [timestamp for timestamp in request_timestamps if now - timestamp < RATE_LIMIT_PERIOD]
     
@@ -122,6 +122,14 @@ def before_any_request():
     global instagram
     if not instagram:
         instagram = Instagram()
+
+@app.errorhandler(429)
+def ratelimit_error(e):
+    return jsonify({
+        'error': True,
+        'message': 'Too Many Requests',
+        'details': 'You have exceeded the rate limit. Please wait a minute and try again.'
+    }), 429
 
 @app.route('/', methods=['GET'])
 def home():
