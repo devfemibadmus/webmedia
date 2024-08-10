@@ -7,7 +7,7 @@
 
 ## Dependencies
 
-- **[Selenium](https://github.com/SeleniumHQ/selenium)**: Primarily used for Instagram (av/s 1.1604s). It's capable of supporting other platforms as well and performs efficiently, but optimization is key.
+- **[Selenium](https://github.com/SeleniumHQ/selenium)**: Primarily used for Instagram (max 3.5s). It's capable of supporting other platforms as well and performs efficiently, but optimization is key.
 
 - **[Requests](https://github.com/psf/requests)**: Used for TikTok and Facebook.
 
