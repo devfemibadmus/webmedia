@@ -44,8 +44,22 @@
 | YouTube |❌|
 
 
-### API
+### ! API Checkout Sample
 
+Instagram
+```http
+https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.instagram.com/p/C-TMvc4yQh6/?img_index=3
+```
+
+Tiktok
+```http
+https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.tiktok.com/@devfemibadmus/video/7390912680883899654
+```
+
+Facebook
+```http
+https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/
+```
 
 1. Check out web version to know how it works https://devfemibadmus.blackstackhub.com/webmedia
 
@@ -388,3 +402,9 @@ def save_cookies(self):
 | Screenshot | Screenshot |
 |-------------------------------------------------------------|-------------------------------------------------------------|
 | ![post and video quality](conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true) | ![author and musicc](conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true) |
+
+
+#### Spam Here
+
+Got to https://devfemibadmus.blackstackhub.com/webmedia/sleep
+
