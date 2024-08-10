@@ -109,10 +109,10 @@ def before_any_request():
     if not instagram:
         instagram = Instagram()
 
-@app.route('/close', methods=['GET'])
+@app.route('/', methods=['GET'])
 def home():
     return render_template("home.html")
-    
+
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template("home.html")
