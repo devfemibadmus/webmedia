@@ -36,15 +36,14 @@ class TikTok:
             response.raise_for_status()
             data = response.json()
         except Exception as e:
-            return f'Error: {e}'
+            return {'error': True, 'message': e}
         
         try:
             item_list = data.get('itemList', [])
             found_items = [item for item in item_list if item['id'] == item_id]
 
             if not found_items:
-                print(f'Error: Quick Tiktok leaked changed\n{data}')
-                return f'Error: Quick Tiktok leaked changed.'
+                return {'error': True, 'message': f'item not found in data \n{data}.'}
             
             item = found_items[0]
 
@@ -96,7 +95,7 @@ class TikTok:
             
             return video_info
         except Exception as e:
-            return f'Error: {e}'
+            return {'error': True, 'message': e}
 
     @staticmethod
     def get_images(url, item_id, cut):    
@@ -107,7 +106,7 @@ class TikTok:
             response.raise_for_status()
             data = response.json()
         except Exception as e:
-            return f'Error: {e}'
+            return {'error': True, 'message': e}
         
         try:
             with open("tik.json", "w", encoding="utf-8") as file:
@@ -115,8 +114,7 @@ class TikTok:
             item = data['itemInfo']['itemStruct']
 
             if not item:
-                print(f'Error: Quick Tiktok leaked changed\n{data}')
-                return f'Error: Quick Tiktok leaked changed.'
+                return {'error': True, 'message': f'item not found in data \n{data}.'}
 
             if not cut:
                 return item
@@ -162,6 +160,6 @@ class TikTok:
             
             return photo_info
         except Exception as e:
-            return f'Error: {e}'
+            return {'error': True, 'message': e}
 
 

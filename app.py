@@ -63,23 +63,23 @@ def api():
         facebook =Facebook()
         data = facebook.getVideo(url)
         if "error" in data:
-            return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
+            return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
         return jsonify({'success': True, 'data': data}), 200
     
     elif source == "Instagram":
         if item_id:
             data = instagram.getData(item_id, cut)
             if "error" in data or "require_login" in data:
-                return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
+                return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
-            return jsonify({'success': False, 'error': 'Invalid Instagram video URL'}), 400
+            return jsonify({'error': True, 'error': 'Invalid Instagram video URL'}), 400
     
     elif source == "TikTok Video":
         if item_id:
             data = TikTok.get_videos(url, item_id, cut)
             if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
+                return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
@@ -88,7 +88,7 @@ def api():
         if item_id:
             data = TikTok.get_images(url, item_id, cut)
             if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'error_message': data}), 500
+                return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok Photo URL'}), 400

@@ -157,8 +157,7 @@ class Instagram:
         try:
             item = data['data']['xdt_shortcode_media']
             if not item:
-                print(f'Error: Quick Instagram leaked changed\n{data}')
-                return f'Error: Quick Instagram leaked changed.'
+                return {'error': True, 'message': f'item not found in data \n{data}.'}
             # print("item['shortcode']: ", item['shortcode'])
             data_info = {
                 'platform':'instagram',
@@ -189,7 +188,7 @@ class Instagram:
         
             return data_info
         except Exception as e:
-            return {'error': True, 'message': f'Error: {e}.'}
+            return {'error': True, 'message': e}
 
     def getData(self, item_id, cut):
         instagram_data = {
@@ -241,7 +240,7 @@ class Instagram:
             data['platform'] = 'instagram'
             return data if not cut else self.get_instagram_data(data)
         except Exception as e:
-            return f"Error: {e}"
+            return {'error': True, 'message': e}
 
 
 if __name__ == "__main__":

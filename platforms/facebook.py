@@ -30,7 +30,7 @@ class Facebook:
             resp = requests.get(url, headers=self.headers)
             resp.raise_for_status()
         except requests.RequestException as e:
-            return f"error {e}"
+            return {'error': True, 'message': e}
 
         try:
             url = resp.url.split('?')[0]
@@ -41,7 +41,7 @@ class Facebook:
                 if ids.isdigit():
                     video_id = ids
         except Exception as e:
-            return f"error {e}"
+            return {'error': True, 'message': e}
 
         try:
             target_video_audio_id = resp_text.split('"id":"{}"'.format(video_id))[1].split(
@@ -51,13 +51,13 @@ class Facebook:
                 target_video_audio_id = resp_text.split('"video_id":"{}"'.format(video_id))[1].split(
                     '"dash_prefetch_experimental":[')[1].split(']')[0].strip()
             except Exception as e:
-                return f"error {e}"
+                return {'error': True, 'message': e}
 
         try:
             list_str = "[{}]".format(target_video_audio_id)
             sources = json.loads(list_str)
         except json.JSONDecodeError as e:
-            return f"error {e}"
+            return {'error': True, 'message': e}
 
         try:
             video_url = resp_text.split('"representation_id":"{}"'.format(sources[0]))[
@@ -65,6 +65,6 @@ class Facebook:
             audio_url = resp_text.split('"representation_id":"{}"'.format(sources[1]))[
                 1].split('"base_url":"')[1].split('"')[0].replace('\\', '')
         except Exception as e:
-            return f"error {e}"
+            return {'error': True, 'message': e}
 
         return {"audio_url": audio_url, "video_url": video_url, "platform": "facebook"}
