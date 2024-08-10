@@ -1,14 +1,26 @@
 import requests, re
 from datetime import datetime
+from flask_limiter import Limiter
 from platforms.tiktok import TikTok
 from platforms.facebook import Facebook
 from platforms.instagram import Instagram
+from flask_limiter.util import get_remote_address
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__, static_folder='website/static', template_folder='website')
-application = app
+
+limiter = Limiter(
+    get_remote_address, 
+    app=app,
+    default_limits=[]
+)
+
+request_timestamps = []
+RATE_LIMIT = 2
+RATE_LIMIT_PERIOD = timedelta(minutes=8)
 
 instagram = None
+application = app
 
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
@@ -37,6 +49,7 @@ class Validator:
 
 @app.route('/webmedia/api/', methods=['POST', 'GET'])
 @app.route('/api/', methods=['POST', 'GET'])
+@limiter.limit("3 per minute")
 def api():
     url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
@@ -85,12 +98,13 @@ def api():
 @app.route('/webmedia/sleep', methods=['GET'])
 @app.route('/sleep', methods=['GET'])
 def sleep():
-    global instagram
-    server_ip = request.host.split(':')[0]
-    client_ip = request.remote_addr
+    global request_timestamps
+    now = datetime.now()
+    request_timestamps = [timestamp for timestamp in request_timestamps if now - timestamp < RATE_LIMIT_PERIOD]
     
-    if client_ip != server_ip:
-        return jsonify(success=False, error="Unauthorized access from IP: {}".format(client_ip)), 401
+    if len(request_timestamps) >= RATE_LIMIT:
+        return jsonify(success=False, error="Rate limit exceeded, try again later."), 429
+    request_timestamps.append(now)
     try:
         if instagram:
             instagram.close()
