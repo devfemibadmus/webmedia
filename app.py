@@ -16,7 +16,7 @@ limiter = Limiter(
 )
 
 request_timestamps = []
-RATE_LIMIT = 0
+RATE_LIMIT = 1
 RATE_LIMIT_PERIOD = timedelta(minutes=5)
 
 instagram = None
@@ -127,7 +127,7 @@ def ratelimit_error(e):
     return jsonify({
         'error': True,
         'message': 'Too Many Requests',
-        'details': 'You have exceeded the rate limit. Please wait a minute and try again.'
+        'details': 'Rate limit exceeded. Please wait a minute and try again.'
     }), 429
 
 @app.route('/', methods=['GET'])
