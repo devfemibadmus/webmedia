@@ -1,5 +1,107 @@
-import requests, json
+# v2.0
 
+import requests
+import json
+from bs4 import BeautifulSoup
+
+class TikTok:
+    def __init__(self, url, cut=None):
+        self.url = url
+        self.cut = cut
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            'Referer': 'https://www.tiktok.com/'
+        }
+        self.json_data = None
+    
+    def fetch_and_process(self):
+        response = requests.get(self.url, headers=self.headers)
+        if response.status_code != 200:
+            return {'error': True, 'message': f'Failed to fetch page content: {response.status_code}'}
+        html_content = response.text
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        body_content = soup.find('body')
+        if body_content is None:
+            return {'error': True, 'message': 'No <body> tag found.'}
+        script_tag = body_content.find('script', {'id': '__UNIVERSAL_DATA_FOR_REHYDRATION__'})
+        if script_tag is None:
+            return {'error': True, 'message': 'No <script> tag with ID \'__UNIVERSAL_DATA_FOR_REHYDRATION__\' found.'}
+        script_content = script_tag.string.strip()
+        
+        try:
+            self.json_data = json.loads(script_content)
+        except json.JSONDecodeError:
+            return {'error': True, 'message': 'The content of the script tag is not valid JSON.'}
+        
+        try:
+            self.json_data = self.json_data['__DEFAULT_SCOPE__']['webapp.video-detail']
+        except KeyError:
+            return {'error': True, 'message': 'No \'webapp.video-detail\' found in the JSON data.'}
+        
+        return self.json_data
+    
+    def cut_data(self, data):
+        if not data:
+            return {'error': True, 'message': 'No data to process.'}
+        try:
+            item = data['itemInfo']['itemStruct']
+            data['statusMsg'] == "ok"
+        except Exception as e:
+            return {'error': True, 'message': 'unable to get item from itemStruct'}
+
+        video_info = {
+            'platform': 'tiktok',
+            'is_video': True,
+            'content': {
+                'id': item['id'],
+                'desc': item.get('desc', 'N/A'),
+                'views': item['stats'].get('playCount', 0),
+                'likes': item['stats'].get('diggCount', 0),
+                'comments': item['stats'].get('commentCount', 0),
+                'saves': item['stats'].get('collectCount', 0),
+                'share': item['stats'].get('shareCount', 0),
+                'cover': item['video'].get('cover', 'N/A'),
+            },
+            'author': {
+                'name': item['author'].get('nickname', 'N/A'),
+                'username': item['author'].get('uniqueId', 'N/A'),
+                'verified': item['author'].get('verified', False),
+                'image': item['author'].get('avatarMedium', 'N/A'),
+                'bio': item['author'].get('signature', 'N/A')
+            },
+            'videos': [],
+            'music': {
+                'author': item['music'].get('authorName', 'N/A'),
+                'title': item['music'].get('title', 'N/A'),
+                'cover': item['music'].get('coverMedium', 'N/A'),
+                'duration': item['music'].get('duration', 'N/A'),
+                'src': item['music'].get('playUrl', 'N/A'),
+            }
+        }
+        bitrate_info = item['video'].get('bitrateInfo', [])
+        for i, quality_type in enumerate(bitrate_info):
+            key = f'quality_{i}'
+            video_info['videos'].append({
+                key: {
+                    'size': quality_type['PlayAddr'].get('DataSize', 'N/A'),
+                    'address': quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A',
+                }
+            })
+        
+        return video_info
+    
+    def get_videos(self):
+        data = self.fetch_and_process()
+        if self.cut:
+            return self.cut_data(data)
+        return data
+
+
+"""v1.0 depreciated
+
+import requests, json
 class TikTok:
     tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
     
@@ -45,8 +147,6 @@ class TikTok:
             found_items = [item for item in item_list if item['id'] == item_id]
 
             if not found_items:
-                for item in item_list:
-                    print(item['id'])
                 return {'error': True, 'message': 'item not found in data.'}
             
             item = found_items[0]
@@ -166,4 +266,4 @@ class TikTok:
         except Exception as e:
             return {'error': True, 'message': str(e)}
 
-
+"""

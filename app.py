@@ -15,12 +15,12 @@ limiter = Limiter(
     default_limits=[]
 )
 
-request_timestamps = []
 RATE_LIMIT = 1
 RATE_LIMIT_PERIOD = timedelta(minutes=5)
 
 instagram = None
 application = app
+request_timestamps = []
 
 class Validator:
     tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
@@ -34,9 +34,13 @@ class Validator:
         if video_match:
             return "TikTok Video", video_match.group(1)
 
+        """v1.0 depreciated
+
         photo_match = re.search(Validator.tiktok_photo_pattern, url)
         if photo_match:
             return "TikTok Photo", photo_match.group(1)
+        
+        """
 
         insta_match = re.match(Validator.instagram_pattern, url)
         if insta_match:
@@ -77,13 +81,16 @@ def api():
     
     elif source == "TikTok Video":
         if item_id:
-            data = TikTok.get_videos(url, item_id, cut)
+            tiktok = TikTok(url, cut)
+            data = tiktok.get_videos()
             if "error" in data:
                 return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
     
+    """v1.0 depreciated
+
     elif source == "TikTok Photo":
         if item_id:
             data = TikTok.get_images(url, item_id, cut)
@@ -92,6 +99,8 @@ def api():
             return jsonify({'success': True, 'data': data}), 200
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok Photo URL'}), 400
+    
+    """
     
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
 
