@@ -16,7 +16,7 @@ limiter = Limiter(
 )
 
 RATE_LIMIT = 2
-RATE_LIMIT_PERIOD = timedelta(minutes=8)
+RATE_LIMIT_PERIOD = timedelta(minutes=15)
 
 instagram = None
 application = app
@@ -111,7 +111,7 @@ def sleep():
     now = datetime.now()
     request_timestamps = [timestamp for timestamp in request_timestamps if now - timestamp < RATE_LIMIT_PERIOD]
     if len(request_timestamps) >= RATE_LIMIT:
-        return jsonify(success=False, error="You have exceeded the rate limit. Please wait 5 minutes and try again."), 429
+        return jsonify(success=False, error="You have exceeded the rate limit. Please wait 15 minutes and try again."), 429
     request_timestamps.append(now)
     try:
         if instagram:
