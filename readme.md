@@ -2,16 +2,16 @@
 
 ## Overview
 
-**WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from Intagram, TikTok, Facebok. It performs web scraping and uses predefined methods observed from network traffic.
+**WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from Intagram, TikTok, Facebok. It performs web scraping and uses predefined methods observed from network traffic
 
 
 ## Dependencies
 
-- **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but we running on [micro host](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types).
+- **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [micro instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
 
-- **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook.
+- **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook
 
-- **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in TikTok.
+- **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in TikTok
 
 - **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video rendering on web 
 
@@ -20,11 +20,11 @@
 
 ## Features
 
--  **Fetch Media**: Retrieves both private and public media files.
+-  **Fetch Media**: Retrieves both private and public media files
 
--  **Cut Data**: shrink and return normal data.
+-  **Cut Data**: shrink and return normal data
 
--  **Full Data**: Give full data containing all fields scraped from given platform.
+-  **Full Data**: Give full data containing all fields scraped from given platform
 
 
 ## Apps

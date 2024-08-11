@@ -15,8 +15,8 @@ limiter = Limiter(
     default_limits=[]
 )
 
-RATE_LIMIT = 1
-RATE_LIMIT_PERIOD = timedelta(minutes=5)
+RATE_LIMIT = 2
+RATE_LIMIT_PERIOD = timedelta(minutes=8)
 
 instagram = None
 application = app
@@ -127,6 +127,8 @@ def sleep():
 @app.before_request
 def before_any_request():
     print('remote address: ', request.remote_addr)
+    if request.path == '/sleep' or request.path == '/webmedia/sleep':
+        return
     global instagram
     if not instagram:
         instagram = Instagram()
