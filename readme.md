@@ -7,11 +7,11 @@
 
 ## Dependencies
 
-- **[Selenium](https://github.com/SeleniumHQ/selenium)**: Primarily for Instagram (4s). It's capable of supporting other platforms, but we running on [micro host](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types).
+- **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but we running on [micro host](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types).
 
-- **[Requests](https://github.com/psf/requests)**: Used in TikTok and Facebook.
+- **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook.
 
-- **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: Used in TikTok.
+- **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in TikTok.
 
 - **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video rendering on web 
 

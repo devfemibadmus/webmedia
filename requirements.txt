@@ -2,3 +2,4 @@ flask
 selenium
 requests
 Flask-Limiter
+beautifulsoup4
