@@ -2,16 +2,18 @@ import requests, json
 
 class TikTok:
     tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
+    
     video_tiktok = (
-        "https://www.tiktok.com/api/related/item_list/?WebIdLastTime=1722322797&aid=1988&app_language=en&app_name=tiktok_web"
+        "https://www.tiktok.com/api/related/item_list/?WebIdLastTime=1723329164&aid=1988&app_language=en&app_name=tiktok_web"
         "&browser_language=en-US&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20"
         "%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome"
-        "%2F126.0.0.0%20Safari%2F537.36%20Edg%2F126.0.0.0&channel=tiktok_web&clientABVersions=70508271%2C72213608%2C72313476"
-        "%2C72406134%2C72422413%2C72430804%2C72444800%2C72454782%2C72479966%2C72502691%2C72508984%2C72527745%2C72587086"
-        "%2C70405643%2C71057832%2C71200802%2C72445639&cookie_enabled=true&count=16&coverFormat=2&cursor=0&data_collection_enabled=false"
-        "&device_id=7397319992418551302&device_platform=web_pc&focus_state=true&from_page=video&history_len=2&isNonPersonalized=false"
-        "&is_fullscreen=false&is_page_visible=true&itemID={item_id}&language=en&odinId=7397319731298616326&os=windows&priority_region="
-        "&referer=&region=NG&screen_height=1080&screen_width=1920&tz_name=Africa%2FLagos&user_is_login=false&webcast_language=en"
+        "%2F127.0.0.0%20Safari%2F537.36%20Edg%2F127.0.0.0&channel=tiktok_web&clientABVersions=70508271%2C72135780%2C72213608"
+        "%2C72406134%2C72422414%2C72479967%2C72510488%2C72516803%2C72527747%2C72535241%2C72535252%2C72535588%2C72556483"
+        "%2C72563127%2C72587086%2C72607427%2C72620774%2C70405643%2C71057832%2C71200802%2C72445639&cookie_enabled=true&count=16"
+        "&coverFormat=2&cursor=0&data_collection_enabled=false&device_id=7401642326072165893&device_platform=web_pc&focus_state=true"
+        "&from_page=video&history_len=2&isNonPersonalized=false&is_fullscreen=false&is_page_visible=true&itemID={item_id}"
+        "&language=en&odinId=7401642099835978757&os=windows&priority_region=&referer=&region=NG&screen_height=1080&screen_width=1920"
+        "&tz_name=America%2FChicago&user_is_login=false&webcast_language=en"
     )
 
     image_tiktok = (
@@ -20,15 +22,15 @@ class TikTok:
         "%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome"
         "%2F126.0.0.0%20Safari%2F537.36%20Edg%2F126.0.0.0&channel=tiktok_web&clientABVersions=70508271%2C72213608%2C72313476"
         "%2C72406134%2C72408648%2C72430804%2C72444798%2C72454780%2C72478059%2C72479966%2C72502689%2C72508181%2C72508984"
-        "%2C72510487%2C72516935%2C72527746%2C70405643%2C71057832%2C71200802%2C72445639&cookie_enabled=true&count=16"
-        "&coverFormat=2&cursor=0&data_collection_enabled=false&device_id=7396261186336409094&device_platform=web_pc"
-        "&focus_state=true&from_page=video&history_len=3&isNonPersonalized=false&is_fullscreen=false&is_page_visible=true"
-        "&itemID={item_id}&language=en&odinId=7396260937399845894&os=windows&priority_region=&referer=&region=NG"
-        "&screen_height=1080&screen_width=1920&tz_name=Africa%2FLagos&user_is_login=false&webcast_language=en"
+        "%2C72510487%2C72516935%2C72527746%2C70405643%2C71057832%2C71200802%2C72445639"
+        "&coverFormat=2&cursor=0&data_collection_enabled=false&device_platform=web_pc"
+        "&focus_state=true&from_page=video&history_len=1&isNonPersonalized=false&is_fullscreen=false&is_page_visible=true"
+        "&itemID={item_id}&language=en&os=windows"
+        "&screen_height=1080&screen_width=1920&webcast_language=en"
     )
 
     @staticmethod
-    def get_videos(url, item_id, cut):    
+    def get_videos(url, item_id, cut):
         api_url = TikTok.video_tiktok.format(item_id=item_id)
         
         try:
@@ -36,14 +38,16 @@ class TikTok:
             response.raise_for_status()
             data = response.json()
         except Exception as e:
-            return {'error': True, 'message': e}
+            return {'error': True, 'message': str(e)}
         
         try:
             item_list = data.get('itemList', [])
             found_items = [item for item in item_list if item['id'] == item_id]
 
             if not found_items:
-                return {'error': True, 'message': f'item not found in data \n{data}.'}
+                for item in item_list:
+                    print(item['id'])
+                return {'error': True, 'message': 'item not found in data.'}
             
             item = found_items[0]
 
@@ -95,7 +99,7 @@ class TikTok:
             
             return video_info
         except Exception as e:
-            return {'error': True, 'message': e}
+            return {'error': True, 'message': str(e)}
 
     @staticmethod
     def get_images(url, item_id, cut):    
@@ -106,7 +110,7 @@ class TikTok:
             response.raise_for_status()
             data = response.json()
         except Exception as e:
-            return {'error': True, 'message': e}
+            return {'error': True, 'message': str(e)}
         
         try:
             with open("tik.json", "w", encoding="utf-8") as file:
@@ -114,7 +118,7 @@ class TikTok:
             item = data['itemInfo']['itemStruct']
 
             if not item:
-                return {'error': True, 'message': f'item not found in data \n{data}.'}
+                return {'error': True, 'message': 'item not found in data'}
 
             if not cut:
                 return item
@@ -160,6 +164,6 @@ class TikTok:
             
             return photo_info
         except Exception as e:
-            return {'error': True, 'message': e}
+            return {'error': True, 'message': str(e)}
 
 
