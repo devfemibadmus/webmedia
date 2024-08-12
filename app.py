@@ -79,7 +79,7 @@ def api():
                 return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
             return jsonify({'success': True, 'data': data}), 200
         else:
-            return jsonify({'error': True, 'error': 'Invalid Instagram video URL'}), 400
+            return jsonify({'error': True, 'message': 'Invalid Instagram video URL'}), 400
     
     elif source == "TikTok Video":
         if item_id:
@@ -113,7 +113,7 @@ def sleep():
     now = datetime.now()
     request_timestamps = [timestamp for timestamp in request_timestamps if now - timestamp < RATE_LIMIT_PERIOD]
     if len(request_timestamps) >= RATE_LIMIT:
-        return jsonify(success=False, error="You have exceeded the rate limit. Please wait 15 minutes and try again."), 429
+        return jsonify(error=True, message="Too Many Requests", details="You have exceeded the rate limit. Please wait 15 minutes and try again."), 429
     request_timestamps.append(now)
     try:
         if instagram:
@@ -121,10 +121,10 @@ def sleep():
             instagram = None
             return jsonify(success=True, message="Instagram instance closed and put to sleep."), 200
         else:
-            return jsonify(success=False, message="No active Instagram instance to close."), 404
+            return jsonify(error=True, message="Instagram instance already close.", details="No active Instagram instance to close."), 404
     except Exception as e:
         print(f"An error occurred: {e}")
-        return jsonify(success=False, error="An error occurred while closing Instagram instance: {}".format(str(e))), 500
+        return jsonify(error=True, message="An error occurred while closing Instagram instance", details=str(e)), 500
 
 @app.before_request
 def before_any_request():
