@@ -1,4 +1,5 @@
 import requests, re
+from threading import Lock
 from flask_limiter import Limiter
 from platforms.tiktok import TikTok
 from platforms.facebook import Facebook
@@ -18,6 +19,7 @@ limiter = Limiter(
 RATE_LIMIT = 2
 RATE_LIMIT_PERIOD = timedelta(minutes=15)
 
+lock = Lock()
 instagram = None
 application = app
 request_timestamps = []
@@ -130,8 +132,9 @@ def before_any_request():
     if request.path == '/sleep' or request.path == '/webmedia/sleep':
         return
     global instagram
-    if not instagram:
-        instagram = Instagram()
+    with lock:
+        if not instagram:
+            instagram = Instagram()
 
 @app.errorhandler(429)
 def ratelimit_error(e):
