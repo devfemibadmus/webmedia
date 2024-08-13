@@ -332,7 +332,7 @@
              contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
  
              for (const key in mediaData) {
-                 if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "display_url" && key !== "id") {
+                 if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
                      const spanKey = document.createElement('span');
                      spanKey.className = 'key';
                      spanKey.textContent = key + ': ';
@@ -354,9 +354,9 @@
  
              if (isVideo) {
                  mediaElement.controls = true;
-                 mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData.display_url)
+                 mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData.address)
              }else{
-                 mediaElement.src = 'https://corsproxy.io/?' + encodeURIComponent(mediaData.display_url);
+                 mediaElement.src = 'https://corsproxy.io/?' + encodeURIComponent(mediaData.address);
              }
  
              contentDiv.appendChild(mediaElement);

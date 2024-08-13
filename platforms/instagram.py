@@ -130,16 +130,17 @@ class Instagram:
                 media_item = {
                     "id": node["id"],
                     "shortcode": node["shortcode"],
-                    "display_url": node["display_url"],
+                    "address": node["display_url"],
+                    'cover': item['display_url'],
                     "is_video": 'video_url' in node
                 }
                 if 'display_resources' in node:
                     media_item.update({
-                        'display_url': node['display_resources'][-1]['src']
+                        'address': node['display_resources'][-1]['src'],
                     })
                 if 'video_url' in node:
                     media_item.update({
-                        'display_url': node['video_url'],
+                        'address': node['video_url'],
                         'play': node['video_play_count'],
                         'views': node['video_view_count'],
                     })
@@ -148,8 +149,9 @@ class Instagram:
                 media.append({
                     "id": data["id"],
                     "shortcode": data["shortcode"],
-                    "display_url": data["video_url"],
+                    "address": data["video_url"],
                     "is_video": data["is_video"],
+                    'cover': item['display_url'],
                 })
         return media
     
