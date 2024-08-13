@@ -131,7 +131,7 @@ class Instagram:
                     "id": node["id"],
                     "shortcode": node["shortcode"],
                     "address": node["display_url"],
-                    'cover': item['display_url'],
+                    'cover': node['display_url'],
                     "is_video": 'video_url' in node
                 }
                 if 'display_resources' in node:
@@ -151,7 +151,7 @@ class Instagram:
                     "shortcode": data["shortcode"],
                     "address": data["video_url"],
                     "is_video": data["is_video"],
-                    'cover': item['display_url'],
+                    'cover': data['display_url'],
                 })
         return media
     
