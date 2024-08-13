@@ -57,6 +57,8 @@ class Validator:
 @app.route('/api/', methods=['POST', 'GET'])
 @limiter.limit("3 per minute")
 def api():
+    print('remote address: ', request.remote_addr)
+
     url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
     
@@ -73,6 +75,12 @@ def api():
         return jsonify({'success': True, 'data': data}), 200
     
     elif source == "Instagram":
+
+        global instagram
+        with lock:
+            if not instagram:
+                instagram = Instagram()
+
         if item_id:
             data = instagram.getData(item_id, cut)
             if "error" in data or "require_login" in data:
@@ -125,16 +133,6 @@ def sleep():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify(error=True, message="An error occurred while closing Instagram instance", details=str(e)), 500
-
-@app.before_request
-def before_any_request():
-    print('remote address: ', request.remote_addr)
-    if request.path == '/sleep' or request.path == '/webmedia/sleep':
-        return
-    global instagram
-    with lock:
-        if not instagram:
-            instagram = Instagram()
 
 @app.errorhandler(429)
 def ratelimit_error(e):
