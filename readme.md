@@ -7,7 +7,7 @@
 
 ## Dependencies
 
-- **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [micro instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
+- **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
 
 - **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook
 
