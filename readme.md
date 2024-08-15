@@ -34,7 +34,7 @@
 -  **Mobile App**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) unlimited download + WhatsApp status saver
 
 
-## Checkout Sample !API
+## Checkout This
 
 #### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep
 
@@ -43,6 +43,30 @@
 #### Web https://devfemibadmus.blackstackhub.com/webmedia
 
 #### App https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver
+
+## API Endpoint
+
+- **Method**: `GET` or `POST`
+- **URL**: `https://devfemibadmus.blackstackhub.com/webmedia/api`
+- **Parameters**:
+  - `cut`: Optional
+  - `url`: Required
+
+**Status 200:**
+```json
+{
+  "success": true,
+  "data": {  }
+}
+```
+**Status 400, 404, 500, 502:**
+```json
+{
+  "error": true,
+  "message": "...",
+  "error_message": "..."
+}
+```
 
 #### Tiktok https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.tiktok.com/@devfemibadmus/video/7390912680883899654
 

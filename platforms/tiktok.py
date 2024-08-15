@@ -17,39 +17,39 @@ class TikTok:
     def fetch_and_process(self):
         response = requests.get(self.url, headers=self.headers)
         if response.status_code != 200:
-            return {'error': True, 'message': f'Failed to fetch page content: {response.status_code}'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': f'Failed to fetch page content: {response.status_code}'}, 502
         html_content = response.text
 
         soup = BeautifulSoup(html_content, 'html.parser')
         
         body_content = soup.find('body')
         if body_content is None:
-            return {'error': True, 'message': 'No <body> tag found.'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': 'No <body> tag found.'}, 502
         script_tag = body_content.find('script', {'id': '__UNIVERSAL_DATA_FOR_REHYDRATION__'})
         if script_tag is None:
-            return {'error': True, 'message': 'No <script> tag with ID \'__UNIVERSAL_DATA_FOR_REHYDRATION__\' found.'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': 'No <script> tag with ID \'__UNIVERSAL_DATA_FOR_REHYDRATION__\' found.'}, 502
         script_content = script_tag.string.strip()
         
         try:
             self.json_data = json.loads(script_content)
         except json.JSONDecodeError:
-            return {'error': True, 'message': 'The content of the script tag is not valid JSON.'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': 'The content of the script tag is not valid JSON.'}, 502
         
         try:
             self.json_data = self.json_data['__DEFAULT_SCOPE__']['webapp.video-detail']
         except KeyError:
-            return {'error': True, 'message': 'No \'webapp.video-detail\' found in the JSON data.'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': 'No \'webapp.video-detail\' found in the JSON data.'}, 502
         
         return self.json_data
     
     def cut_data(self, data):
         if not data:
-            return {'error': True, 'message': 'No data to process.'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': 'No data to process.'}, 502
         try:
             item = data['itemInfo']['itemStruct']
             data['statusMsg'] == "ok"
         except Exception as e:
-            return {'error': True, 'message': 'unable to get item from itemStruct'}
+            return {'error': True, 'message': 'something went wrong', 'error_message': 'unable to get item from itemStruct'}, 502
 
         video_info = {
             'platform': 'tiktok',
