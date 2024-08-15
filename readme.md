@@ -4,21 +4,19 @@
 
 **WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from Intagram, TikTok, Facebok. It performs web scraping and uses predefined methods observed from network traffic
 
+## 🛠️ Dependencies
 
-## Dependencies
+-  **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
 
-- **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
+-  **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook
 
-- **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook
+-  **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in TikTok ad Facebook
 
-- **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in TikTok
+-  **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video rendering on [web](https://devfemibadmus.blackstackhub.com/webmedia)
 
-- **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video rendering on web 
+-  **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for image rendering on [web](https://devfemibadmus.blackstackhub.com/webmedia)
 
-- **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for image rendering on web
-
-
-## Features
+## :star: Features
 
 -  **Fetch Media**: Retrieves both private and public media files
 
@@ -26,15 +24,13 @@
 
 -  **Full Data**: Give full data containing all fields scraped from given platform
 
-
-## Apps
+## :rocket: Apps
 
 -  **Web App**: [WebMedia](https://devfemibadmus.blackstackhub.com/webmedia) limited download(maybe)
 
 -  **Mobile App**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) unlimited download + WhatsApp status saver
 
-
-## Checkout This
+## :eyes: Checkout This
 
 #### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep
 
@@ -44,22 +40,23 @@
 
 #### App https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver
 
-## API Endpoint
+## 📖 API Endpoint
 
-- **Method**: `GET` or `POST`
-- **URL**: `https://devfemibadmus.blackstackhub.com/webmedia/api`
-- **Parameters**:
-  - `cut`: Optional
-  - `url`: Required
+-  **Method**: `GET` or `POST`
+-  **URL**: `https://devfemibadmus.blackstackhub.com/webmedia/api/`
+-  **Parameters**:
+-  `cut`: Optional
+-  `url`: Required
 
-**Status 200:**
+**Status 200 :white_check_mark:**
 ```json
 {
   "success": true,
-  "data": {  }
+  "data": { }
 }
 ```
-**Status 400, 404, 500, 502:**
+
+**Status 400, 404, 500, 502 :x:**
 ```json
 {
   "error": true,
