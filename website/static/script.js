@@ -36,16 +36,10 @@
      });
      saveSection.classList.add('active');
  
-     loadingMessage.textContent = "Starting"
+     loadingMessage.textContent = "Loading"
      loadingMessage.style.color = "grey"
      loading.style.display = "inline"
      loading.style.color = "grey"
-
-     if(url.includes("facebook")){
-        loadingMessage.textContent = "You need to use the Media Saver app to download facebook videos"
-        loadingMessage.style.color = "red"
-        loading.style.color = "red"
-     }
  
      fetch('/webmedia/api/', {
              method: 'POST',
@@ -76,9 +70,10 @@
                      instagramContentManager.setMedia(data.media)
                      console.log(data.platform)
                  }else if(data.platform == 'facebook'){
-                    loadingMessage.textContent = "You need to use the Media Saver app to download facebook videos\n\n"+JSON.stringify(data)
-                    loadingMessage.style.color = "red"
-                    loading.style.color = "red"
+                    const facebookContentManager= new FacebookContentManager(scrollableContainer, saveId)
+                    facebookContentManager.setContent(data.content)
+                    facebookContentManager.setAuthor(data.author)
+                    facebookContentManager.setMedia(data.media)
                     console.log(data.platform)
                 }
              }
@@ -333,6 +328,134 @@
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
+                     const spanKey = document.createElement('span');
+                     spanKey.className = 'key';
+                     spanKey.textContent = key + ': ';
+ 
+                     const spanValue = document.createElement('span');
+                     spanValue.className = key;
+                     spanValue.textContent = this.formatValue(mediaData[key]) + ' ';
+ 
+                     contentTitle.appendChild(spanKey);
+                     contentTitle.appendChild(spanValue);
+                 }
+             }
+ 
+             const isVideo = mediaData.is_video;
+             const mediaElement = isVideo ? document.createElement('video') : document.createElement('img');
+             mediaElement.className = 'productimg';
+             mediaElement.referrerPolicy = 'no-referrer';
+             mediaElement.crossOrigin = 'anonymous';
+ 
+             if (isVideo) {
+                 mediaElement.controls = true;
+                 mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData.address)
+             }else{
+                 mediaElement.src = 'https://corsproxy.io/?' + encodeURIComponent(mediaData.address);
+             }
+ 
+             contentDiv.appendChild(mediaElement);
+             contentDiv.append(contentTitle);
+             this.scrollableContainer.insertBefore(contentDiv, saveId.nextSibling);
+         });
+     }
+ 
+ }
+ 
+ class FacebookContentManager {
+     constructor(scrollableContainer, saveId) {
+         this.scrollableContainer = scrollableContainer;
+         this.saveId = saveId;
+     }
+ 
+     formatValue(value) {
+         return typeof value === 'number'
+             ? (value >= 1e6
+                 ? (value / 1e6).toFixed(1) + 'm'
+                 : value >= 1e3
+                 ? (value / 1e3).toFixed(1) + 'k'
+                 : value)
+             : value;
+     }
+ 
+     setContent(content) {
+         const contentDiv = document.createElement('div');
+         const contentTitle = document.createElement('p');
+         const contentCover = document.createElement('img');
+         contentDiv.className = 'container post';
+         contentTitle.className = 'title';
+         contentCover.className = 'productimg';
+ 
+         contentTitle.innerHTML = "<p class='key'>Post:</p>";
+ 
+         for (const key in content) {
+             if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
+                 const spanKey = document.createElement('span');
+                 spanKey.className = 'key';
+                 spanKey.textContent = key + ': ';
+ 
+                 const spanValue = document.createElement('span');
+                 spanValue.className = key;
+                 spanValue.textContent = this.formatValue(content[key]) + ' ';
+ 
+                 contentTitle.appendChild(spanKey);
+                 contentTitle.appendChild(spanValue);
+             }
+         }
+         contentCover.referrerPolicy = 'no-referrer';
+         contentCover.crossOrigin = 'anonymous';
+         contentCover.src = 'https://corsproxy.io/?' + encodeURIComponent(content.cover);
+ 
+         contentDiv.append(contentCover);
+         contentDiv.append(contentTitle);
+         this.scrollableContainer.insertBefore(contentDiv, this.saveId.nextSibling);
+     }
+ 
+     setAuthor(author) {
+         const authorDiv = document.createElement('div');
+         const authorTitle = document.createElement('p');
+         const authorCover = document.createElement('img');
+         authorDiv.className = 'container post';
+         authorTitle.className = 'title';
+         authorCover.className = 'productimg';
+ 
+         authorTitle.innerHTML = "<p class='key'>Author:</p>";
+ 
+         for (const key in author) {
+             if (author.hasOwnProperty(key) && key !== "image") {
+                 const spanKey = document.createElement('span');
+                 spanKey.className = 'key';
+                 spanKey.textContent = key + ': ';
+ 
+                 const spanValue = document.createElement('span');
+                 spanValue.className = key;
+                 spanValue.textContent = this.formatValue(author[key]) + ' ';
+ 
+                 authorTitle.appendChild(spanKey);
+                 authorTitle.appendChild(spanValue);
+             }
+         }
+ 
+         authorCover.referrerPolicy = 'no-referrer';
+         authorCover.crossOrigin = 'anonymous';
+         authorCover.src = 'https://corsproxy.io/?' + encodeURIComponent('https://storage.googleapis.com/blackstackhub/facebook.jpg');
+ 
+         authorDiv.append(authorCover);
+         authorDiv.append(authorTitle);
+         this.scrollableContainer.insertBefore(authorDiv, this.saveId.nextSibling);
+     }
+ 
+     setMedia(media) {
+ 
+         media.forEach(mediaData => {
+             const contentDiv = document.createElement('div');
+             const contentTitle = document.createElement('p');
+             contentDiv.className = 'container post';
+             contentTitle.className = 'title';
+             contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
+ 
+             for (const key in mediaData) {
+                 if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover") {
                      const spanKey = document.createElement('span');
                      spanKey.className = 'key';
                      spanKey.textContent = key + ': ';

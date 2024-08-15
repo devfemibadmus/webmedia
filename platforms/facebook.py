@@ -69,7 +69,7 @@ class Facebook:
                 if all(keyword in script.string for keyword in keywords):
                     json_data = json.loads(script.string)
                     data = get_nested_value(json_data, "data")
-                    owner = get_nested_value(json_data, "owner")
+                    owner = get_nested_value(json_data, "owner_as_page")
 
                     json_data['data'] = data
                     json_data['owner'] = owner
@@ -79,7 +79,7 @@ class Facebook:
                     break
 
             if data is None or json_data is None:
-                return {'error': True, 'message': 'post not found!'}
+                return {'error': True, 'message': 'post not found!', 'error_message': 'post not found!'}, 404
 
             if not cut:
                 return json_data
@@ -97,16 +97,20 @@ class Facebook:
                 },
                 "is_video": True,
                 "platform": "facebook",
-                "videos": [
-                    {"address": browser_native_hd_url},
-                    {"cover": preferred_thumbnail.get('image', {}).get('uri', None)},
+                "media": [
+                    {
+                        "is_video": True,
+                        "id": data.get('id', None),
+                        "address": browser_native_hd_url,
+                        "cover": preferred_thumbnail.get('image', {}).get('uri', None),
+                    },
                 ]
             }
 
-            return cut_data
+            return cut_data, 200
 
         except Exception as e:
-            return {'error': True, 'message': str(e)}
+            return {'error': True, 'message': 'something went wrong', 'error_message': str(e)}, 500
 
 if __name__ == "__main__":
     fa = Facebook()
