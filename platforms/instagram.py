@@ -188,7 +188,7 @@ class Instagram:
                     'play': item['video_play_count']
                 })
         
-            return data_info
+            return data_info, 200
         except Exception as e:
             return {'error': True, 'message': 'something went wrong', 'error_message': str(e)}, 500
 
@@ -240,7 +240,10 @@ class Instagram:
         try:
             data = self.browser.execute_script(js_script)
             data['platform'] = 'instagram'
-            return data if not cut else self.get_instagram_data(data)
+            if not cut:
+                return data, 200
+            data, status = self.get_instagram_data(data)
+            return data, status
         except Exception as e:
             return {'error': True, 'message': 'something went wrong', 'error_message': str(e)}, 500
 

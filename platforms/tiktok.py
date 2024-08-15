@@ -40,7 +40,7 @@ class TikTok:
         except KeyError:
             return {'error': True, 'message': 'something went wrong', 'error_message': 'No \'webapp.video-detail\' found in the JSON data.'}, 502
         
-        return self.json_data
+        return self.json_data, 200
     
     def cut_data(self, data):
         if not data:
@@ -90,13 +90,13 @@ class TikTok:
                 }
             })
         
-        return video_info
+        return video_info, 200
     
     def get_videos(self):
-        data = self.fetch_and_process()
+        data, status = self.fetch_and_process()
         if self.cut:
             return self.cut_data(data)
-        return data
+        return data, status
 
 
 """v1.0 depreciated
