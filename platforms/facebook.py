@@ -69,7 +69,33 @@ class Facebook:
                 if all(keyword in script.string for keyword in keywords):
                     json_data = json.loads(script.string)
                     data = get_nested_value(json_data, "data")
+                    desc = data.get('title', {}).get('text', None)
                     owner = get_nested_value(json_data, "owner_as_page")
+                    
+                    if owner is None:
+                        owner_main = get_nested_value(data, "owner")
+                        if owner_main is not None:
+                            owner = {'id': owner_main.get("id", None)}
+                    
+                    if desc is None:
+                        message = get_nested_value(data, "message")
+                        if message is not None:
+                            desc = message.get("text", None)
+                            data['title']['text'] = desc
+
+                    if browser_native_hd_url is None:
+                        representations = get_nested_value(json_data, "representations")
+                        if representations is None:
+                            representations = []
+                        deaf_media = {}
+                        for representation in representations:
+                            mime_type = representation.get("mime_type", "").lower()
+                            if mime_type and "video" in mime_type:
+                                deaf_media["video_url"] = representation.get('base_url')
+                            elif mime_type and "audio" in mime_type:
+                                deaf_media["audio_url"] = representation.get('base_url')
+                        browser_native_hd_url = deaf_media.get('video_url')
+                        json_data['deaf_media'] = deaf_media
 
                     json_data['data'] = data
                     json_data['owner'] = owner
@@ -82,7 +108,7 @@ class Facebook:
                 return {'error': True, 'message': 'post not found!', 'error_message': 'post not found!'}, 404
 
             if not cut:
-                return json_data
+                return json_data, 200
 
             cut_data = {
                 "author": owner,
@@ -106,6 +132,9 @@ class Facebook:
                     },
                 ]
             }
+            
+            if 'deaf_media' in json_data:
+                cut_data['deaf_media'] = json_data['deaf_media']
 
             return cut_data, 200
 
