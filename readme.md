@@ -78,6 +78,8 @@
 ![Facebook](insta%20conf/image%20copy%208.png?raw=true)
 
 
+### Authentication
+
 <details>
 <summary>Using Microsoft Edge on Debian VPS</summary>
 
@@ -130,8 +132,6 @@
      ```
 
 </details>
-
-### Authentication
 
 ![login with cokies](insta%20conf/image%20copy%205.png?raw=true)
 
