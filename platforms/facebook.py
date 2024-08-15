@@ -1,3 +1,121 @@
+# v2.0
+
+import requests, json, re
+from bs4 import BeautifulSoup
+from collections.abc import Mapping, Iterable
+
+def get_nested_value(data, key):
+    if isinstance(data, Mapping):
+        if key in data:
+            return data[key]
+        for k, v in data.items():
+            result = get_nested_value(v, key)
+            if result is not None:
+                return result
+    elif isinstance(data, Iterable) and not isinstance(data, str):
+        for item in data:
+            result = get_nested_value(item, key)
+            if result is not None:
+                return result
+    return None
+
+class Facebook:
+    def __init__(self, user_agent=None):
+        self.user_agent = user_agent or 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        self.headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Dnt': '1',
+            'Dpr': '1.3125',
+            'Priority': 'u=0, i',
+            'Sec-Ch-Prefers-Color-Scheme': 'dark',
+            'Sec-Ch-Ua': '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+            'Sec-Ch-Ua-Full-Version-List': '"Chromium";v="124.0.6367.156", "Google Chrome";v="124.0.6367.156", "Not-A.Brand";v="99.0.0.0"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Model': '""',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'Sec-Ch-Ua-Platform-Version': '"15.0.0"',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
+            'Viewport-Width': '1463',
+            'User-Agent': self.user_agent
+        }
+
+    def getVideo(self, url, cut=None):
+        try:
+            resp = requests.get(url, headers=self.headers)
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            return {'error': True, 'message': str(e)}
+
+        try:
+            soup = BeautifulSoup(resp.text, 'lxml')
+            scripts = soup.find_all('script', type='application/json')
+
+            keywords = ["base_url", "total_comment_count"]
+            preferred_thumbnail, browser_native_hd_url, data, owner, json_data = None, None, None, None, None
+
+            for script in scripts:
+                if script.string and 'preferred_thumbnail' in script.string:
+                    json_data = json.loads(script.string)
+                    preferred_thumbnail = get_nested_value(json_data, "preferred_thumbnail")
+                    browser_native_hd_url = get_nested_value(json_data, "browser_native_hd_url")
+                    break
+
+            for script in scripts:
+                if all(keyword in script.string for keyword in keywords):
+                    json_data = json.loads(script.string)
+                    data = get_nested_value(json_data, "data")
+                    owner = get_nested_value(json_data, "owner")
+
+                    json_data['data'] = data
+                    json_data['owner'] = owner
+                    json_data['platform'] = 'facebook'
+                    json_data['preferred_thumbnail'] = preferred_thumbnail
+
+                    break
+
+            if data is None or json_data is None:
+                return {'error': True, 'message': 'post not found!'}
+
+            if not cut:
+                return json_data
+
+            cut_data = {
+                "author": owner,
+                "content": {
+                    "id": data.get('id', None),
+                    "desc": data.get('title', {}).get('text', None),
+                    "cover": preferred_thumbnail.get('image', {}).get('uri', None),
+                    "comment": data.get('feedback', {}).get('total_comment_count', None),
+                    "reactions": data.get('feedback', {}).get('reaction_count', {}).get('count', None),
+                    "plays": data.get('feedback', {}).get('video_view_count_renderer', {}).get('feedback', {}).get('play_count', None),
+                    "post_views": data.get('feedback', {}).get('video_view_count_renderer', {}).get('feedback', {}).get('video_post_view_count', None),
+                },
+                "is_video": True,
+                "platform": "facebook",
+                "videos": [
+                    {"address": browser_native_hd_url},
+                    {"cover": preferred_thumbnail.get('image', {}).get('uri', None)},
+                ]
+            }
+
+            return cut_data
+
+        except Exception as e:
+            return {'error': True, 'message': str(e)}
+
+if __name__ == "__main__":
+    fa = Facebook()
+    data = fa.getVideo('https://web.facebook.com/share/v/iweQG4zGudbW3wh6/', cut=True)
+    print(json.dumps(data))
+
+
+"""v1.0 only return video and audio url
+
 import requests, json
 
 class Facebook:
@@ -68,3 +186,5 @@ class Facebook:
             return {'error': True, 'message': str(e)}
 
         return {"audio_url": audio_url, "video_url": video_url, "platform": "facebook"}
+
+"""
