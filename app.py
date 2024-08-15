@@ -69,10 +69,10 @@ def api():
 
     if source == "Facebook":
         facebook =Facebook()
-        data = facebook.getVideo(url)
-        if "error" in data:
-            return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
-        return jsonify({'success': True, 'data': data}), 200
+        data, status = facebook.getVideo(url, cut)
+        if status == 200:
+            return jsonify({'success': True, 'data': data}), 200
+        return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
     
     elif source == "Instagram":
 
@@ -82,20 +82,20 @@ def api():
                 instagram = Instagram()
 
         if item_id:
-            data = instagram.getData(item_id, cut)
-            if "error" in data or "require_login" in data:
-                return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
-            return jsonify({'success': True, 'data': data}), 200
+            data, status = instagram.getData(item_id, cut)
+            if status == 200:
+                return jsonify({'success': True, 'data': data}), 200
+            return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
         else:
             return jsonify({'error': True, 'message': 'Invalid Instagram video URL'}), 400
     
     elif source == "TikTok Video":
         if item_id:
             tiktok = TikTok(url, cut)
-            data = tiktok.get_videos()
-            if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
-            return jsonify({'success': True, 'data': data}), 200
+            data, status = tiktok.get_videos()
+            if status == 200:
+                return jsonify({'success': True, 'data': data}), 200
+            return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
     
