@@ -1,5 +1,6 @@
+lxml
 flask
 selenium
 requests
-Flask-Limiter
+flask-limiter
 beautifulsoup4
