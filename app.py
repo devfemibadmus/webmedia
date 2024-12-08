@@ -20,7 +20,7 @@ RATE_LIMIT = 2
 RATE_LIMIT_PERIOD = timedelta(minutes=15)
 
 lock = Lock()
-instagram = None
+# (https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727) instagram = None
 application = app
 request_timestamps = []
 
@@ -58,29 +58,23 @@ class Validator:
 @limiter.limit("3 per minute")
 def api():
     print('remote address: ', request.remote_addr)
-
     url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
     cut = request.form.get('cut') if request.method == 'POST' else request.args.get('cut')
-    
     if not url:
         return jsonify({'error': True, 'message': 'URL is required'}), 400
-
     source, item_id = Validator.validate(url)
-
     if source == "Facebook":
-        facebook =Facebook()
+        facebook = Facebook()
         data, status = facebook.getVideo(url, cut)
         if status == 200:
             return jsonify({'success': True, 'data': data}), 200
         return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
     
     elif source == "Instagram":
-
-        global instagram
-        with lock:
-            if not instagram:
-                instagram = Instagram()
-
+        # global instagram
+        # with lock:
+        #    if not instagram:
+        instagram = Instagram()
         if item_id:
             data, status = instagram.getData(item_id, cut)
             if status == 200:
@@ -99,23 +93,10 @@ def api():
         else:
             return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
     
-    """v1.0 depreciated
-
-    elif source == "TikTok Photo":
-        if item_id:
-            data = TikTok.get_images(url, item_id, cut)
-            if "error" in data:
-                return jsonify({'error': True, 'message': 'server error', 'error_message': data['message']}), 500
-            return jsonify({'success': True, 'data': data}), 200
-        else:
-            return jsonify({'error': True, 'message': 'Invalid TikTok Photo URL'}), 400
-    
-    """
-    
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
 
-@app.route('/webmedia/sleep', methods=['GET'])
-@app.route('/sleep', methods=['GET'])
+# @app.route('/webmedia/sleep', methods=['GET'])
+# @app.route('/sleep', methods=['GET'])
 def sleep():
     global request_timestamps, instagram
     now = datetime.now()

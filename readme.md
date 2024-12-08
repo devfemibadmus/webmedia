@@ -32,7 +32,7 @@
 
 ## :eyes: Checkout This
 
-#### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep
+#### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep ([❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727))
 
 #### Main repo https://devfemibadmus.blackstackhub.com/webmedia
 
@@ -78,7 +78,7 @@
 ![Facebook](insta%20conf/image%20copy%208.png?raw=true)
 
 
-### Authentication
+### Authentication ([❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727))
 
 <details>
 <summary>Using Microsoft Edge on Debian VPS</summary>
