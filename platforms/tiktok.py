@@ -1,10 +1,7 @@
-# v2.0
-
-import requests
-import json
+import requests, json
 from bs4 import BeautifulSoup
 
-class TikTok:
+class TikTokv2:
     def __init__(self, url, cut=None):
         self.url = url
         self.cut = cut
@@ -99,11 +96,42 @@ class TikTok:
         return data, status
 
 
-"""v1.0 depreciated
-
-import requests, json
-class TikTok:
-    tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
+class TikTokv1:
+    def __init__(self, item_id, cut=None):
+        self.cut = cut
+        self.tiktok_url = (
+            "https://www.tiktok.com/api/item/detail/"
+            "?WebIdLastTime=1733627509&aid=1988&app_language=en&app_name=tiktok_web"
+            "&browser_language=en-US&browser_name=Mozilla&browser_online=true"
+            "&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20"
+            "AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F131.0.0.0%20Safari%2F537.36%20"
+            "Edg%2F131.0.0.0&channel=tiktok_web&clientABVersions=70508271&clientABVersions=72422414"
+            "&clientABVersions=72791370&clientABVersions=72879051&clientABVersions=72923695"
+            "&clientABVersions=72929405&clientABVersions=73004002&clientABVersions=73004187"
+            "&clientABVersions=73004431&clientABVersions=73013519&clientABVersions=73035386"
+            "&clientABVersions=73054614&clientABVersions=73055766&clientABVersions=73067877"
+            "&clientABVersions=73069408&clientABVersions=73071855&clientABVersions=73078543"
+            "&clientABVersions=73084639&clientABVersions=73084703&clientABVersions=73084843"
+            "&clientABVersions=73097096&clientABVersions=73104335&clientABVersions=73105884"
+            "&clientABVersions=73115494&clientABVersions=73133537&clientABVersions=73147323"
+            "&clientABVersions=73149883&clientABVersions=70405643&clientABVersions=71057832"
+            "&clientABVersions=71200802&clientABVersions=73004916&cookie_enabled=true"
+            "&coverFormat=2&data_collection_enabled=false&device_id=7445873397290829317"
+            "&device_platform=web_pc&focus_state=true&from_page=user&history_len=2"
+            f"&is_fullscreen=false&is_page_visible=true&itemId={item_id}&language=en"
+            "&odinId=7445873068213453829&os=windows&priority_region=&referer="
+            "&region=NG&screen_height=1080&screen_width=1920&tz_name=Africa%2FLagos"
+            "&user_is_login=false&webcast_language=en&msToken=&X-Bogus=DFSzswSOazJANCKjt/ZQhV6HQhPL"
+            "&_signature=_02B4Z6wo00001c.0vKgAAIDArVu.MNnFHWnP9LgAABSq02"
+        )
+        self.headers = {
+            "path": self.tiktok_url.replace('https://www.tiktok.com', ''),
+            "authority": "www.tiktok.com",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
+        }
+        self.tiktok_quality_types = ['hq', 'fhd', 'hd', 'standard', 'low']
     
     video_tiktok = (
         "https://www.tiktok.com/api/related/item_list/?WebIdLastTime=1723329164&aid=1988&app_language=en&app_name=tiktok_web"
@@ -118,22 +146,9 @@ class TikTok:
         "&tz_name=America%2FChicago&user_is_login=false&webcast_language=en"
     )
 
-    image_tiktok = (
-        "https://www.tiktok.com/api/related/item_list/?WebIdLastTime=1722076276&aid=1988&app_language=en&app_name=tiktok_web"
-        "&browser_language=en-US&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20"
-        "%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome"
-        "%2F126.0.0.0%20Safari%2F537.36%20Edg%2F126.0.0.0&channel=tiktok_web&clientABVersions=70508271%2C72213608%2C72313476"
-        "%2C72406134%2C72408648%2C72430804%2C72444798%2C72454780%2C72478059%2C72479966%2C72502689%2C72508181%2C72508984"
-        "%2C72510487%2C72516935%2C72527746%2C70405643%2C71057832%2C71200802%2C72445639"
-        "&coverFormat=2&cursor=0&data_collection_enabled=false&device_platform=web_pc"
-        "&focus_state=true&from_page=video&history_len=1&isNonPersonalized=false&is_fullscreen=false&is_page_visible=true"
-        "&itemID={item_id}&language=en&os=windows"
-        "&screen_height=1080&screen_width=1920&webcast_language=en"
-    )
-
     @staticmethod
-    def get_videos(url, item_id, cut):
-        api_url = TikTok.video_tiktok.format(item_id=item_id)
+    def get_videos(item_id, cut):
+        api_url = TikTokv1.video_tiktok.format(item_id=item_id)
         
         try:
             response = requests.get(api_url)
@@ -147,6 +162,7 @@ class TikTok:
             found_items = [item for item in item_list if item['id'] == item_id]
 
             if not found_items:
+                print(item_list)
                 return {'error': True, 'message': 'item not found in data.'}
             
             item = found_items[0]
@@ -189,7 +205,7 @@ class TikTok:
             }
             bitrate_info = item['video'].get('bitrateInfo', [])
             for i, quality_type in enumerate(bitrate_info):
-                key = TikTok.tiktok_quality_types[i] if i < len(TikTok.tiktok_quality_types) else f'quality_{i}'
+                key = TikTokv1.tiktok_quality_types[i] if i < len(TikTokv1.tiktok_quality_types) else f'quality_{i}'
                 video_info['videos'].append({
                     key: {
                         'size': quality_type['PlayAddr'].get('DataSize', 'N/A'),
@@ -201,28 +217,20 @@ class TikTok:
         except Exception as e:
             return {'error': True, 'message': str(e)}
 
-    @staticmethod
-    def get_images(url, item_id, cut):    
-        api_url = TikTok.image_tiktok.format(item_id=item_id)
-        
+    def get_images(self):
         try:
-            response = requests.get(api_url)
+            response = requests.get(self.tiktok_url, headers=self.headers)
             response.raise_for_status()
+            # print(response.text)
             data = response.json()
         except Exception as e:
             return {'error': True, 'message': str(e)}
-        
         try:
-            with open("tik.json", "w", encoding="utf-8") as file:
-                json.dump(data, file, indent=4, separators=(',', ': '))
             item = data['itemInfo']['itemStruct']
-
             if not item:
                 return {'error': True, 'message': 'item not found in data'}
-
-            if not cut:
+            if not self.cut:
                 return item
-
             photo_info = {
                 'platform': 'tiktok',
                 'is_image': True,
@@ -241,7 +249,7 @@ class TikTok:
                     'username': item['author'].get('uniqueId', 'N/A'),
                     'verified': item['author'].get('verified', False),
                     'image': item['author'].get('avatarMedium', 'N/A'),
-                    'location': item['poi']['address'] + item['poi']['name'],
+                    'location': item.get('poi', {}).get('address', 'N/A') + ' ' + item.get('poi', {}).get('name', 'N/A'),
                 },
                 'images': [],
                 'music': {
@@ -256,14 +264,15 @@ class TikTok:
             for i, image in enumerate(image_infos):
                 photo_info['images'].append({
                     f'image_{i}': {
-                        'cover': image.get('cover', 'N/A'),
-                        'original': image.get('displayImageURL', 'N/A'),
-                        'size': image.get('imageSize', 'N/A'),
+                        'original': image.get('imageURL', 'N/A'),
+                        'size': image.get('imageHeight', 'N/A'),
                     }
                 })
-            
             return photo_info
         except Exception as e:
-            return {'error': True, 'message': str(e)}
+            return {'error': True, 'messag3e': str(e)}
 
-"""
+
+test = TikTokv1('', True)
+test = test.get_images()
+print(test)
