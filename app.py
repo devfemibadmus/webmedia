@@ -1,7 +1,8 @@
 import requests, re
 from threading import Lock
 from flask_limiter import Limiter
-from platforms.tiktok import TikTok
+from platforms.tiktok import TikTokv1
+from platforms.tiktok import TikTokv2
 from platforms.facebook import Facebook
 from datetime import datetime, timedelta
 from platforms.instagram import Instagram
@@ -36,13 +37,9 @@ class Validator:
         if video_match:
             return "TikTok Video", video_match.group(1)
 
-        """v1.0 depreciated
-
         photo_match = re.search(Validator.tiktok_photo_pattern, url)
         if photo_match:
             return "TikTok Photo", photo_match.group(1)
-        
-        """
 
         insta_match = re.match(Validator.instagram_pattern, url)
         if insta_match:
@@ -63,6 +60,7 @@ def api():
     if not url:
         return jsonify({'error': True, 'message': 'URL is required'}), 400
     source, item_id = Validator.validate(url)
+
     if source == "Facebook":
         facebook = Facebook()
         data, status = facebook.getVideo(url, cut)
@@ -85,8 +83,18 @@ def api():
     
     elif source == "TikTok Video":
         if item_id:
-            tiktok = TikTok(url, cut)
+            tiktok = TikTokv2(url, cut)
             data, status = tiktok.get_videos()
+            if status == 200:
+                return jsonify({'success': True, 'data': data}), 200
+            return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
+        else:
+            return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
+
+    elif source == "TikTok Photo":
+        if item_id:
+            tiktok = TikTokv1(item_id, cut)
+            data, status = tiktok.get_images()
             if status == 200:
                 return jsonify({'success': True, 'data': data}), 200
             return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
