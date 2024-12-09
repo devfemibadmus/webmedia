@@ -26,33 +26,27 @@ application = app
 request_timestamps = []
 
 class Validator:
-    tiktok_video_pattern = r'tiktok\.com/.*/video/(\d+)'
-    tiktok_photo_pattern = r'tiktok\.com/.*/photo/(\d+)'
-    instagram_pattern = r'(?:https?://(?:www\.)?instagram\.com/(?:p|reel|tv)/)([A-Za-z0-9_-]+)/?'
-    facebook_pattern = r"(https?:\/\/)?(www\.|web\.)?facebook\.com\/(share\/[vr]\/\w+|[^\/]+\/videos\/\d+\/?|reel\/\d+)"
+    tiktok_pattern = r'tiktok\.com/.*/(\d+)'
+    instag_pattern = r'instagram\.com/(p|reel|tv)/([A-Za-z0-9_-]+)/?'
+    facebook_pattern = r"facebook\.com\/(share\/[vr]\/\w+|[^\/]+\/videos\/\d+\/?|reel\/\d+)"
 
     @staticmethod
     def validate(url):
-        video_match = re.search(Validator.tiktok_video_pattern, url)
-        if video_match:
-            return "TikTok Video", video_match.group(1)
-
-        photo_match = re.search(Validator.tiktok_photo_pattern, url)
-        if photo_match:
-            return "TikTok Photo", photo_match.group(1)
-
-        insta_match = re.match(Validator.instagram_pattern, url)
+        insta_match = re.search(Validator.instag_pattern, url)
         if insta_match:
-            return "Instagram", insta_match.group(1)
+            return "Instagram", insta_match.group(2)
+        
+        if re.search(Validator.tiktok_pattern, url) is not None:
+            return "TikTok", "TikTok"
 
-        if re.match(Validator.facebook_pattern, url) is not None:
+        if re.search(Validator.facebook_pattern, url) is not None:
             return "Facebook", "Facebook"
-
+        
         return "Invalid URL", None
 
 @app.route('/webmedia/api/', methods=['POST', 'GET'])
 @app.route('/api/', methods=['POST', 'GET'])
-@limiter.limit("3 per minute")
+@limiter.limit("300 per minute")
 def api():
     print('remote address: ', request.remote_addr)
     url = request.form.get('url') if request.method == 'POST' else request.args.get('url')
@@ -60,8 +54,15 @@ def api():
     if not url:
         return jsonify({'error': True, 'message': 'URL is required'}), 400
     source, item_id = Validator.validate(url)
+    
+    if source == "TikTok":
+        tiktok = TikTokv2(url, cut)
+        data, status = tiktok.getData()
+        if status == 200:
+            return jsonify({'success': True, 'data': data}), 200
+        return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
 
-    if source == "Facebook":
+    elif source == "Facebook":
         facebook = Facebook()
         data, status = facebook.getVideo(url, cut)
         if status == 200:
@@ -80,27 +81,7 @@ def api():
             return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
         else:
             return jsonify({'error': True, 'message': 'Invalid Instagram video URL'}), 400
-    
-    elif source == "TikTok Video":
-        if item_id:
-            tiktok = TikTokv2(url, cut)
-            data, status = tiktok.get_videos()
-            if status == 200:
-                return jsonify({'success': True, 'data': data}), 200
-            return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
-        else:
-            return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
-
-    elif source == "TikTok Photo":
-        if item_id:
-            tiktok = TikTokv1(item_id, cut)
-            data, status = tiktok.get_images()
-            if status == 200:
-                return jsonify({'success': True, 'data': data}), 200
-            return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
-        else:
-            return jsonify({'error': True, 'message': 'Invalid TikTok video URL'}), 400
-    
+        
     return jsonify({'error': True, 'message': 'Unsupported URL'}), 400
 
 # @app.route('/webmedia/sleep', methods=['GET'])
