@@ -41,7 +41,7 @@ class Instagram:
         try:
             item = data['data']['xdt_shortcode_media']
             if not item:
-                return {'error': True, 'message': 'something went wrong', 'error_message': 'item not found in data'}, 502
+                return {'error': True, 'message': 'post has been deleted', 'error_message': 'item not found in data'}, 502
             # print("item['shortcode']: ", item['shortcode'])
             data_info = {
                 'platform':'instagram',
