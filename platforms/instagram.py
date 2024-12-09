@@ -43,13 +43,14 @@ class Instagram:
             if not item:
                 return {'error': True, 'message': 'post has been deleted', 'error_message': 'item not found in data'}, 502
             # print("item['shortcode']: ", item['shortcode'])
+            desc = item.get('edge_media_to_caption', {}).get('edges', [])
             data_info = {
                 'platform':'instagram',
                 'content': {
                     'id': item['id'],
                     'shortcode': item['shortcode'],
                     'likes': item['edge_media_preview_like']['count'],
-                    'desc': item['edge_media_to_caption']['edges'][0]['node']['text'],
+                    'desc': desc[0]['node']['text'] if len(desc)>0 else 'no desc',
                     'cover': item['thumbnail_src'],
                 },
                 'author': {
