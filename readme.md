@@ -6,11 +6,11 @@
 
 ## 🛠️ Dependencies
 
--  **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
+-  **[Selenium](https://github.com/SeleniumHQ/selenium)**: running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) using for Instagram (4s). [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
 
--  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in Instagram, TikTok and Facebook
+-  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using for Instagram, TikTok and Facebook
 
--  **[Cors.lol](https://github.com/BradPerbs/cors.lol)** and **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for video rendering on [web](https://devfemibadmus.blackstackhub.com/webmedia)
+-  **[Cors.lol](https://github.com/BradPerbs/cors.lol)** and **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for video and image cors on [web](https://devfemibadmus.blackstackhub.com/webmedia)
 
 ## :star: Features
 
@@ -24,7 +24,7 @@
 
 -  **Web App**: [Web Media](https://devfemibadmus.blackstackhub.com/webmedia)
 
--  **iOs App**: [Add to Home Screen](https://github.com/devfemibadmus/mediasaver)
+-  **iOs App**: [Add to Home Screen](https://devfemibadmus.blackstackhub.com/webmedia)
 
 -  **Android App**: [Google Play Store](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver) + [WhatsApp status saver](https://github.com/devfemibadmus/mediasaver)
 
@@ -65,7 +65,7 @@
 
 ![TikTok](insta%20conf/image%20copy%206.png?raw=true)
 
-#### Instagram https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.instagram.com/p/C-TMvc4yQh6/?img_index=3
+#### Instagram https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.instagram.com/p/C-TMvc4yQh6/?img_index=3 (post has been deleted)
 
 ![Instagram](insta%20conf/image%20copy%207.png?raw=true)
 
