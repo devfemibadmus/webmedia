@@ -134,7 +134,6 @@ class TikTokv2:
             except Exception as e:
                 return {'error': True, 'message': 'something went wrong', 'error_message': str(e)}, 500
 
-
 class TikTokv1:
     def __init__(self, item_id, cut=None):
         self.cut = cut
@@ -311,7 +310,7 @@ class TikTokv1:
         except Exception as e:
             return {'error': True, 'message': str(e)}
 
-
-test = TikTokv2('https://www.tiktok.com/@pelyzy035/photo/7401052163021081861', True)
-test = test.getData()
-print(test)
+if __name__ == "__main__":
+    test = TikTokv2('https://www.tiktok.com/@pelyzy035/photo/7401052163021081861', True)
+    test = test.getData()
+    print(test)
