@@ -20,8 +20,9 @@ def get_nested_value(data, key):
     return None
 
 class Facebook:
-    def __init__(self, user_agent=None):
-        self.user_agent = user_agent or 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    def __init__(self, item_id, cut=None):
+        self.cut = cut
+        self.url = f'https://www.facebook.com/share/{item_id}'
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -41,15 +42,15 @@ class Facebook:
             'Sec-Fetch-User': '?1',
             'Upgrade-Insecure-Requests': '1',
             'Viewport-Width': '1463',
-            'User-Agent': self.user_agent
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
         }
 
-    def getVideo(self, url, cut=None):
+    def getVideo(self):
         try:
-            resp = requests.get(url, headers=self.headers)
+            resp = requests.get(self.url, headers=self.headers)
             resp.raise_for_status()
         except requests.RequestException as e:
-            return {'error': True, 'message': str(e)}
+            return {'error': True, 'message': str(e)}, 500
 
         try:
             soup = BeautifulSoup(resp.text, 'lxml')
@@ -105,9 +106,9 @@ class Facebook:
                     break
 
             if data is None or json_data is None:
-                return {'error': True, 'message': 'post not found!', 'error_message': 'post not found!'}, 404
+                return {'error': True, 'message': 'post not found!', 'error_message': '404 try again'}, 404
 
-            if not cut:
+            if not self.cut:
                 return json_data, 200
 
             cut_data = {
