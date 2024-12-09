@@ -3,97 +3,136 @@ from bs4 import BeautifulSoup
 
 class TikTokv2:
     def __init__(self, url, cut=None):
-        self.url = url
-        self.cut = cut
+        print(url)
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             'Referer': 'https://www.tiktok.com/'
         }
-        self.json_data = None
+        self.url, self.cut = url.replace('/photo', '/video'), cut
+        self.error, self.status, self.json_data = None, None, None
+        self.data, self.status = self.fetch_and_process()
+        try:
+            self.item = self.data['itemInfo']['itemStruct']
+            self.data['statusMsg'] == "ok"
+        except Exception as e:
+            self.error, self.status = {'error': True, 'message': 'something went wrong', 'error_message': 'unable to get item from itemStruct'}, 502
     
     def fetch_and_process(self):
         response = requests.get(self.url, headers=self.headers)
         if response.status_code != 200:
-            return {'error': True, 'message': 'something went wrong', 'error_message': f'Failed to fetch page content: {response.status_code}'}, 502
+            self.error, self.status = {'error': True, 'message': 'unable to process url', 'error_message': f'Failed to fetch page content: {response.status_code}'}, 502
         html_content = response.text
-
         soup = BeautifulSoup(html_content, 'html.parser')
-        
         body_content = soup.find('body')
         if body_content is None:
-            return {'error': True, 'message': 'something went wrong', 'error_message': 'No <body> tag found.'}, 502
+            self.error, self.status = {'error': True, 'message': 'something went wrong', 'error_message': 'No <body> tag found.'}, 502
         script_tag = body_content.find('script', {'id': '__UNIVERSAL_DATA_FOR_REHYDRATION__'})
         if script_tag is None:
-            return {'error': True, 'message': 'something went wrong', 'error_message': 'No <script> tag with ID \'__UNIVERSAL_DATA_FOR_REHYDRATION__\' found.'}, 502
+            self.error, self.status = {'error': True, 'message': 'something went wrong', 'error_message': 'No <script> tag with ID \'__UNIVERSAL_DATA_FOR_REHYDRATION__\' found.'}, 502
         script_content = script_tag.string.strip()
-        
         try:
             self.json_data = json.loads(script_content)
         except json.JSONDecodeError:
-            return {'error': True, 'message': 'something went wrong', 'error_message': 'The content of the script tag is not valid JSON.'}, 502
-        
+            self.error, self.status = {'error': True, 'message': 'something went wrong', 'error_message': 'The content of the script tag is not valid JSON.'}, 502
         try:
             self.json_data = self.json_data['__DEFAULT_SCOPE__']['webapp.video-detail']
         except KeyError:
-            return {'error': True, 'message': 'something went wrong', 'error_message': 'No \'webapp.video-detail\' found in the JSON data.'}, 502
-        
+            self.error, self.status = {'error': True, 'message': 'something went wrong', 'error_message': 'No \'webapp.video-detail\' found in the JSON data.'}, 502
         return self.json_data, 200
     
-    def cut_data(self, data):
-        if not data:
-            return {'error': True, 'message': 'something went wrong', 'error_message': 'No data to process.'}, 502
-        try:
-            item = data['itemInfo']['itemStruct']
-            data['statusMsg'] == "ok"
-        except Exception as e:
-            return {'error': True, 'message': 'something went wrong', 'error_message': 'unable to get item from itemStruct'}, 502
-
-        video_info = {
-            'platform': 'tiktok',
-            'is_video': True,
-            'content': {
-                'id': item['id'],
-                'desc': item.get('desc', 'N/A'),
-                'views': item['stats'].get('playCount', 0),
-                'likes': item['stats'].get('diggCount', 0),
-                'comments': item['stats'].get('commentCount', 0),
-                'saves': item['stats'].get('collectCount', 0),
-                'share': item['stats'].get('shareCount', 0),
-                'cover': item['video'].get('cover', 'N/A'),
-            },
-            'author': {
-                'name': item['author'].get('nickname', 'N/A'),
-                'username': item['author'].get('uniqueId', 'N/A'),
-                'verified': item['author'].get('verified', False),
-                'image': item['author'].get('avatarMedium', 'N/A'),
-                'bio': item['author'].get('signature', 'N/A')
-            },
-            'videos': [],
-            'music': {
-                'author': item['music'].get('authorName', 'N/A'),
-                'title': item['music'].get('title', 'N/A'),
-                'cover': item['music'].get('coverMedium', 'N/A'),
-                'duration': item['music'].get('duration', 'N/A'),
-                'src': item['music'].get('playUrl', 'N/A'),
-            }
-        }
-        bitrate_info = item['video'].get('bitrateInfo', [])
-        for i, quality_type in enumerate(bitrate_info):
-            key = f'quality_{i}'
-            video_info['videos'].append({
-                key: {
-                    'size': quality_type['PlayAddr'].get('DataSize', 'N/A'),
-                    'address': quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A',
+    def getData(self):
+        if self.error:
+            return self.error, self.status
+        if not self.cut:
+            return self.data, self.status
+        item = self.data['itemInfo']['itemStruct']
+        if item.get('video').get('bitrateInfo'):
+            try:
+                item = self.data['itemInfo']['itemStruct']
+                video_info = {
+                    'platform': 'tiktok',
+                    'is_video': True,
+                    'content': {
+                        'id': item['id'],
+                        'desc': item.get('desc', 'N/A'),
+                        'views': item['stats'].get('playCount', 0),
+                        'likes': item['stats'].get('diggCount', 0),
+                        'comments': item['stats'].get('commentCount', 0),
+                        'saves': item['stats'].get('collectCount', 0),
+                        'share': item['stats'].get('shareCount', 0),
+                        'cover': item['video'].get('cover', 'N/A'),
+                    },
+                    'author': {
+                        'name': item['author'].get('nickname', 'N/A'),
+                        'username': item['author'].get('uniqueId', 'N/A'),
+                        'verified': item['author'].get('verified', False),
+                        'image': item['author'].get('avatarMedium', 'N/A'),
+                        'bio': item['author'].get('signature', 'N/A')
+                    },
+                    'videos': [],
+                    'music': {
+                        'author': item['music'].get('authorName', 'N/A'),
+                        'title': item['music'].get('title', 'N/A'),
+                        'cover': item['music'].get('coverMedium', 'N/A'),
+                        'duration': item['music'].get('duration', 'N/A'),
+                        'src': item['music'].get('playUrl', 'N/A'),
+                    }
                 }
-            })
-        
-        return video_info, 200
-    
-    def get_videos(self):
-        data, status = self.fetch_and_process()
-        if self.cut:
-            return self.cut_data(data)
-        return data, status
+                bitrate_info = item['video'].get('bitrateInfo', [])
+                for i, quality_type in enumerate(bitrate_info):
+                    key = f'quality_{i}'
+                    video_info['videos'].append({
+                        key: {
+                            'size': quality_type['PlayAddr'].get('DataSize', 'N/A'),
+                            'address': quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A',
+                        }
+                    })
+                return video_info, 200
+            except Exception as e:
+                return {'error': True, 'message': 'something went wrong', 'error_message': str(e)}, 500
+        else:
+            try:
+                item = self.data['itemInfo']['itemStruct']
+                photo_info = {
+                    'platform': 'tiktok',
+                    'is_image': True,
+                    'content': {
+                        'id': item['id'],
+                        'desc': item.get('desc', 'N/A'),
+                        'title': item['imagePost'].get('title', 'N/A'),
+                        'views': item['stats'].get('playCount', 0),
+                        'likes': item['stats'].get('diggCount', 0),
+                        'comments': item['stats'].get('commentCount', 0),
+                        'saves': item['stats'].get('collectCount', 0),
+                        'share': item['stats'].get('shareCount', 0),
+                    },
+                    'author': {
+                        'name': item['author'].get('nickname', 'N/A'),
+                        'username': item['author'].get('uniqueId', 'N/A'),
+                        'verified': item['author'].get('verified', False),
+                        'image': item['author'].get('avatarMedium', 'N/A'),
+                        'location': item.get('poi', {}).get('address', 'N/A') + ' ' + item.get('poi', {}).get('name', 'N/A'),
+                    },
+                    'images': [],
+                    'music': {
+                        'author': item['music'].get('authorName', 'N/A'),
+                        'title': item['music'].get('title', 'N/A'),
+                        'cover': item['music'].get('coverMedium', 'N/A'),
+                        'duration': item['music'].get('duration', 'N/A'),
+                        'src': item['music'].get('playUrl', 'N/A'),
+                    }
+                }
+                image_infos = item['imagePost']['images']
+                for i, image in enumerate(image_infos):
+                    photo_info['images'].append({
+                        f'image_{i}': {
+                            'original': image.get('imageURL', 'N/A'),
+                            'size': image.get('imageHeight', 'N/A'),
+                        }
+                    })
+                return photo_info, 200
+            except Exception as e:
+                return {'error': True, 'message': 'something went wrong', 'error_message': str(e)}, 500
 
 
 class TikTokv1:
@@ -270,9 +309,9 @@ class TikTokv1:
                 })
             return photo_info
         except Exception as e:
-            return {'error': True, 'messag3e': str(e)}
+            return {'error': True, 'message': str(e)}
 
 
-test = TikTokv1('', True)
-test = test.get_images()
+test = TikTokv2('https://www.tiktok.com/@pelyzy035/photo/7401052163021081861', True)
+test = test.getData()
 print(test)
