@@ -6,15 +6,11 @@
 
 ## 🛠️ Dependencies
 
--  **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types)
+-  **[Selenium](https://github.com/SeleniumHQ/selenium)**: primarily for Instagram (4s). It's suitable for other platforms, but it's running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
 
--  **[Requests](https://github.com/psf/requests)**: using in TikTok and Facebook
+-  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in Instagram, TikTok and Facebook
 
--  **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using in TikTok ad Facebook
-
--  **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video rendering on [web](https://devfemibadmus.blackstackhub.com/webmedia)
-
--  **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for image rendering on [web](https://devfemibadmus.blackstackhub.com/webmedia)
+-  **[Cors.lol](https://github.com/BradPerbs/cors.lol)** and **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for video rendering on [web](https://devfemibadmus.blackstackhub.com/webmedia)
 
 ## :star: Features
 
@@ -26,19 +22,19 @@
 
 ## :rocket: Apps
 
--  **Web App**: [WebMedia](https://devfemibadmus.blackstackhub.com/webmedia) limited download(maybe)
+-  **Web App**: [Web Media](https://devfemibadmus.blackstackhub.com/webmedia)
 
--  **Mobile App**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) unlimited download + WhatsApp status saver
+-  **iOs App**: [Add to Home Screen](https://github.com/devfemibadmus/mediasaver)
+
+-  **Android App**: [Google Play Store](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver) + [WhatsApp status saver](https://github.com/devfemibadmus/mediasaver)
 
 ## :eyes: Checkout This
 
-#### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep ([❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727))
+#### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
 
-#### Main repo https://devfemibadmus.blackstackhub.com/webmedia
+#### Main Repo https://devfemibadmus.blackstackhub.com/webmedia
 
-#### Web https://devfemibadmus.blackstackhub.com/webmedia
-
-#### App https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver
+#### App Repo https://github.com/devfemibadmus/mediasaver
 
 ## 📖 API Endpoint
 
@@ -78,7 +74,7 @@
 ![Facebook](insta%20conf/image%20copy%208.png?raw=true)
 
 
-### Authentication ([❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727))
+### Authentication [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
 
 <details>
 <summary>Using Microsoft Edge on Debian VPS</summary>
@@ -147,7 +143,7 @@
 |website| status |
 |--|--|
 | TikTok Videos |✅|
-| TikTok Photos |❌|
+| TikTok Photos |✅|
 | Facebook Videos |✅|
 | Instagram Reels |✅|
 | Instagram Photos |✅|
