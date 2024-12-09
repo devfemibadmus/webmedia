@@ -10,6 +10,8 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <title>Web Media Saver</title>
         <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+        <link rel="manifest" href="static/app/manifest.json">
+        <meta name="theme-color" content="#000000">
     </head>    
     <body>
         <header>
@@ -47,9 +49,9 @@
                 </div>
             </div>
             <div class="section" id="app">
-                <h2 style="color:whitesmoke;">Download App</h2>
                 <div class="text-sized">
-                    <p>Coming soon, Check out it's <a href="https://github.com/devfemibadmus/mediasaver">GtiHub repo</a></p>
+                    <p><a id="install-button" style="display: none;" href="#">Add to Home Screen</a></p>
+                    <p><a href="https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver">Google Play Store</a> || <a href="https://github.com/devfemibadmus/mediasaver">GtiHub repo</a></p>
                 </div>
             </div>
             <div class="section" id="privacy">
@@ -95,5 +97,6 @@
             </div>
         </div>
         <script src="{{ url_for('static', filename='script.js') }}"></script>
+        <script src="static/app/app.js"></script>
     </body>
 </html>
