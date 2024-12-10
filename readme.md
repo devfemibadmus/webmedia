@@ -8,9 +8,9 @@
 
 <!-- -  **[Selenium](https://github.com/SeleniumHQ/selenium)**: running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) using for Instagram (4s). [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)-->
 
--  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: use in Instagram, TikTok and Facebook
+-  **[Cors.lol](https://github.com/BradPerbs/cors.lol)**: for video and image cors on [web](https://devfemibadmus.blackstackhub.com/webmedia)
 
--  **[Cors.lol](https://github.com/BradPerbs/cors.lol)** and **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for video and image cors on [web](https://devfemibadmus.blackstackhub.com/webmedia)
+-  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: use in Instagram, TikTok and Facebook
 
 ## :star: Features
 

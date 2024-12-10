@@ -274,7 +274,7 @@
          }
          contentCover.referrerPolicy = 'no-referrer';
          contentCover.crossOrigin = 'anonymous';
-         contentCover.src = 'https://corsproxy.io/?' + encodeURIComponent(content.cover);
+         contentCover.src = 'https://api.cors.lol/?url=' + encodeURIComponent(content.cover);
  
          contentDiv.append(contentCover);
          contentDiv.append(contentTitle);
@@ -308,7 +308,7 @@
  
          authorCover.referrerPolicy = 'no-referrer';
          authorCover.crossOrigin = 'anonymous';
-         authorCover.src = 'https://corsproxy.io/?' + encodeURIComponent(author.image);
+         authorCover.src = 'https://api.cors.lol/?url=' + encodeURIComponent(author.image);
  
          authorDiv.append(authorCover);
          authorDiv.append(authorTitle);
@@ -398,7 +398,7 @@
          }
          contentCover.referrerPolicy = 'no-referrer';
          contentCover.crossOrigin = 'anonymous';
-         contentCover.src = 'https://corsproxy.io/?' + encodeURIComponent(content.cover);
+         contentCover.src = 'https://api.cors.lol/?url=' + encodeURIComponent(content.cover);
  
          contentDiv.append(contentCover);
          contentDiv.append(contentTitle);
@@ -473,7 +473,7 @@
                  mediaElement.controls = true;
                  mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData.address)
              }else{
-                 mediaElement.src = 'https://corsproxy.io/?' + encodeURIComponent(mediaData.address);
+                 mediaElement.src = 'https://api.cors.lol/?url=' + encodeURIComponent(mediaData.address);
              }
  
              contentDiv.appendChild(mediaElement);
