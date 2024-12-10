@@ -20,9 +20,9 @@ def get_nested_value(data, key):
     return None
 
 class Facebook:
-    def __init__(self, item_id, cut=None):
+    def __init__(self, url, cut=None):
         self.cut = cut
-        self.url = f'https://www.facebook.com/share/{item_id}'
+        self.url = url
         self.headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -46,13 +46,16 @@ class Facebook:
         }
 
     def getVideo(self):
-        try:
-            resp = requests.get(self.url, headers=self.headers)
-            resp.raise_for_status()
-        except requests.RequestException as e:
-            return {'error': True, 'message': str(e)}, 500
+        if any(x in self.url for x in ['fb.watch', '/watch/?v']):
+            response = requests.get(self.url)
+            try:
+                video_id = response.url.split("/videos/")[1].split("/")[0]
+                self.url = f'https://www.facebook.com/reel/{video_id}'
+            except:
+                return {'error': True, 'message': 'video not found', 'error_message': str(e)}, 404
 
         try:
+            resp = requests.get(self.url, headers=self.headers)
             soup = BeautifulSoup(resp.text, 'lxml')
             scripts = soup.find_all('script', type='application/json')
 

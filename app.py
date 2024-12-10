@@ -28,17 +28,16 @@ request_timestamps = []
 class Validator:
     tiktok_pattern = r'tiktok\.com/.*/(\d+)'
     instag_pattern = r'instagram\.com/(p|reel|tv)/([A-Za-z0-9_-]+)/?'
-    facebook_pattern = r'facebook\.com/share/(reel|r|v|videos)/([A-Za-z0-9_-]+)/?'
+    facebook_pattern = r'(facebook\.com/|fb\.watch/)'
     @staticmethod
     def validate(url):
         if re.search(Validator.tiktok_pattern, url):
-            return "TikTok", "TikTok"
+            return "TikTok", url
+        if re.search(Validator.facebook_pattern, url):
+            return "Facebook", url
         insta_match = re.search(Validator.instag_pattern, url)
         if insta_match:
             return "Instagram", insta_match.group(2)
-        facebook_match = re.search(Validator.facebook_pattern, url)
-        if facebook_match:
-            return "Facebook", facebook_match.group(2)
         
         return "Invalid URL", None
 
@@ -61,7 +60,7 @@ def api():
         return jsonify({'error': True, 'message': data['message'], 'error_message': data['error_message']}), status
 
     elif source == "Facebook":
-        facebook = Facebook(item_id, cut)
+        facebook = Facebook(url, cut)
         data, status = facebook.getVideo()
         if status == 200:
             return jsonify({'success': True, 'data': data}), 200
