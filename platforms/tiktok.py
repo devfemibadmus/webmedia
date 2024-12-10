@@ -105,13 +105,14 @@ class TikTokv2:
                         'comments': item['stats'].get('commentCount', 0),
                         'saves': item['stats'].get('collectCount', 0),
                         'share': item['stats'].get('shareCount', 0),
+                        'cover': item['imagePost']['cover'].get('imageURL', {}).get('urlList', ['N/A'])[-1],
                     },
                     'author': {
                         'name': item['author'].get('nickname', 'N/A'),
                         'username': item['author'].get('uniqueId', 'N/A'),
                         'verified': item['author'].get('verified', False),
                         'image': item['author'].get('avatarMedium', 'N/A'),
-                        'location': item.get('poi', {}).get('address', 'N/A') + ' ' + item.get('poi', {}).get('name', 'N/A'),
+                        'location': item.get('locationCreated', 'N/A'),
                     },
                     'images': [],
                     'music': {
@@ -126,7 +127,7 @@ class TikTokv2:
                 for i, image in enumerate(image_infos):
                     photo_info['images'].append({
                         f'image_{i}': {
-                            'original': image.get('imageURL', 'N/A'),
+                            'address': image.get('imageURL', {}).get('urlList', [''])[-1],
                             'size': image.get('imageHeight', 'N/A'),
                         }
                     })
