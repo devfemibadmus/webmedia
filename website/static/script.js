@@ -61,7 +61,7 @@
                      tiktokContentManager.setContent(data.content);
                      tiktokContentManager.setMusic(data.music);
                      tiktokContentManager.setAuthor(data.author);
-                     tiktokContentManager.setVideos(data.videos);
+                     tiktokContentManager.setMedia(data);
                      console.log(data.platform)
                  }else if(data.platform == 'instagram'){
                      const instagramContentManager= new InstagramContentManager(scrollableContainer, saveId)
@@ -90,14 +90,14 @@
      }
  
      formatValue(value) {
-         return typeof value === 'number'
-             ? (value >= 1e6
-                 ? (value / 1e6).toFixed(1) + 'm'
-                 : value >= 1e3
-                 ? (value / 1e3).toFixed(1) + 'k'
-                 : value)
-             : value;
-     }
+        return typeof value === 'number'
+            ? (value >= 1e6
+                ? (value / 1e6).toFixed(1) + 'm'
+                : value >= 1e3
+                ? (value / 1e3).toFixed(1) + 'k'
+                : value)
+            : value;
+    }
  
      setContent(content) {
          const contentDiv = document.createElement('div');
@@ -116,8 +116,8 @@
                  spanKey.textContent = key + ': ';
  
                  const spanValue = document.createElement('span');
-                 spanValue.className = key;
-                 spanValue.textContent = this.formatValue(content[key]) + ' ';
+                 //spanValue.className = key;
+                 spanValue.textContent = content[key] != "" ? this.formatValue(content[key]) + ' ' : "N/A ";
  
                  contentTitle.appendChild(spanKey);
                  contentTitle.appendChild(spanValue);
@@ -179,7 +179,7 @@
                  spanKey.textContent = key + ': ';
  
                  const spanValue = document.createElement('span');
-                 spanValue.className = key;
+                 //spanValue.className = key;
                  spanValue.textContent = this.formatValue(music[key]) + ' ';
  
                  musicTitle.appendChild(spanKey);
@@ -192,45 +192,43 @@
          this.scrollableContainer.insertBefore(musicDiv, this.saveId.nextSibling);
      }
  
-     setVideos(videos) {
-         const contentDiv = document.createElement('div');
-         const videoTitle = document.createElement('p');
-         contentDiv.className = 'container post';
-         videoTitle.className = 'title';
-         videoTitle.textContent = 'Videos Quality:';
+     setMedia(datas) {
+        const media = datas.videos ?? datas.images
  
-         const contentCover = document.createElement('video');
-         contentCover.className = 'productimg';
-         contentCover.referrerPolicy = 'no-referrer';
-         contentCover.crossOrigin = 'anonymous';
-         contentCover.controls = true;
+         media.forEach(mediaData => {
+             const contentDiv = document.createElement('div');
+             const contentTitle = document.createElement('p');
+             contentDiv.className = 'container post';
+             contentTitle.className = 'title';
+             // contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
  
-         const videoQualitySelect = document.createElement('select');
-         videoQualitySelect.className = 'select';
+             for (const key in mediaData) {
+                 if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
+                     const spanKey = document.createElement('span');
+                     spanKey.className = 'key';
+                     spanKey.textContent = key + ': ';
  
-         videos.forEach(videoData => {
-             const videoQuality = Object.keys(videoData)[0];
-             const video = videoData[videoQuality];
+                     const spanValue = document.createElement('span');
+                     spanValue.className = key;
+                     spanValue.textContent = (Number(mediaData[key]['size']) / 1024 / 1024).toFixed(3) + 'MB';
  
-             const option = document.createElement('option');
-             option.value = video.address;
-             option.textContent = `Quality: ${videoQuality.toUpperCase()}, Size: ${(video.size / 1024 / 1024).toFixed(2)} MB`;
-             videoQualitySelect.appendChild(option);
+                     contentTitle.appendChild(spanKey);
+                     contentTitle.appendChild(spanValue);
+ 
+                     const isVideo = datas.is_video;
+                     const mediaElement = isVideo ? document.createElement('video') : document.createElement('img');
+                     mediaElement.className = 'productimg';
+                     mediaElement.crossOrigin = 'anonymous';
+         
+                     mediaElement.controls = true;
+                     mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData[key]['address']);
+         
+                     contentDiv.appendChild(mediaElement);
+                     contentDiv.append(contentTitle);
+                     this.scrollableContainer.insertBefore(contentDiv, saveId.nextSibling);
+                 }
+             }
          });
- 
-         if (videos.length > 0) {
-             contentCover.src = 'https://api.cors.lol/?url='+encodeURIComponent(videos[0][Object.keys(videos[0])[0]].address);
-         }
- 
-         videoQualitySelect.addEventListener('change', function() {
-             contentCover.src = 'https://api.cors.lol/?url='+encodeURIComponent(this.value);
-         });
- 
-         contentDiv.appendChild(contentCover);
-         contentDiv.appendChild(videoTitle);
-         contentDiv.appendChild(videoQualitySelect);
- 
-         this.scrollableContainer.insertBefore(contentDiv, this.saveId.nextSibling);
      }
  }
  
@@ -324,7 +322,7 @@
              const contentTitle = document.createElement('p');
              contentDiv.className = 'container post';
              contentTitle.className = 'title';
-             contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
+             //contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
@@ -347,12 +345,8 @@
              mediaElement.referrerPolicy = 'no-referrer';
              mediaElement.crossOrigin = 'anonymous';
  
-             if (isVideo) {
-                 mediaElement.controls = true;
-                 mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData.address)
-             }else{
-                 mediaElement.src = 'https://corsproxy.io/?' + encodeURIComponent(mediaData.address);
-             }
+             mediaElement.controls = true;
+             mediaElement.src = 'https://api.cors.lol/?url='+encodeURIComponent(mediaData.address)
  
              contentDiv.appendChild(mediaElement);
              contentDiv.append(contentTitle);
@@ -386,7 +380,7 @@
          contentTitle.className = 'title';
          contentCover.className = 'productimg';
  
-         contentTitle.innerHTML = "<p class='key'>Post:</p>";
+         //contentTitle.innerHTML = "<p class='key'>Post:</p>";
  
          for (const key in content) {
              if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
@@ -438,7 +432,7 @@
  
          authorCover.referrerPolicy = 'no-referrer';
          authorCover.crossOrigin = 'anonymous';
-         authorCover.src = 'https://corsproxy.io/?' + encodeURIComponent('https://storage.googleapis.com/blackstackhub/facebook.jpg');
+         authorCover.src = '/static/facebook.png';
  
          authorDiv.append(authorCover);
          authorDiv.append(authorTitle);
