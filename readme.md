@@ -2,13 +2,13 @@
 
 ## Overview
 
-**WEBMEDIA**: [MediaSaver](https://github.com/devfemibadmus/mediasaver) backend for saving videos, images, and audio from Intagram, TikTok, Facebok. It performs web scraping and uses predefined methods observed from network traffic
+**WEBMEDIA**: [Flask-based](https://github.com/pallets/flask) backend for saving videos, images, and audio from Instagram, TikTok, and Facebook via web scraping and predefined network methods. [MediaSaver](https://github.com/devfemibadmus/mediasaver)
 
 ## 🛠️ Dependencies
 
--  **[Selenium](https://github.com/SeleniumHQ/selenium)**: running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) using for Instagram (4s). [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
+<!-- -  **[Selenium](https://github.com/SeleniumHQ/selenium)**: running on [small instance](https://cloud.google.com/blog/products/compute/google-compute-engine-gets-new-e2-vm-machine-types) using for Instagram (4s). [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)-->
 
--  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: using for Instagram, TikTok and Facebook
+-  **[Requests](https://github.com/psf/requests)** and **[BeautifulSoup](https://github.com/wention/BeautifulSoup4)**: use in Instagram, TikTok and Facebook
 
 -  **[Cors.lol](https://github.com/BradPerbs/cors.lol)** and **[corsproxy.io](https://github.com/cors-proxy/fix-cors-errors)**: for video and image cors on [web](https://devfemibadmus.blackstackhub.com/webmedia)
 
@@ -22,19 +22,26 @@
 
 ## :rocket: Apps
 
--  **Web App**: [Web Media](https://devfemibadmus.blackstackhub.com/webmedia)
+-  **Web**: [Web Media](https://devfemibadmus.blackstackhub.com/webmedia)
 
--  **iOs App**: [Add to Home Screen](https://devfemibadmus.blackstackhub.com/webmedia)
+-  **iOs App**: [Add to Home Screen](https://devfemibadmus.blackstackhub.com/webmedia/#app)
 
 -  **Android App**: [Google Play Store](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver) + [WhatsApp status saver](https://github.com/devfemibadmus/mediasaver)
 
+## :clown_face: Status
+
+- **YouTube**: 🔴
+- **Facebook(videos, reels & metadata)**: 🟢
+- **TikTok(videos, photos, music & metadata)**: 🟢
+- **Instagram(videos, reels, photos, music & metadata)**: 🟢
+
 ## :eyes: Checkout This
 
-#### Spam https://devfemibadmus.blackstackhub.com/webmedia/sleep [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
+<!-- - **Spam**: https://devfemibadmus.blackstackhub.com/webmedia/sleep [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727) -->
 
-#### Main Repo https://devfemibadmus.blackstackhub.com/webmedia
+- **App Repo**: https://github.com/devfemibadmus/mediasaver
 
-#### App Repo https://github.com/devfemibadmus/mediasaver
+- **Main Repo**: https://devfemibadmus.blackstackhub.com/webmedia
 
 ## 📖 API Endpoint
 
@@ -73,7 +80,7 @@
 
 ![Facebook](insta%20conf/image%20copy%208.png?raw=true)
 
-
+<!-- 
 ### Authentication [❌](https://github.com/devfemibadmus/webmedia/issues/1#issue-2725260727)
 
 <details>
@@ -132,20 +139,9 @@
 ![login with cokies](insta%20conf/image%20copy%205.png?raw=true)
 
 ![login with cokies](insta%20conf/login%20auth.png?raw=true)
-
+-->
 
 | Screenshot | Screenshot |
 |-------------------------------------------------------------|-------------------------------------------------------------|
 | ![post and video quality](insta%20conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true) | ![author and musicc](insta%20conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true) |
   
-
-## Status
-|website| status |
-|--|--|
-| TikTok Videos |✅|
-| TikTok Photos |✅|
-| Facebook Videos |✅|
-| Instagram Reels |✅|
-| Instagram Photos |✅|
-| Instagram Videos |✅|
-| YouTube |❌|
