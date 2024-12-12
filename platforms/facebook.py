@@ -51,7 +51,7 @@ class Facebook:
             try:
                 video_id = response.url.split("/videos/")[1].split("/")[0]
                 self.url = f'https://www.facebook.com/reel/{video_id}'
-            except:
+            except Exception as e:
                 return {'error': True, 'message': 'video not found', 'error_message': str(e)}, 404
 
         try:
