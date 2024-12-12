@@ -26,9 +26,9 @@ application = app
 request_timestamps = []
 
 class Validator:
-    tiktok_pattern = r'tiktok\.com/'
+    tiktok_pattern = r'tiktok\.com/.*/'
     instag_pattern = r'instagram\.com/(p|reel|tv)/([A-Za-z0-9_-]+)/?'
-    facebook_pattern = r'(facebook\.com/|fb\.watch/)'
+    facebook_pattern = r'(facebook\.com/.*/|fb\.watch/.*/)'
     @staticmethod
     def validate(url):
         if re.search(Validator.tiktok_pattern, url):
