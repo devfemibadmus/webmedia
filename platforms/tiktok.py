@@ -18,6 +18,9 @@ class TikTokv2:
             self.error, self.status = {'error': True, 'message': 'something went wrong', 'error_message': 'unable to get item from itemStruct'}, 502
     
     def fetch_and_process(self):
+        if 'vm.tiktok.com' in self.url:
+            response = requests.get(self.url)
+            self.url = response.url
         response = requests.get(self.url, headers=self.headers)
         if response.status_code != 200:
             self.error, self.status = {'error': True, 'message': 'unable to process url', 'error_message': f'Failed to fetch page content: {response.status_code}'}, 502
