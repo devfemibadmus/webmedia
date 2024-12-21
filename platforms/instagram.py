@@ -80,31 +80,32 @@ class Instagram:
             # with open("cookies.pkl", "rb") as f:
             #     cookies = {cookie["name"]: cookie["value"] for cookie in pickle.load(f)}
             instagram_data = {
-                'av': '0',
-                '__d': 'www',
-                '__user': '0',
-                '__a': '1',
-                '__req': '3',
-                '__hs': '19933.HYP:instagram_web_pkg.2.1..0.0',
-                'dpr': '1',
-                '__ccg': 'UNKNOWN',
-                '__rev': '1015220271',
-                '__comet_req': '7',
-                'lsd': 'AVqipa-__e8',
-                'jazoest': '2970',
-                '__spin_r': '1015220271',
-                '__spin_b': 'trunk',
-                '__spin_t': '1722271940',
-                'fb_api_caller_class': 'RelayModern',
-                'fb_api_req_friendly_name': 'PolarisPostActionLoadPostQueryQuery',
-                'variables': '{"shortcode":"item_id"}',
-                'server_timestamps': 'true',
-                'doc_id': '25531498899829322'
+                "av": "0",
+                "__d": "www",
+                "__user": "0",
+                "__a": "1",
+                "__req": "c",
+                "__hs": "20078.HYP:instagram_web_pkg.2.1.0.0.0",
+                "dpr": "1",
+                "__ccg": "GOOD",
+                "__rev": "1019047588",
+                "__comet_req": "7",
+                "lsd": "AVpJvs7i0Uw",
+                "jazoest": "2982",
+                "__spin_r": "1019047588",
+                "__spin_b": "trunk",
+                "__spin_t": "1734758172",
+                "fb_api_caller_class": "RelayModern",
+                "fb_api_req_friendly_name": "PolarisPostActionLoadPostQueryQuery",
+                "variables": '{"shortcode":"DDfHvqGsUeW","fetch_tagged_user_count":null,"hoisted_comment_id":null,"hoisted_reply_id":null}',
+                "server_timestamps": "true",
+                "doc_id": "8845758582119845"
             }
             instagram_data['variables'] = instagram_data['variables'].replace('item_id', item_id)
             response = requests.post(self.graphql, json=instagram_data)
 
             data = response.json()
+            # print(data)
             data['platform'] = 'instagram'
             
             if not cut:
@@ -119,6 +120,6 @@ class Instagram:
 if __name__ == "__main__":
     print("Starting Instagram bot...")
     insta_bot = Instagram()
-    data = insta_bot.getData('C8UahW1Nx4y', True)
+    data = insta_bot.getData('C8UahW1Nx4y', False)
     print(data)
 

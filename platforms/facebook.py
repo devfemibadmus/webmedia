@@ -56,7 +56,7 @@ class Facebook:
 
         try:
             resp = requests.get(self.url, headers=self.headers)
-            soup = BeautifulSoup(resp.text, 'lxml')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             scripts = soup.find_all('script', type='application/json')
 
             keywords = ["base_url", "total_comment_count"]
