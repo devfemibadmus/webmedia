@@ -87,7 +87,7 @@ class TikTokv2:
                     video_info['videos'].append({
                         key: {
                             'size': quality_type['PlayAddr'].get('DataSize', 'N/A'),
-                            'address': quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A',
+                            'address': (quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A').replace('https://www.tiktok.com', 'https://api16-normal-useast5.tiktokv.us'),
                         }
                     })
                 return video_info, 200
@@ -251,7 +251,7 @@ class TikTokv1:
                 video_info['videos'].append({
                     key: {
                         'size': quality_type['PlayAddr'].get('DataSize', 'N/A'),
-                        'address': quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A',
+                        'address': (quality_type['PlayAddr']['UrlList'][-1] if 'UrlList' in quality_type['PlayAddr'] else 'N/A').replace('https://www.tiktok.com', 'https://api16-normal-useast5.tiktokv.us'),
                     }
                 })
             
@@ -306,7 +306,7 @@ class TikTokv1:
             for i, image in enumerate(image_infos):
                 photo_info['images'].append({
                     f'image_{i}': {
-                        'original': image.get('imageURL', 'N/A'),
+                        'original': (image.get('imageURL', 'N/A')).replace('https://www.tiktok.com', 'https://api16-normal-useast5.tiktokv.us'),
                         'size': image.get('imageHeight', 'N/A'),
                     }
                 })
