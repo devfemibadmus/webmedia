@@ -1,4 +1,4 @@
-import requests
+import requests, pickle
 
 class Instagram:
     def __init__(self):
@@ -77,8 +77,8 @@ class Instagram:
 
     def getData(self, item_id, cut):
         try:
-            # with open("cookies.pkl", "rb") as f:
-            #     cookies = {cookie["name"]: cookie["value"] for cookie in pickle.load(f)}
+            with open("cookies.pkl", "rb") as f:
+                cookies = {cookie["name"]: cookie["value"] for cookie in pickle.load(f)}
             instagram_data = {
                 "av": "0",
                 "__d": "www",
@@ -97,12 +97,12 @@ class Instagram:
                 "__spin_t": "1734758172",
                 "fb_api_caller_class": "RelayModern",
                 "fb_api_req_friendly_name": "PolarisPostActionLoadPostQueryQuery",
-                "variables": '{"shortcode":"DDfHvqGsUeW","fetch_tagged_user_count":null,"hoisted_comment_id":null,"hoisted_reply_id":null}',
+                "variables": '{"shortcode":"item_id","fetch_tagged_user_count":null,"hoisted_comment_id":null,"hoisted_reply_id":null}',
                 "server_timestamps": "true",
                 "doc_id": "8845758582119845"
             }
             instagram_data['variables'] = instagram_data['variables'].replace('item_id', item_id)
-            response = requests.post(self.graphql, json=instagram_data)
+            response = requests.post(self.graphql, json=instagram_data, cookies=cookies)
 
             data = response.json()
             # print(data)
