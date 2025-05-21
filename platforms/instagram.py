@@ -3,6 +3,25 @@ import requests, pickle
 class Instagram:
     def __init__(self):
         self.graphql = "https://www.instagram.com/graphql/query/"
+        self.headers = {
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9",
+            "content-type": "application/x-www-form-urlencoded",
+            "origin": "https://www.instagram.com",
+            "referer": "https://www.instagram.com",
+            "sec-ch-prefers-color-scheme": "dark",
+            "sec-ch-ua": '"Chromium";v="136", "Microsoft Edge";v="136", "Not.A/Brand";v="99"',
+            "sec-ch-ua-full-version-list": '"Chromium";v="136.0.7103.113", "Microsoft Edge";v="136.0.3240.76", "Not.A/Brand";v="99.0.0.0"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-model": '""',
+            "sec-ch-ua-platform": '"Windows"',
+            "sec-ch-ua-platform-version": '"19.0.0"',
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0",
+            "x-csrftoken": "11111111111",
+        }
         
     def get_slide_media(self, data):
         media = []
@@ -77,32 +96,62 @@ class Instagram:
 
     def getData(self, item_id, cut):
         try:
-            with open("cookies.pkl", "rb") as f:
-                cookies = {cookie["name"]: cookie["value"] for cookie in pickle.load(f)}
+            # with open("cookies.pkl", "rb") as f:
+            #     cookies = {cookie["name"]: cookie["value"] for cookie in pickle.load(f)}
             instagram_data = {
                 "av": "0",
                 "__d": "www",
                 "__user": "0",
                 "__a": "1",
-                "__req": "c",
-                "__hs": "20078.HYP:instagram_web_pkg.2.1.0.0.0",
+                "__req": "a",
+                "__hs": "20229.HYP:instagram_web_pkg.2.1...0",
                 "dpr": "1",
                 "__ccg": "GOOD",
-                "__rev": "1019047588",
+                "__rev": "1023049274",
+                # "__s": "wllyxh:5uip46:0wkswy",
+                # "__hsi": "7506897786440642909",
+                # "__dyn": "7xeUjG1mxu1syUbFp41twpUnwgU7SbzEdF8aUco2qwJw5ux609vCwjE1EE2Cw8G11wBz81s8hwGxu786a3a1YwBgao6C0Mo2swtUd8-U2zxe2GewGw9a361qw8Xxm16wa-0oa2-azo7u3C2u2J0bS1LwTwKG1pg2fwxyo6O1FwlA3a3zhA6bwIxe6V8aUuwm8jwhU3cyVrDyo16UswFCw",
+                # "__csr": "g8JPtgOzhfbWmBlRG-GH-GXmArARYyrWCr8XpfCGGGlbGFESEgSq9zbK9GdJfHF2Xj-AKmeGiWg_VtuZ5A_-KEOWAz44QahaR_Sqax3h998ihqJaaGIzmayEydDCyqJohGiVe9Fuiq5vxjx225K3a8CAwGxaUsx29G00kFcw18Ekw4MBu0ri59na6x6t2H878fHw5BwTwtm2iU2owbu1bw6Ow0zwDDgvwpk1owae0ly4oaNcEkg9C5UhgkP3VVQcwwwoE123389E11mEhgkwdt0m4RxV0p8a86yp0n9Bo0qcBig12806uq0eeyU2Ww4Bw0Eww",
                 "__comet_req": "7",
-                "lsd": "AVpJvs7i0Uw",
-                "jazoest": "2982",
-                "__spin_r": "1019047588",
+                "lsd": "AVqQ3As1H7g",
+                "jazoest": "2855",
+                "__spin_r": "1023049274",
                 "__spin_b": "trunk",
-                "__spin_t": "1734758172",
+                "__spin_t": "1747835843",
+                # "__crn": "comet.igweb.PolarisPostRoute",
                 "fb_api_caller_class": "RelayModern",
                 "fb_api_req_friendly_name": "PolarisPostActionLoadPostQueryQuery",
                 "variables": '{"shortcode":"item_id","fetch_tagged_user_count":null,"hoisted_comment_id":null,"hoisted_reply_id":null}',
                 "server_timestamps": "true",
-                "doc_id": "8845758582119845"
+                "doc_id": "9510064595728286"
             }
+            # instagram_data = {
+            #     "av": "0",
+            #     "__d": "www",
+            #     "__user": "0",
+            #     "__a": "1",
+            #     "__req": "c",
+            #     "__hs": "20078.HYP:instagram_web_pkg.2.1.0.0.0",
+            #     "dpr": "1",
+            #     "__ccg": "GOOD",
+            #     "__rev": "1019047588",
+            #     "__comet_req": "7",
+            #     "lsd": "AVpJvs7i0Uw",
+            #     "jazoest": "2982",
+            #     "__spin_r": "1019047588",
+            #     "__spin_b": "trunk",
+            #     "__spin_t": "1734758172",
+            #     "fb_api_caller_class": "RelayModern",
+            #     "fb_api_req_friendly_name": "PolarisPostActionLoadPostQueryQuery",
+            #     "variables": '{"shortcode":"item_id","fetch_tagged_user_count":null,"hoisted_comment_id":null,"hoisted_reply_id":null}',
+            #     "server_timestamps": "true",
+            #     "doc_id": "8845758582119845"
+            # }
+
             instagram_data['variables'] = instagram_data['variables'].replace('item_id', item_id)
-            response = requests.post(self.graphql, json=instagram_data, cookies=cookies)
+            # print(instagram_data)
+            response = requests.post(self.graphql, data=instagram_data, headers=self.headers) # , cookies=cookies
+            # print(response.text)
 
             data = response.json()
             # print(data)
@@ -120,6 +169,6 @@ class Instagram:
 if __name__ == "__main__":
     print("Starting Instagram bot...")
     insta_bot = Instagram()
-    data = insta_bot.getData('C8UahW1Nx4y', False)
+    data = insta_bot.getData('DHm7knuzl1D', False)
     print(data)
 
