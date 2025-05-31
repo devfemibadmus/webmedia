@@ -150,7 +150,9 @@ class Instagram:
 
             instagram_data['variables'] = instagram_data['variables'].replace('item_id', item_id)
             # print(instagram_data)
-            response = requests.post(self.graphql, data=instagram_data, headers=self.headers) # , cookies=cookies
+            session = requests.Session()
+            session.cookies.clear()
+            response = session.post(self.graphql, data=instagram_data, headers=self.headers) # , cookies=cookies
             print(response.text)
 
             data = response.json()
