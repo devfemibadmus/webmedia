@@ -528,6 +528,24 @@
      }, 500);
  }, 8000);
  
+ document.addEventListener("click", function(e) {
+  if (e.target.tagName === "A" && e.target.classList.contains("key")) {
+    e.preventDefault();
+    fetch(e.target.href)
+      .then(res => res.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = e.target.getAttribute("download");
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+  }
+});
+
  
  /*
   *************************************
