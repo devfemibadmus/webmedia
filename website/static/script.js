@@ -111,9 +111,10 @@
  
          for (const key in content) {
              if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
-                 const spanKey = document.createElement('span');
-                 spanKey.className = 'key';
-                 spanKey.textContent = key + ': ';
+                //  const spanKey = document.createElement('span');
+                //  spanKey.className = 'key';
+                //  spanKey.textContent = key + ': ';
+                 const spanKey = `<a href='${content.cover}' download class='key'>${key}: </a>`;
  
                  const spanValue = document.createElement('span');
                  //spanValue.className = key;
@@ -204,9 +205,10 @@
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
-                     const spanKey = document.createElement('span');
-                     spanKey.className = 'key';
-                     spanKey.textContent = key + ': ';
+                    //  const spanKey = document.createElement('span');
+                    //  spanKey.className = 'key';
+                    //  spanKey.textContent = key + ': ';
+                     const spanKey = `<a href='${mediaData[key]['address']}' download class='key'>${key}: </a>`;
  
                      const spanValue = document.createElement('span');
                      spanValue.className = key;
@@ -326,9 +328,10 @@
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
-                     const spanKey = document.createElement('span');
-                     spanKey.className = 'key';
-                     spanKey.textContent = key + ': ';
+                    //  const spanKey = document.createElement('span');
+                     const spanKey = `<a href='${mediaData.address}' download class='key'>${key}: </a>`;
+                    //  spanKey.className = 'key';
+                    //  spanKey.textContent = key + ': ';
  
                      const spanValue = document.createElement('span');
                      spanValue.className = key;
@@ -446,7 +449,7 @@
              const contentTitle = document.createElement('p');
              contentDiv.className = 'container post';
              contentTitle.className = 'title';
-             contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
+             contentTitle.innerHTML = `<a href='${mediaData.address}' download class='key'>${mediaData.id}</a>`;
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover") {
