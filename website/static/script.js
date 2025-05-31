@@ -111,10 +111,10 @@
  
          for (const key in content) {
              if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
-                //  const spanKey = document.createElement('span');
+                const spanKey = document.createElement('span');
                 //  spanKey.className = 'key';
                 //  spanKey.textContent = key + ': ';
-                 const spanKey = `<a href='${content.cover}' download class='key'>${key}: </a>`;
+                 spanKey.innerHTML = `<a href='${content.cover}' download class='key'>${key}: </a>`;
  
                  const spanValue = document.createElement('span');
                  //spanValue.className = key;
@@ -205,10 +205,10 @@
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
-                    //  const spanKey = document.createElement('span');
+                    const spanKey = document.createElement('span');
                     //  spanKey.className = 'key';
                     //  spanKey.textContent = key + ': ';
-                     const spanKey = `<a href='${mediaData[key]['address']}' download class='key'>${key}: </a>`;
+                     spanKey.innerHTML = `<a href='${mediaData[key]['address']}' download class='key'>${key}: </a>`;
  
                      const spanValue = document.createElement('span');
                      spanValue.className = key;
@@ -328,8 +328,8 @@
  
              for (const key in mediaData) {
                  if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
-                    //  const spanKey = document.createElement('span');
-                     const spanKey = `<a href='${mediaData.address}' download class='key'>${key}: </a>`;
+                    const spanKey = document.createElement('span');
+                    spanKey.innerHTML = `<a href='${mediaData.address}' download class='key'>${key}: </a>`;
                     //  spanKey.className = 'key';
                     //  spanKey.textContent = key + ': ';
  
