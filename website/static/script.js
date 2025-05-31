@@ -531,12 +531,10 @@
 document.addEventListener("click", function(e) {
   if (e.target.tagName === "A" && e.target.classList.contains("key")) {
     e.preventDefault();
-
     loadingMessage.textContent = "Loading";
-    loadingMessage.style.color = "grey";
+    loadingMessage.style.color = "red";
     loading.style.display = "inline";
-    loading.style.color = "grey";
-
+    loading.style.color = "red";
     fetch(e.target.href)
       .then(res => res.blob())
       .then(blob => {
@@ -548,10 +546,11 @@ document.addEventListener("click", function(e) {
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-
+        loadingMessage.textContent = "Downloading";
         loading.style.display = "none";
       })
       .catch(() => {
+        loadingMessage.textContent = "Downloading";
         loading.style.display = "none";
       });
   }
