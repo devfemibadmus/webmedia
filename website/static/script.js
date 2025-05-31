@@ -528,9 +528,15 @@
      }, 500);
  }, 8000);
  
- document.addEventListener("click", function(e) {
+document.addEventListener("click", function(e) {
   if (e.target.tagName === "A" && e.target.classList.contains("key")) {
     e.preventDefault();
+
+    loadingMessage.textContent = "Loading";
+    loadingMessage.style.color = "grey";
+    loading.style.display = "inline";
+    loading.style.color = "grey";
+
     fetch(e.target.href)
       .then(res => res.blob())
       .then(blob => {
@@ -542,9 +548,15 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+
+        loading.style.display = "none";
+      })
+      .catch(() => {
+        loading.style.display = "none";
       });
   }
 });
+
 
  
  /*
